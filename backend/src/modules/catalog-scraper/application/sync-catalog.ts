@@ -8,6 +8,7 @@ import {
   type SyncSummary,
 } from '../domain/catalog'
 import type { ScraperConfig } from '../domain/config'
+import { CatalogParseError } from '../domain/errors'
 import type { CatalogRepository } from '../ports/catalog-repository.port'
 import type { HttpClient } from '../ports/http-client.port'
 import { parseCourseListing } from '../infrastructure/parsers/parse-course-listing'
@@ -87,6 +88,14 @@ export async function syncCatalog(deps: SyncCatalogDeps): Promise<SyncSummary> {
         status: 'ok',
       })
     } catch (err) {
+      // Páginas en construcción: listing muestra precio pero el detalle aún no
+      // tiene enroll/precio scrapeable. Se omiten (warning), no cuentan en V8.
+      if (isIncompleteWipCourseDetail(err)) {
+        warnings.push(
+          `skipped incomplete/WIP course detail for ${slug}: ${err.message}`,
+        )
+        return
+      }
       courseParseErrors += 1
       warnings.push(
         `course detail failed for ${slug}: ${err instanceof Error ? err.message : String(err)}`,
@@ -192,6 +201,18 @@ export async function syncCatalog(deps: SyncCatalogDeps): Promise<SyncSummary> {
     version: saved.version,
     persisted: true,
   }
+}
+
+/**
+ * Detalle incompleto típico de cursos en construcción: el listing ya los muestra
+ * con precio, pero la página /courses/{slug} aún no tiene enroll o precio.
+ */
+function isIncompleteWipCourseDetail(
+  err: unknown,
+): err is CatalogParseError {
+  if (!(err instanceof CatalogParseError)) return false
+  const msg = err.message
+  return msg.includes('missing price') || msg.includes('no /enroll/')
 }
 
 function uniqueCategories(categories: CourseCategory[]): CourseCategory[] {

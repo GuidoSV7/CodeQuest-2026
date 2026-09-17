@@ -238,6 +238,81 @@ describe('syncCatalog', () => {
     expect(summary.coursesFound).toBe(2)
     expect(summary.persisted).toBe(true)
   })
+
+  it('skips WIP/incomplete detail pages (missing price or enroll) without counting as parse errors', async () => {
+    const redis = createInMemoryRedis()
+    const repo = createRedisCatalogRepository(redis)
+
+    const http: HttpClient = {
+      async getText(url: string) {
+        if (
+          url.includes('/pages/todos-los-cursos') &&
+          !url.includes('todos-los-cursos-')
+        ) {
+          return `<html><body>
+            <a class="card card--curso" href="/courses/visual-studio-code"><h3 class="card__name">VS</h3><p class="card__price"><span class="card__badge card__badge--free">Gratis</span></p></a>
+            <a class="card card--curso" href="/courses/wip-no-price"><h3 class="card__name">WIP A</h3><p class="card__price"><strong>$10</strong></p></a>
+            <a class="card card--curso" href="/courses/wip-no-enroll"><h3 class="card__name">WIP B</h3><p class="card__price"><strong>$10</strong></p></a>
+            <a class="card card--curso" href="/courses/broken-course"><h3 class="card__name">Broken</h3><p class="card__price"><strong>$10</strong></p></a>
+          </body></html>`
+        }
+        if (url.includes('/pages/')) return oneCourseListingHtml()
+        if (url.includes('visual-studio-code')) return fixture('course-free.html')
+        if (url.includes('wip-no-price')) {
+          return `<html><body>
+            <a href="/enroll/999001">Buy</a>
+            <h2 class="section__heading">WIP A</h2>
+            <div class="course-details"></div>
+          </body></html>`
+        }
+        if (url.includes('wip-no-enroll')) {
+          return `<html><body><h2 class="section__heading">WIP B</h2></body></html>`
+        }
+        if (url.includes('broken-course')) throw new Error('network down')
+        throw new Error(url)
+      },
+    }
+
+    const summary = await syncCatalog({
+      http,
+      catalogRepository: repo,
+      config: {
+        baseUrl: 'https://cursos.devtalles.com',
+        userAgent: 'test',
+        timeoutMs: 1000,
+        maxRetries: 0,
+        backoffBaseMs: 1,
+        maxConcurrency: 3,
+        minIntervalMs: 0,
+        minCourses: 1,
+        // With 1 real failure + 2 WIP skips among 4 attempted, fail ratio is 0.25
+        // only if WIP counts — must stay under 0.3 by treating WIP as skips.
+        maxFailRatio: 0.3,
+        listingPages: SIX_LISTINGS,
+        pathIds: [],
+        retainPreviousVersions: 1,
+      },
+    })
+
+    expect(summary.coursesFound).toBe(1)
+    expect(summary.courseParseErrors).toBe(1)
+    expect(summary.persisted).toBe(true)
+    expect(
+      summary.warnings.some((w) =>
+        /skipped incomplete\/WIP course detail for wip-no-price/i.test(w),
+      ),
+    ).toBe(true)
+    expect(
+      summary.warnings.some((w) =>
+        /skipped incomplete\/WIP course detail for wip-no-enroll/i.test(w),
+      ),
+    ).toBe(true)
+    expect(
+      summary.warnings.some((w) =>
+        /course detail failed for broken-course/i.test(w),
+      ),
+    ).toBe(true)
+  })
 })
 
 describe('seed export/import', () => {
