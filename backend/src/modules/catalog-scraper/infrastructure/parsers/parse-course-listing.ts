@@ -48,7 +48,8 @@ export function parseCourseListing(html: string): CourseListingItem[] {
       price = { amount: 0, currency: 'USD' }
     } else {
       const strong = textOf($price.find('strong').first()) || textOf($price)
-      price = parseMoney(strong)
+      // Cursos "próximamente"/en construcción: card sin precio → price null (no abortar el listing).
+      price = strong.trim() ? parseMoney(strong) : null
     }
 
     const isNew = $card.find('.card__badge--new').length > 0

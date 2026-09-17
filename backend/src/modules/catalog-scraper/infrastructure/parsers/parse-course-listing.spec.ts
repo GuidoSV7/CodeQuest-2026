@@ -38,11 +38,35 @@ describe('parseCourseListing', () => {
     const items = parseCourseListing(loadFixture('listing-free.html'))
 
     expect(items.length).toBeGreaterThanOrEqual(1)
-    expect(items.every((i) => i.price.amount === 0)).toBe(true)
+    expect(items.every((i) => i.price?.amount === 0)).toBe(true)
 
     const vscode = items.find((i) => i.slug === 'visual-studio-code')
     expect(vscode).toBeDefined()
     expect(vscode?.price).toEqual({ amount: 0, currency: 'USD' })
+  })
+
+  it('yields price null for cards without a published price (no throw)', () => {
+    const html = `
+      <a class="card card--curso" href="/courses/pricey">
+        <h3 class="card__name">Curso con precio</h3>
+        <p class="card__price"><strong>$40</strong></p>
+      </a>
+      <a class="card card--curso" href="/courses/kafka-springboot-event-driven">
+        <h3 class="card__name">Kafka & Spring Boot (proximamente)</h3>
+        <p class="card__price"></p>
+      </a>
+    `
+    const items = parseCourseListing(html)
+    expect(items).toHaveLength(2)
+
+    const priced = items.find((i) => i.slug === 'pricey')
+    expect(priced?.price).toEqual({ amount: 40, currency: 'USD' })
+
+    const comingSoon = items.find(
+      (i) => i.slug === 'kafka-springboot-event-driven',
+    )
+    expect(comingSoon).toBeDefined()
+    expect(comingSoon?.price).toBeNull()
   })
 
   it('detects isNew from NUEVO badge', () => {

@@ -25,7 +25,8 @@ export type CourseListingItem = {
   title: string
   shortDescription: string | null
   lessonsCount: number | null
-  price: Money
+  /** `null` = curso sin precio publicado en la card (p. ej. "próximamente" / en construcción). */
+  price: Money | null
   isNew: boolean
 }
 
