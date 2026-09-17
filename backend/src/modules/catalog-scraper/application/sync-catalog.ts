@@ -32,6 +32,7 @@ export async function syncCatalog(deps: SyncCatalogDeps): Promise<SyncSummary> {
 
   // --- 1) Discover from listings ---
   const slugCategories = new Map<string, Set<CourseCategory>>()
+  const publishedSlugs = new Set<string>()
 
   for (const listing of config.listingPages) {
     const url = `${config.baseUrl}${listing.path}`
@@ -41,10 +42,23 @@ export async function syncCatalog(deps: SyncCatalogDeps): Promise<SyncSummary> {
       const set = slugCategories.get(item.slug) ?? new Set<CourseCategory>()
       set.add(listing.category)
       slugCategories.set(item.slug, set)
+      // Publicado = tiene precio (o es gratis). price null = "próximamente" / en construcción.
+      if (item.price !== null) publishedSlugs.add(item.slug)
     }
   }
 
-  const slugs = [...slugCategories.keys()]
+  // Cursos "próximamente" (sin precio publicado en ninguna card) no tienen una
+  // página de detalle scrapeable → se saltan (no cuentan como falla).
+  const comingSoonSlugs = [...slugCategories.keys()].filter(
+    (slug) => !publishedSlugs.has(slug),
+  )
+  if (comingSoonSlugs.length > 0) {
+    warnings.push(
+      `skipped ${comingSoonSlugs.length} coming-soon course(s) without a published price: ${comingSoonSlugs.join(', ')}`,
+    )
+  }
+
+  const slugs = [...publishedSlugs]
 
   // --- 2) Fetch course details ---
   let courseParseErrors = 0
