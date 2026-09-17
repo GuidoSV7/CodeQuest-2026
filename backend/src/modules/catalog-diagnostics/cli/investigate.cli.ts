@@ -5,10 +5,10 @@ import {
   LISTING_PAGES,
   OFFICIAL_PATH_IDS,
   SITE_ORIGIN,
-} from '../src/modules/catalog-scraper/domain/config.ts'
-import { parseCourseListing } from '../src/modules/catalog-scraper/infrastructure/parsers/parse-course-listing.ts'
-import { parseLearningPath } from '../src/modules/catalog-scraper/infrastructure/parsers/parse-learning-path.ts'
-import { extractSlugFromHref } from '../src/modules/catalog-scraper/infrastructure/parsers/html-utils.ts'
+} from '../../catalog-scraper/domain/config'
+import { parseCourseListing } from '../../catalog-scraper/infrastructure/parsers/parse-course-listing'
+import { parseLearningPath } from '../../catalog-scraper/infrastructure/parsers/parse-learning-path'
+import { extractSlugFromHref } from '../../catalog-scraper/infrastructure/parsers/html-utils'
 
 async function get(path: string) {
   const res = await fetch(SITE_ORIGIN + path, {
