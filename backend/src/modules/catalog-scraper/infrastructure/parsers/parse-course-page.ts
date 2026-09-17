@@ -1,4 +1,5 @@
-import type { Cheerio, CheerioAPI, Element } from 'cheerio'
+import type { Cheerio, CheerioAPI } from 'cheerio'
+import type { Element } from 'domhandler'
 import { CatalogParseError } from '../../domain/errors'
 import type { Course, Lesson, RelatedCourseRef, Section } from '../../domain/models'
 import {

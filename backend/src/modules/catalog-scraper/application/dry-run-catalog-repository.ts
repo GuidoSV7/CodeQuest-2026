@@ -1,5 +1,5 @@
-import type { CatalogSnapshot } from '../../domain/catalog'
-import type { CatalogRepository } from '../../ports/catalog-repository.port'
+import type { CatalogSnapshot } from '../domain/catalog'
+import type { CatalogRepository } from '../ports/catalog-repository.port'
 
 /**
  * Wraps a catalog repository so `save` never persists.

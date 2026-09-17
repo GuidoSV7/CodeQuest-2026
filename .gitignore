@@ -8,3 +8,8 @@ node_modules/
 dist/
 coverage/
 *.tsbuildinfo
+
+# Env (secrets) — keep the example
+.env
+.env.*
+!.env.example
