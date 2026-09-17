@@ -1,2 +1,10 @@
 # Cursor IDE config (local, no se sube)
 .cursor/
+# Local AI runtime state
+.atl/
+
+# Dependencies & build
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo

@@ -1,0 +1,24 @@
+{
+  "name": "codequest-2026-backend",
+  "version": "0.1.0",
+  "private": true,
+  "description": "CodeQuest-2026 backend (NestJS + Vitest)",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "catalog:sync": "npm test -- --run src/modules/catalog-scraper/cli/sync-catalog.cli.spec.ts"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.3",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.1"
+  },
+  "type": "module",
+  "dependencies": {
+    "cheerio": "^1.2.0"
+  }
+}

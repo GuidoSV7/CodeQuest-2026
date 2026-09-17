@@ -1,0 +1,44 @@
+{
+  "version": 0,
+  "generatedAt": "2026-09-16T00:00:00.000Z",
+  "source": "seed",
+  "courses": [
+    {
+      "id": 2009621,
+      "slug": "visual-studio-code",
+      "title": "Visual Studio Code: Mejora tu velocidad para codificar",
+      "subtitleLabel": "CURSO GRATUITO",
+      "metaDescription": "Seed placeholder for boot without scraper.",
+      "description": "Seed course so the app can start before the first sync.",
+      "coverImageUrl": null,
+      "previewYoutubeId": null,
+      "price": { "amount": 0, "currency": "USD" },
+      "lessonCount": 51,
+      "videoHours": 2,
+      "instructor": "Fernando Herrera",
+      "hasSubtitles": false,
+      "prerequisites": [],
+      "sections": [],
+      "relatedCourses": [],
+      "learningPathUrl": null,
+      "sourceUrl": "https://cursos.devtalles.com/courses/visual-studio-code",
+      "categories": ["all", "free"],
+      "scrapedAt": "2026-09-16T00:00:00.000Z",
+      "relatedCourseIds": [],
+      "status": "ok"
+    }
+  ],
+  "paths": [],
+  "stats": {
+    "courseCount": 1,
+    "pathCount": 0,
+    "categoryCounts": {
+      "all": 1,
+      "wip": 0,
+      "free": 1,
+      "mini": 0,
+      "exclusive": 0,
+      "legacy": 0
+    }
+  }
+}
