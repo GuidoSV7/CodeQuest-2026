@@ -31,9 +31,9 @@ async function bootstrap(): Promise<void> {
   })
 
   const port = config.get<number>('PORT', 3000)
-  await app.listen(port)
+  await app.listen(port, '0.0.0.0')
 
-  new Logger('Bootstrap').log(`API running on http://localhost:${port}/api`)
+  new Logger('Bootstrap').log(`API running on http://0.0.0.0:${port}/api`)
   new Logger('Bootstrap').log(`CORS origin: ${frontendUrl}`)
 }
 
