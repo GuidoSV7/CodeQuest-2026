@@ -2,6 +2,8 @@
 .cursor/
 # Local AI runtime state
 .atl/
+# CodeGraph local index (DB/daemon por máquina)
+.codegraph/
 
 # Dependencies & build
 node_modules/
