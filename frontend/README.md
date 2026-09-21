@@ -1,6 +1,6 @@
 # CodeQuest frontend
 
-Next.js App Router scaffold (from TrustPay frontend, stripped of Solana/TrustPay domains).
+Next.js App Router scaffold for CodeQuest (sin Solana ni dominios ajenos).
 
 ```bash
 cd frontend
