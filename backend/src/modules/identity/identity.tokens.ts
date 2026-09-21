@@ -7,7 +7,8 @@ export type AuthCookieOptions = {
   name: string
   maxAgeSeconds: number
   secure: boolean
-  sameSite: 'lax'
+  /** `none` required for cross-site FE↔API (e.g. localhost → Dokploy). */
+  sameSite: 'lax' | 'none'
   httpOnly: true
   path: '/'
 }

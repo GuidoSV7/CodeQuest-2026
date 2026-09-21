@@ -12,6 +12,11 @@ export async function fetchMe(): Promise<SessionUser | null> {
   }
 }
 
+/** POST /api/auth/logout — clears cq_session cookie on API origin. */
+export async function logoutSession(): Promise<void> {
+  await api.post("/api/auth/logout");
+}
+
 /** Browser redirect entry for Discord OAuth (absolute API origin). */
 export function discordStartUrl(returnTo?: string): string {
   const base = `${getPublicApiUrl()}/api/auth/discord/start`;

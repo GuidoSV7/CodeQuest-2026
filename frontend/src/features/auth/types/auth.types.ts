@@ -5,7 +5,6 @@ export type SessionUser = {
   email: string | null;
 };
 
-/** Placeholder until Discord cookie session is wired end-to-end in the UI. */
 export type SessionSnapshot = {
   user: SessionUser | null;
 };

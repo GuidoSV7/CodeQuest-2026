@@ -67,7 +67,7 @@ import { SessionAuthGuard } from './presentation/session-auth.guard'
           name: config.get('SESSION_COOKIE_NAME', { infer: true }),
           maxAgeSeconds: ttlDays * 24 * 60 * 60,
           secure: config.get('SESSION_COOKIE_SECURE', { infer: true }),
-          sameSite: 'lax',
+          sameSite: config.get('SESSION_COOKIE_SAMESITE', { infer: true }),
           httpOnly: true,
           path: '/',
         }

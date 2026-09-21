@@ -42,7 +42,7 @@ const baseEnvSchema = z.object({
   SESSION_JWT_SECRET: z
     .string()
     .default('dev-only-change-me-32chars-minimum!!'),
-  FRONTEND_URL: z.string().default('http://localhost:5173'),
+  FRONTEND_URL: z.string().default('http://localhost:3000'),
   SESSION_COOKIE_NAME: z.string().default('cq_session'),
   SESSION_TTL_DAYS: z.coerce.number().int().positive().default(7),
   OAUTH_STATE_TTL_SECONDS: z.coerce.number().int().positive().default(600),
@@ -50,6 +50,7 @@ const baseEnvSchema = z.object({
     .enum(['true', 'false'])
     .optional()
     .transform((v) => (v === undefined ? undefined : v === 'true')),
+  SESSION_COOKIE_SAMESITE: z.enum(['lax', 'none']).default('lax'),
 })
 
 export const envSchema = baseEnvSchema
@@ -61,6 +62,17 @@ export const envSchema = baseEnvSchema
     return { ...data, SESSION_COOKIE_SECURE: secure }
   })
   .superRefine((data, ctx) => {
+    if (
+      data.SESSION_COOKIE_SAMESITE === 'none' &&
+      data.SESSION_COOKIE_SECURE === false
+    ) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['SESSION_COOKIE_SAMESITE'],
+        message: 'SameSite=None requires SESSION_COOKIE_SECURE=true',
+      })
+    }
+
     if (data.NODE_ENV !== 'production') return
 
     if (!data.DISCORD_CLIENT_ID) {

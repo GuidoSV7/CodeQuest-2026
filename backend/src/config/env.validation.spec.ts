@@ -14,7 +14,19 @@ describe('validateEnv auth vars', () => {
     expect(env.OAUTH_STATE_TTL_SECONDS).toBe(600)
     expect(env.SESSION_COOKIE_NAME).toBe('cq_session')
     expect(env.SESSION_COOKIE_SECURE).toBe(false)
-    expect(env.FRONTEND_URL).toBe('http://localhost:5173')
+    expect(env.SESSION_COOKIE_SAMESITE).toBe('lax')
+    expect(env.FRONTEND_URL).toBe('http://localhost:3000')
+  })
+
+  it('rejects SameSite=None without Secure', () => {
+    expect(() =>
+      validateEnv({
+        ...base,
+        NODE_ENV: 'development',
+        SESSION_COOKIE_SECURE: 'false',
+        SESSION_COOKIE_SAMESITE: 'none',
+      }),
+    ).toThrow(/SameSite=None/)
   })
 
   it('requires Discord and JWT secret in production', () => {
