@@ -10,10 +10,15 @@ export default defineConfig({
     root: '.',
     include: ['src/**/*.spec.ts', 'test/**/*.spec.ts'],
     environment: 'node',
+    fileParallelism: false,
+    poolOptions: {
+      threads: { singleThread: true },
+    },
   },
   resolve: {
     alias: {
       '@': path.resolve(rootDir, './src'),
+      '@test': path.resolve(rootDir, './test'),
     },
   },
 })

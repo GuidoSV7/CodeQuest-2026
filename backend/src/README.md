@@ -12,7 +12,7 @@ src/
 │   ├── interceptors/ # logging, transform, timeout
 │   └── pipes/        # validation / parsing pipes
 ├── config/           # configuración y validación de env
-└── modules/          # un módulo por dominio de negocio (ver _example-module)
+└── modules/          # un módulo por dominio de negocio
 ```
 
 ## Niveles (elegir el mínimo que corresponde)

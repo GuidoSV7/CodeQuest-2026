@@ -6,6 +6,8 @@ import { buildTypeOrmOptions } from './config/database.config'
 import { validateEnv, type Env } from './config/env.validation'
 import { HealthModule } from './modules/health/health.module'
 import { CatalogScraperModule } from './modules/catalog-scraper/nest/catalog-scraper.module'
+import { IdentityModule } from './modules/identity/identity.module'
+import { LearningPathsModule } from './modules/learning-paths/learning-paths.module'
 
 @Module({
   imports: [
@@ -28,6 +30,8 @@ import { CatalogScraperModule } from './modules/catalog-scraper/nest/catalog-scr
     }),
     HealthModule,
     CatalogScraperModule,
+    IdentityModule,
+    LearningPathsModule,
   ],
 })
 export class AppModule {}

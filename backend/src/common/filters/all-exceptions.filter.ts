@@ -43,11 +43,14 @@ export class AllExceptionsFilter implements ExceptionFilter {
     } else if (exception instanceof HttpException) {
       status = exception.getStatus()
       const res = exception.getResponse()
-      message =
-        typeof res === 'string'
-          ? res
-          : ((res as Record<string, unknown>).message ?? res)
-      code = exception.name
+      if (typeof res === 'string') {
+        message = res
+        code = exception.name
+      } else {
+        const obj = res as Record<string, unknown>
+        message = obj.message ?? res
+        code = typeof obj.code === 'string' ? obj.code : exception.name
+      }
     }
 
     if (status >= 500) {

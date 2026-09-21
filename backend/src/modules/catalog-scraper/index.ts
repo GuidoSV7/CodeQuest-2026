@@ -1,5 +1,10 @@
 export { createFetchHttpClient } from './infrastructure/http/fetch-http-client'
 export { createInMemoryRedis } from './infrastructure/redis/in-memory-redis'
+export {
+  createIoredisClient,
+  createIoredisRedisLike,
+  redisOptionsFromEnv,
+} from './infrastructure/redis/ioredis-client'
 export { createRedisCatalogRepository } from './infrastructure/redis/redis-catalog.repository'
 export { createMemoryCatalogLock } from './infrastructure/lock/memory-catalog-lock'
 export {

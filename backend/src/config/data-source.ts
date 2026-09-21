@@ -8,5 +8,5 @@ import { validateEnv } from './env.validation'
 loadDotenv()
 const env = validateEnv(process.env)
 
-export const AppDataSource = new DataSource(buildTypeOrmOptions(env))
-export default AppDataSource
+// TypeORM CLI requires exactly one DataSource export.
+export default new DataSource(buildTypeOrmOptions(env))

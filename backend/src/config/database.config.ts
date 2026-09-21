@@ -28,7 +28,9 @@ export function buildTypeOrmOptions(
     synchronize: env.DB_SYNCHRONIZE,
     logging: env.DB_LOGGING,
     entities: [join(__dirname, '..', '**', '*.entity.{ts,js}')],
-    migrations: [join(__dirname, '..', 'database', 'migrations', '*.{ts,js}')],
+    migrations: [
+      join(__dirname, '..', 'database', 'migrations', '[0-9]*.{ts,js}'),
+    ],
     migrationsTableName: 'migrations',
   }
 }

@@ -8,6 +8,7 @@ node_modules/
 dist/
 coverage/
 *.tsbuildinfo
+backend/.pgdata-vitest*
 
 # Env (secrets) — keep the example
 .env

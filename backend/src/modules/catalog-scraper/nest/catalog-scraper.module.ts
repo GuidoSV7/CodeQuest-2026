@@ -1,11 +1,15 @@
 import { Module } from '@nestjs/common'
-import { ConfigModule } from '@nestjs/config'
+import { ConfigModule, ConfigService } from '@nestjs/config'
+import type { Env } from '../../../config/env.validation'
 import { DEFAULT_SCRAPER_CONFIG, type ScraperConfig } from '../domain/config'
 import { HTTP_CLIENT } from '../ports/http-client.port'
 import { CATALOG_REPOSITORY } from '../ports/catalog-repository.port'
 import { CATALOG_LOCK } from '../ports/catalog-lock.port'
 import { createFetchHttpClient } from '../infrastructure/http/fetch-http-client'
-import { createInMemoryRedis } from '../infrastructure/redis/in-memory-redis'
+import {
+  createIoredisClient,
+  createIoredisRedisLike,
+} from '../infrastructure/redis/ioredis-client'
 import { createRedisCatalogRepository } from '../infrastructure/redis/redis-catalog.repository'
 import { createMemoryCatalogLock } from '../infrastructure/lock/memory-catalog-lock'
 import { SCRAPER_CONFIG } from './catalog-scraper.tokens'
@@ -15,12 +19,8 @@ import { CatalogScraperController } from './catalog-scraper.controller'
 import { CatalogCronService } from './catalog-cron.service'
 
 /**
- * Cablea el catalog-scraper (código funcional en domain/application/...) a la
- * DI de NestJS. Los adapters por defecto son livianos (in-memory Redis y lock
- * de proceso) para arrancar sin infra externa.
- *
- * TODO producción: reemplazar CATALOG_REPOSITORY por un adapter de Redis real
- * (o TypeORM) y CATALOG_LOCK por un lock distribuido.
+ * Catalog scraper Nest wiring. Catalog snapshots persist in Redis via ioredis.
+ * Lock remains process-local until a distributed Redis lock is added.
  */
 @Module({
   imports: [ConfigModule],
@@ -43,16 +43,23 @@ import { CatalogCronService } from './catalog-cron.service'
     },
     {
       provide: CATALOG_REPOSITORY,
-      inject: [SCRAPER_CONFIG],
-      useFactory: (config: ScraperConfig) =>
-        createRedisCatalogRepository(createInMemoryRedis(), {
+      inject: [SCRAPER_CONFIG, ConfigService],
+      useFactory: (config: ScraperConfig, cfg: ConfigService<Env, true>) => {
+        const client = createIoredisClient({
+          host: cfg.get('REDIS_HOST', { infer: true }),
+          port: cfg.get('REDIS_PORT', { infer: true }),
+          username: cfg.get('REDIS_USERNAME', { infer: true }) || undefined,
+          password: cfg.get('REDIS_PASSWORD', { infer: true }) || undefined,
+        })
+        return createRedisCatalogRepository(createIoredisRedisLike(client), {
           retainPreviousVersions: config.retainPreviousVersions,
-        }),
+        })
+      },
     },
     { provide: CATALOG_LOCK, useFactory: () => createMemoryCatalogLock() },
     CatalogScraperService,
     CatalogCronService,
   ],
-  exports: [CatalogScraperService],
+  exports: [CatalogScraperService, CATALOG_REPOSITORY],
 })
 export class CatalogScraperModule {}
