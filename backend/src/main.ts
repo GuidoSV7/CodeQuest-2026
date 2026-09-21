@@ -22,10 +22,19 @@ async function bootstrap(): Promise<void> {
   app.enableShutdownHooks()
 
   const config = app.get(ConfigService)
+  const frontendUrl = config.get<string>('FRONTEND_URL', 'http://localhost:3000')
+  app.enableCors({
+    origin: frontendUrl,
+    credentials: true,
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  })
+
   const port = config.get<number>('PORT', 3000)
   await app.listen(port)
 
   new Logger('Bootstrap').log(`API running on http://localhost:${port}/api`)
+  new Logger('Bootstrap').log(`CORS origin: ${frontendUrl}`)
 }
 
 void bootstrap()
