@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useAuthStore } from "@/stores/auth-session";
 import { replanningFixture } from "@/../test/fixtures/ui-stitch-orbital";
 import {
   initialReplanningState,
@@ -15,24 +14,10 @@ type ReplanningProposalProps = {
 };
 
 export function ReplanningProposal({ routeId }: ReplanningProposalProps) {
-  const user = useAuthStore((state) => state.user);
-  const hydrated = useAuthStore((state) => state.hydrated);
   const [state, setState] = useState(initialReplanningState);
   const [pendingAction, setPendingAction] = useState<"keep" | "accept" | null>(
     null,
   );
-
-  if (!hydrated) {
-    return <p className={styles.state}>Cargando propuesta…</p>;
-  }
-  if (!user) {
-    return (
-      <section className={styles.state}>
-        <h2>Propuesta protegida</h2>
-        <p>Iniciá sesión para ver una propuesta asociada a tu ruta.</p>
-      </section>
-    );
-  }
 
   const beginAction = (action: "keep" | "accept") => {
     setPendingAction(action);

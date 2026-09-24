@@ -3,7 +3,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
-import { useAuthStore } from "@/stores/auth-session";
 import { getLearningPaths } from "../lib/learning-paths-data";
 import type { LearningPath } from "../types/learning-path.types";
 import styles from "./RouteDetail.module.css";
@@ -32,31 +31,9 @@ function RouteState({
 }
 
 export function RouteDetail({ routeId }: RouteDetailProps) {
-  const user = useAuthStore((state) => state.user);
-  const hydrated = useAuthStore((state) => state.hydrated);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [completed, setCompleted] = useState<readonly string[]>([]);
   const [retrying, setRetrying] = useState(false);
-
-  if (!hydrated) {
-    return (
-      <RouteState title="Cargando ruta" description="Preparando el detalle de tu misión…" />
-    );
-  }
-
-  if (!user) {
-    return (
-      <RouteState
-        title="Esta ruta requiere sesión"
-        description="No mostramos contenido de una ruta antes de verificar tu sesión."
-        action={
-          <Link className={styles.primaryAction} href="/login">
-            Entrar con Discord
-          </Link>
-        }
-      />
-    );
-  }
 
   const result = getLearningPaths("authenticated");
   if (result.status === "error") {

@@ -6,13 +6,8 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { LoginPanel } from "@/features/auth/components/LoginPanel";
-import { useAuthStore } from "@/stores/auth-session";
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
-
-vi.mock("next/navigation", () => ({
-  useRouter: () => ({ refresh: vi.fn() }),
-}));
 
 const frontendRoot = resolve(import.meta.dirname, "../../../..");
 
@@ -22,13 +17,11 @@ function readFrontendFile(relativePath: string): string {
 
 afterEach(() => {
   document.body.replaceChildren();
-  useAuthStore.setState({ user: null, hydrated: false });
   vi.restoreAllMocks();
 });
 
 describe("Orbital login surface", () => {
-  it("renders source copy, form labels and the real Discord link", () => {
-    useAuthStore.setState({ user: null, hydrated: true });
+  it("renders Stitch copy and presentation Discord without a backend href", () => {
     const container = document.createElement("div");
     document.body.appendChild(container);
     const root = createRoot(container);
@@ -47,7 +40,10 @@ describe("Orbital login surface", () => {
     expect(container.querySelector("label[for='password']")?.textContent).toBe(
       "Contraseña",
     );
-    expect(container.querySelector("a[href*='/api/auth/discord/start?']")).not.toBeNull();
+    expect(container.querySelector("a[href*='/api/auth/discord']")).toBeNull();
+    expect(
+      container.querySelector("button[aria-label='Continuar con Discord para iniciar sesión']"),
+    ).not.toBeNull();
     expect(container.textContent).toContain("MODO INVITADO DISPONIBLE");
     expect(container.textContent).toContain("Entrar con correo");
 
@@ -55,7 +51,6 @@ describe("Orbital login surface", () => {
   });
 
   it("does not request auth or persist data from presentation controls", () => {
-    useAuthStore.setState({ user: null, hydrated: true });
     const fetchSpy = vi.fn();
     const storageSpy = vi.spyOn(Storage.prototype, "setItem");
     vi.stubGlobal("fetch", fetchSpy);
@@ -81,26 +76,26 @@ describe("Orbital login surface", () => {
     act(() => root.unmount());
   });
 
-  it("exposes loading, anonymous, authenticated and logout states", () => {
+  it("always shows the Stitch terminal without session loading branches", () => {
     const panel = readFrontendFile(
       "src/features/auth/components/LoginPanel.tsx",
     );
 
-    expect(panel).toContain("!hydrated");
-    expect(panel).toContain("if (user)");
     expect(panel).toContain("Continuar con Discord");
-    expect(panel).toContain("Cerrar sesión");
-    expect(panel).toContain("aria-busy");
-    expect(panel).toContain("role=\"alert\"");
+    expect(panel).toContain("Inicia sesión en tu misión");
+    expect(panel).not.toContain("!hydrated");
+    expect(panel).not.toContain("Cerrar sesión");
+    expect(panel).not.toContain("Cargando sesión");
+    expect(panel).not.toContain("discordStartUrl");
   });
 
-  it("keeps the action operable without adding another request path", () => {
+  it("keeps Discord helpers in the service without wiring them in the panel", () => {
     const panel = readFrontendFile(
       "src/features/auth/components/LoginPanel.tsx",
     );
     const service = readFrontendFile("src/features/auth/api/auth.service.ts");
 
-    expect(panel).toContain('href={discordStartUrl(returnTo)}');
+    expect(panel).not.toContain("discordStartUrl");
     expect(panel).not.toContain("fetch(");
     expect(panel).not.toContain("localStorage");
     expect(service).toContain("discordStartUrl");

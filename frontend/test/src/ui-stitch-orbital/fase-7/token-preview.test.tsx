@@ -47,13 +47,15 @@ describe("mock token preview", () => {
     expect(component).toContain("aria-live");
   });
 
-  it("blocks anonymous users and has no request or storage side effects", () => {
+  it("shows the masked preview without a session gate and without network side effects", () => {
     const component = readFrontendFile(
       "src/features/integrations/components/TokenPreview.tsx",
     );
 
-    expect(component).toContain("if (!user)");
-    expect(component).toContain("Preview protegida");
+    expect(component).toContain("Tokens de acceso");
+    expect(component).not.toContain("if (!user)");
+    expect(component).not.toContain("Preview protegida");
+    expect(component).not.toContain("useAuthStore");
     expect(component).not.toMatch(
       /\b(fetch|axios|localStorage|sessionStorage|document\.cookie|oauth)\b/i,
     );

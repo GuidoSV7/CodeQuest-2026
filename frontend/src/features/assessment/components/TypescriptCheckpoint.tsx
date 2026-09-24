@@ -1,30 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { useAuthStore } from "@/stores/auth-session";
 import { getAssessment } from "../lib/assessment-data";
 import styles from "./TypescriptCheckpoint.module.css";
 
 type CheckpointStatus = "idle" | "loading" | "success" | "error";
 
 export function TypescriptCheckpoint() {
-  const user = useAuthStore((state) => state.user);
-  const hydrated = useAuthStore((state) => state.hydrated);
   const [selected, setSelected] = useState<string | null>(null);
   const [status, setStatus] = useState<CheckpointStatus>("idle");
   const result = getAssessment("anonymous");
 
-  if (!hydrated) {
-    return <p className={styles.state}>Cargando checkpoint…</p>;
-  }
-  if (!user) {
-    return (
-      <section className={styles.state}>
-        <h2>Checkpoint protegido</h2>
-        <p>Iniciá sesión para ver esta práctica de ruta.</p>
-      </section>
-    );
-  }
   if (result.status !== "ready" || result.data === null) {
     return <p className={styles.state}>Checkpoint no disponible.</p>;
   }

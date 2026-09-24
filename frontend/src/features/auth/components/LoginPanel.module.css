@@ -67,16 +67,19 @@
 
 .discordButton {
   display: flex;
+  width: 100%;
   min-height: 3rem;
   align-items: center;
   justify-content: center;
   gap: var(--orbital-space-3);
+  border: none;
   border-radius: var(--orbital-radius-full);
   background: #5865f2;
   color: var(--orbital-ink);
   font-family: var(--orbital-font-display);
   font-size: 1rem;
   font-weight: 700;
+  cursor: pointer;
   box-shadow: var(--orbital-shadow-panel);
   transition: background var(--orbital-motion-fast), transform var(--orbital-motion-fast);
 }

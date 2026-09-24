@@ -9,7 +9,7 @@ function readFrontendFile(relativePath: string): string {
 }
 
 describe("login contract", () => {
-  it("keeps the existing Discord helpers and auth routes untouched", () => {
+  it("keeps Discord helpers in the service while the panel does not call them", () => {
     const service = readFrontendFile("src/features/auth/api/auth.service.ts");
     const panel = readFrontendFile(
       "src/features/auth/components/LoginPanel.tsx",
@@ -21,8 +21,9 @@ describe("login contract", () => {
     expect(service).toContain("/api/auth/me");
     expect(service).toContain("/api/auth/logout");
     expect(service).toContain("/api/auth/discord/start");
-    expect(panel).toContain("discordStartUrl(returnTo)");
-    expect(panel).toContain("logoutSession()");
+    expect(panel).not.toContain("discordStartUrl");
+    expect(panel).not.toContain("logoutSession");
+    expect(panel).not.toContain("auth.service");
   });
 
   it("rejects external returnTo values before the panel receives them", () => {

@@ -52,7 +52,9 @@ describe("literal learning-path routes", () => {
     expect(container.querySelectorAll("article")).toHaveLength(2);
     expect(container.textContent).toContain("Backend con Nest");
     expect(container.textContent).toContain("34%");
+    expect(container.textContent).toContain("ORBIT");
     expect(container.textContent).toContain("Frontend con React");
+    expect(container.textContent).toContain("Ecosistema cliente");
     expect(container.textContent).toContain("HORAS: 14/42");
     expect(container.textContent).toContain("BLOQUES: 08/24");
     expect(container.textContent).toContain("Continuar donde quedé");

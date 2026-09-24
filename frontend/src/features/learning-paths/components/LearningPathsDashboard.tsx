@@ -2,37 +2,14 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { useAuthStore } from "@/stores/auth-session";
 import { getLearningPaths } from "../lib/learning-paths-data";
 import { LearningPathsEmptyState } from "./LearningPathsEmptyState";
 import styles from "./LearningPathsDashboard.module.css";
 
 export function LearningPathsDashboard() {
-  const user = useAuthStore((state) => state.user);
-  const hydrated = useAuthStore((state) => state.hydrated);
   const [retrying, setRetrying] = useState(false);
-
-  if (!hydrated) {
-    return (
-      <section className={styles.state} aria-busy="true">
-        <p>Cargando el estado de tu misión…</p>
-      </section>
-    );
-  }
-
-  if (!user) {
-    return (
-      <section className={styles.state} aria-labelledby="anonymous-title">
-        <h2 id="anonymous-title">Iniciá sesión para ver tus rutas</h2>
-        <p>El contenido de una ruta solo está disponible para su propietario.</p>
-        <Link className={styles.primaryAction} href="/login">
-          Entrar con Discord
-        </Link>
-      </section>
-    );
-  }
-
   const result = getLearningPaths("authenticated");
+
   if (result.status === "error") {
     return (
       <section className={styles.state} role="alert">
@@ -60,64 +37,95 @@ export function LearningPathsDashboard() {
   return (
     <section className={styles.dashboard} aria-label="Rutas activas">
       <div className={styles.routeGrid}>
-        {routes.map((route) => (
-          <article className={styles.routeCard} key={route.routeId}>
-            <div className={styles.cardBody}>
-              <div className={styles.cardStatus}>
-                <span>{route.statusLabel ?? "Trayectoria"}</span>
-                <span className={styles.stageBadge}>
-                  <i aria-hidden="true" />
-                  {route.progressPercent === 0 ? "Sin empezar" : "Etapa 02"}
-                </span>
-              </div>
-              <div className={styles.cardTitleRow}>
-                <div>
-                  <span className={styles.routeLabel}>
-                    {route.progressPercent === 0
-                      ? "Ecosistema cliente"
-                      : "TRAYECTORIA PRINCIPAL"}
+        {routes.map((route) => {
+          const isIdle = route.progressPercent === 0;
+          return (
+            <article
+              className={isIdle ? styles.routeCardIdle : styles.routeCard}
+              key={route.routeId}
+            >
+              <div className={styles.cardBody}>
+                <div className={styles.cardStatus}>
+                  <span>{route.statusLabel ?? "Trayectoria"}</span>
+                  <span
+                    className={
+                      isIdle ? styles.stageBadgeIdle : styles.stageBadge
+                    }
+                  >
+                    <i aria-hidden="true" />
+                    {route.stageLabel ??
+                      (isIdle ? "Sin empezar" : "Etapa 02")}
                   </span>
-                  <h2>{route.title}</h2>
                 </div>
-                <RouteGauge
-                  label={route.title}
-                  progress={route.progressPercent}
-                />
-              </div>
-              {route.nextActionLabel ? (
-                <div className={styles.nextAction}>
-                  <div className={styles.nextActionHeader}>
-                    <span>Siguiente maniobra</span>
-                    <span>✦ Listo</span>
+                <div className={styles.cardTitleRow}>
+                  <div>
+                    {isIdle ? (
+                      <>
+                        <h2>{route.title}</h2>
+                        <span className={styles.routeContext}>
+                          {route.summary ?? "Ecosistema cliente"}
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <span className={styles.routeLabel}>
+                          TRAYECTORIA PRINCIPAL
+                        </span>
+                        <h2>{route.title}</h2>
+                      </>
+                    )}
                   </div>
-                  <p>{route.nextActionLabel}</p>
+                  <RouteGauge
+                    label={route.title}
+                    progress={route.progressPercent}
+                    showOrbit={!isIdle}
+                  />
                 </div>
-              ) : null}
-            </div>
-            <div className={styles.cardFooter}>
-              <div className={styles.telemetry}>
-                <span>{route.hoursTelemetry ?? "HORAS: no disponible"}</span>
-                <span aria-hidden="true">✦</span>
-                <span>{route.blocksTelemetry ?? "BLOQUES: no disponible"}</span>
+                {!isIdle && route.nextActionLabel ? (
+                  <div className={styles.nextAction}>
+                    <div className={styles.nextActionHeader}>
+                      <span>Siguiente maniobra</span>
+                      <span>✦ Listo</span>
+                    </div>
+                    <p>{route.nextActionLabel}</p>
+                  </div>
+                ) : null}
               </div>
-              {route.nextActionLabel ? (
-                <Link
-                  className={styles.primaryAction}
-                  href={`/mis-rutas/${route.routeId}`}
-                >
-                  Continuar donde quedé
-                </Link>
-              ) : (
-                <Link
-                  className={styles.secondaryAction}
-                  href={`/mis-rutas/${route.routeId}`}
-                >
-                  Ver ruta
-                </Link>
-              )}
-            </div>
-          </article>
-        ))}
+              <div
+                className={
+                  isIdle ? styles.cardFooterIdle : styles.cardFooter
+                }
+              >
+                {!isIdle ? (
+                  <div className={styles.telemetry}>
+                    <span>
+                      {route.hoursTelemetry ?? "HORAS: no disponible"}
+                    </span>
+                    <span aria-hidden="true">✦</span>
+                    <span>
+                      {route.blocksTelemetry ?? "BLOQUES: no disponible"}
+                    </span>
+                  </div>
+                ) : null}
+                {route.nextActionLabel ? (
+                  <Link
+                    className={styles.primaryAction}
+                    href={`/mis-rutas/${route.routeId}`}
+                  >
+                    Continuar donde quedé
+                  </Link>
+                ) : (
+                  <Link
+                    className={styles.secondaryAction}
+                    href={`/mis-rutas/${route.routeId}`}
+                  >
+                    Ver ruta
+                  </Link>
+                )}
+              </div>
+            </article>
+          );
+        })}
       </div>
     </section>
   );
@@ -126,9 +134,11 @@ export function LearningPathsDashboard() {
 function RouteGauge({
   label,
   progress,
+  showOrbit,
 }: {
   label: string;
   progress: number | null;
+  showOrbit: boolean;
 }) {
   const value = progress ?? 0;
   const circumference = 251.32;
@@ -144,12 +154,7 @@ function RouteGauge({
           progress === null ? "no disponible" : `${progress}%`
         }`}
       >
-        <circle
-          className={styles.gaugeTrack}
-          cx="50"
-          cy="50"
-          r="40"
-        />
+        <circle className={styles.gaugeTrack} cx="50" cy="50" r="40" />
         <circle
           className={styles.gaugeValue}
           cx="50"
@@ -159,9 +164,12 @@ function RouteGauge({
           strokeDashoffset={dashOffset}
         />
       </svg>
-      <span className={styles.gaugeLabel}>
-        {progress === null ? "—" : `${progress}%`}
-      </span>
+      <div className={styles.gaugeLabel}>
+        <span>{progress === null ? "—" : `${progress}%`}</span>
+        {showOrbit && progress !== null ? (
+          <span className={styles.gaugeOrbit}>ORBIT</span>
+        ) : null}
+      </div>
     </div>
   );
 }

@@ -9,7 +9,7 @@ function readFrontendFile(relativePath: string): string {
 }
 
 describe("learning paths access boundary", () => {
-  it("does not reveal route data before authentication", () => {
+  it("renders authenticated fixtures without a session gate", () => {
     const dashboard = readFrontendFile(
       "src/features/learning-paths/components/LearningPathsDashboard.tsx",
     );
@@ -17,13 +17,17 @@ describe("learning paths access boundary", () => {
       "src/features/learning-paths/components/RouteDetail.tsx",
     );
 
-    expect(dashboard).toContain("if (!user)");
-    expect(dashboard).toContain("Iniciá sesión para ver tus rutas");
-    expect(detail).toContain("if (!user)");
-    expect(detail).toContain("Esta ruta requiere sesión");
+    expect(dashboard).toContain('getLearningPaths("authenticated")');
+    expect(dashboard).not.toContain("if (!user)");
+    expect(dashboard).not.toContain("Iniciá sesión para ver tus rutas");
+    expect(dashboard).not.toContain("Cargando el estado de tu misión");
+    expect(detail).toContain('getLearningPaths("authenticated")');
+    expect(detail).not.toContain("if (!user)");
+    expect(detail).not.toContain("Esta ruta requiere sesión");
+    expect(detail).not.toContain("Cargando ruta");
   });
 
-  it("uses hydrated real session state and does not create a fake session", () => {
+  it("does not call network or invent a session store write", () => {
     const dashboard = readFrontendFile(
       "src/features/learning-paths/components/LearningPathsDashboard.tsx",
     );
@@ -31,7 +35,7 @@ describe("learning paths access boundary", () => {
       "src/features/learning-paths/components/RouteDetail.tsx",
     );
 
-    expect(`${dashboard}\n${detail}`).toContain("useAuthStore");
+    expect(`${dashboard}\n${detail}`).not.toContain("useAuthStore");
     expect(`${dashboard}\n${detail}`).not.toContain("setUser");
     expect(`${dashboard}\n${detail}`).not.toContain("fetch(");
   });

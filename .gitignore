@@ -16,3 +16,6 @@ backend/.pgdata-vitest*
 .env
 .env.*
 !.env.example
+
+# SDD receipt (local, no se commitea)
+.sdd/

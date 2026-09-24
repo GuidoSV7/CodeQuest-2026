@@ -9,15 +9,15 @@ function readFrontendFile(relativePath: string): string {
 }
 
 describe("auth session hydrator boundary", () => {
-  it("keeps fetchMe, cancellation and explicit hydration semantics", () => {
+  it("hydrates the demo fixture without fetchMe or cancellation branches", () => {
     const hydrator = readFrontendFile(
       "src/features/auth/components/AuthSessionHydrator.tsx",
     );
 
-    expect(hydrator).toContain("fetchMe()");
-    expect(hydrator).toContain("let cancelled = false");
-    expect(hydrator).toContain("if (cancelled) return");
-    expect(hydrator).toContain("setUser(user)");
+    expect(hydrator).toContain("orbitalDemoSessionFixture");
+    expect(hydrator).toContain("setUser(orbitalDemoSessionFixture)");
     expect(hydrator).toContain("setHydrated(true)");
+    expect(hydrator).not.toContain("fetchMe");
+    expect(hydrator).not.toContain("resolveOrbitalSession");
   });
 });

@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { tokenPreviewFixture } from "@/../test/fixtures/ui-stitch-orbital";
-import { useAuthStore } from "@/stores/auth-session";
 import {
   getBrowserCapabilities,
   type BrowserCapabilities,
@@ -16,8 +15,6 @@ type TokenPreviewProps = {
 };
 
 export function TokenPreview({ capabilities }: TokenPreviewProps) {
-  const user = useAuthStore((state) => state.user);
-  const hydrated = useAuthStore((state) => state.hydrated);
   const [state, setState] = useState<TokenPreviewState>(() =>
     initialTokenState(tokenPreviewFixture.maskedToken),
   );
@@ -38,19 +35,6 @@ export function TokenPreview({ capabilities }: TokenPreviewProps) {
     const timer = window.setTimeout(() => setToast(null), 3000);
     return () => window.clearTimeout(timer);
   }, [toast]);
-
-  if (!hydrated) {
-    return <p className={styles.state}>Cargando acceso…</p>;
-  }
-  if (!user) {
-    return (
-      <section className={styles.state}>
-        <p className={styles.kicker}>Ajustes / acceso</p>
-        <h2>Preview protegida</h2>
-        <p>Iniciá sesión para ver esta demostración sin revelar su contenido.</p>
-      </section>
-    );
-  }
 
   const copyMaskedValue = async () => {
     setCopyStatus("idle");

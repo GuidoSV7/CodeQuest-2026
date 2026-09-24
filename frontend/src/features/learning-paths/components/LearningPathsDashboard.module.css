@@ -103,14 +103,8 @@
   font-size: clamp(1.5rem, 3vw, 2.2rem);
 }
 
-.routeContext {
-  margin: var(--orbital-space-2) 0 0;
-  font-size: 0.9rem;
-}
-
 .routeSummary,
-.progressText,
-.routeContext {
+.progressText {
   margin: 0;
 }
 
@@ -153,12 +147,23 @@
 .gaugeLabel {
   position: absolute;
   inset: 0;
-  display: grid;
-  place-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.05rem;
   color: var(--orbital-primary);
   font-family: var(--orbital-font-telemetry);
   font-size: 0.85rem;
   font-weight: 700;
+  pointer-events: none;
+}
+
+.gaugeOrbit {
+  color: var(--orbital-outline);
+  font-size: 0.5625rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 .routeCardIdle .gaugeLabel {
@@ -314,22 +319,39 @@
   text-transform: uppercase;
 }
 
-.stageBadge {
+.stageBadge,
+.stageBadgeIdle {
   display: inline-flex;
   align-items: center;
   gap: var(--orbital-space-2);
   padding: var(--orbital-space-1) var(--orbital-space-2);
-  border: 1px solid rgb(189 209 0 / 40%);
   border-radius: var(--orbital-radius-full);
-  color: var(--orbital-tertiary);
   font-size: 0.6875rem;
 }
 
-.stageBadge i {
+.stageBadge {
+  border: 1px solid rgb(189 209 0 / 40%);
+  color: var(--orbital-tertiary);
+}
+
+.stageBadgeIdle {
+  border: 1px solid rgb(73 69 80 / 30%);
+  color: var(--orbital-on-surface-variant);
+}
+
+.stageBadge i,
+.stageBadgeIdle i {
   width: 0.375rem;
   height: 0.375rem;
   border-radius: 50%;
+}
+
+.stageBadge i {
   background: var(--orbital-tertiary);
+}
+
+.stageBadgeIdle i {
+  background: var(--orbital-outline);
 }
 
 .cardTitleRow {
@@ -384,10 +406,32 @@
   font-weight: 700;
 }
 
-.cardFooter {
+.cardFooter,
+.cardFooterIdle {
+  display: flex;
   align-items: center;
   padding-top: var(--orbital-space-3);
   border-top: 1px solid rgb(120 94 172 / 20%);
+  gap: var(--orbital-space-4);
+}
+
+.cardFooter {
+  justify-content: space-between;
+}
+
+.cardFooterIdle {
+  justify-content: flex-end;
+}
+
+.routeContext {
+  display: block;
+  margin: var(--orbital-space-1) 0 0;
+  color: var(--orbital-outline);
+  font-family: var(--orbital-font-body);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  text-transform: none;
+  letter-spacing: normal;
 }
 
 .telemetry {
@@ -507,7 +551,8 @@
 
 @media (max-width: 34rem) {
   .cardTitleRow,
-  .cardFooter {
+  .cardFooter,
+  .cardFooterIdle {
     align-items: flex-start;
     flex-direction: column;
   }
