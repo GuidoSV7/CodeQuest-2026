@@ -1,0 +1,19 @@
+.banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: var(--orbital-space-2) var(--orbital-space-4);
+  padding: var(--orbital-space-2) var(--orbital-space-4);
+  border-bottom: 1px solid var(--orbital-tertiary);
+  background: var(--orbital-surface-container-lowest);
+  color: var(--orbital-ink-muted);
+  font-family: var(--orbital-font-telemetry);
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+}
+
+.banner strong {
+  color: var(--orbital-tertiary);
+  text-transform: uppercase;
+}

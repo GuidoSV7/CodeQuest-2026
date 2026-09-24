@@ -1,17 +1,23 @@
 import type { Metadata } from "next";
-import { JetBrains_Mono, Space_Grotesk } from "next/font/google";
+import { Outfit, Raleway, Space_Mono } from "next/font/google";
 import ProveedorNotificaciones from "./_componentes/ProveedorNotificaciones";
 import ProveedoresApp from "./providers";
 import "./globals.css";
 import { siteName, siteUrl } from "@/config/site";
 
-const fuenteSans = Space_Grotesk({
-  variable: "--fuente-geist-sans",
+const fuenteDisplay = Outfit({
+  variable: "--fuente-outfit",
   subsets: ["latin"],
 });
 
-const fuenteMono = JetBrains_Mono({
-  variable: "--fuente-geist-mono",
+const fuenteText = Raleway({
+  variable: "--fuente-raleway",
+  subsets: ["latin"],
+});
+
+const fuenteMono = Space_Mono({
+  variable: "--fuente-space-mono",
+  weight: ["400", "700"],
   subsets: ["latin"],
 });
 
@@ -39,7 +45,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className={`${fuenteSans.variable} ${fuenteMono.variable}`}>
+    <html
+      lang="es"
+      className={`${fuenteDisplay.variable} ${fuenteText.variable} ${fuenteMono.variable}`}
+    >
       <body suppressHydrationWarning>
         <ProveedoresApp>
           <ProveedorNotificaciones>{children}</ProveedorNotificaciones>

@@ -1,0 +1,440 @@
+.results,
+.state {
+  display: grid;
+  gap: var(--orbital-space-5);
+}
+
+.results,
+.state {
+  padding: clamp(var(--orbital-space-5), 5vw, var(--orbital-space-7));
+  border: 1px solid var(--orbital-border);
+  border-radius: var(--orbital-radius-lg);
+  background: var(--orbital-panel);
+  box-shadow: var(--orbital-shadow-panel);
+}
+
+.kicker {
+  margin: 0;
+  color: var(--orbital-lime);
+  font-family: var(--fuente-space-mono), monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.results h2,
+.state h2,
+.profile h3 {
+  margin: var(--orbital-space-2) 0 0;
+  color: var(--orbital-ink);
+  font-family: var(--fuente-outfit), sans-serif;
+}
+
+.results h2,
+.state h2 {
+  font-size: clamp(2rem, 5vw, 4rem);
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.lede,
+.profile p,
+.profile li,
+.state p {
+  color: var(--orbital-ink-muted);
+  line-height: 1.5;
+}
+
+.resultGrid {
+  display: grid;
+  gap: var(--orbital-space-6);
+  grid-template-columns: minmax(0, 1fr) minmax(16rem, 0.8fr);
+}
+
+.radarPanel,
+.profile {
+  display: grid;
+  align-content: start;
+  gap: var(--orbital-space-4);
+  padding: var(--orbital-space-4);
+  border: 1px solid var(--orbital-border);
+  border-radius: var(--orbital-radius-md);
+  background: var(--orbital-panel-raised);
+}
+
+.radar {
+  width: min(100%, 18rem);
+  margin: 0 auto;
+}
+
+.radarGrid {
+  fill: none;
+  stroke: var(--orbital-border-strong);
+  stroke-width: 1;
+}
+
+.radarShape {
+  fill: rgb(199 243 107 / 22%);
+  stroke: var(--orbital-lime);
+  stroke-width: 2;
+}
+
+.radarList {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--orbital-space-3);
+  margin: 0;
+}
+
+.radarList div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--orbital-space-2);
+  padding-top: var(--orbital-space-2);
+  border-top: 1px solid var(--orbital-border);
+}
+
+.radarList dt,
+.radarList dd {
+  color: var(--orbital-ink-muted);
+  font-size: 0.8rem;
+}
+
+.radarList dd {
+  margin: 0;
+  color: var(--orbital-lime);
+  font-family: var(--fuente-space-mono), monospace;
+}
+
+.profile h3 {
+  font-size: 1.5rem;
+}
+
+.profile ul {
+  display: grid;
+  gap: var(--orbital-space-2);
+  margin: 0;
+  padding-left: var(--orbital-space-5);
+}
+
+.primaryAction {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  padding: var(--orbital-space-3) var(--orbital-space-4);
+  border-radius: var(--orbital-radius-sm);
+  background: var(--orbital-lime);
+  color: var(--orbital-cosmos);
+  font-weight: 750;
+}
+
+@media (max-width: 48rem) {
+  .resultGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.results {
+  width: min(100%, 77.5rem);
+  margin: 0 auto;
+  padding: var(--orbital-space-5) var(--orbital-gutter);
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.resultGrid {
+  display: grid;
+  gap: var(--orbital-space-5);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.radarPanel,
+.routePanel {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--orbital-space-4);
+}
+
+.radarPanel {
+  padding: var(--orbital-space-5);
+  border-radius: var(--orbital-radius-xl);
+  background: var(--orbital-surface-container-low);
+}
+
+.archetypeHeader {
+  display: grid;
+  gap: var(--orbital-space-1);
+}
+
+.archetypeHeader > span {
+  color: var(--orbital-on-surface-variant);
+  font-family: var(--orbital-font-display);
+  font-size: 1.25rem;
+  text-transform: lowercase;
+}
+
+.archetypeHeader h2 {
+  margin: 0;
+  color: var(--orbital-primary);
+  font-size: clamp(2rem, 5vw, 3.5rem);
+}
+
+.archetypeHeader p:last-child {
+  max-width: 36rem;
+  margin: var(--orbital-space-2) 0 0;
+  color: var(--orbital-secondary);
+  font-family: var(--orbital-font-body);
+  line-height: 1.5;
+}
+
+.radar {
+  width: min(100%, 32rem);
+  height: auto;
+  margin: 0 auto;
+  overflow: visible;
+}
+
+.radarGrid,
+.radarAxis {
+  fill: none;
+  stroke: var(--orbital-primary-container);
+  stroke-width: 1;
+  opacity: 0.35;
+}
+
+.radarAxis {
+  opacity: 0.4;
+}
+
+.radarShape {
+  fill: rgb(120 94 172 / 32%);
+  stroke: var(--orbital-primary);
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
+.radarPoint {
+  fill: var(--orbital-tertiary);
+}
+
+.radarLabel {
+  fill: var(--orbital-on-surface-variant);
+  font-family: var(--orbital-font-telemetry);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-anchor: middle;
+}
+
+.calibration {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--orbital-space-3);
+  padding: var(--orbital-space-3);
+  border-radius: var(--orbital-radius-md);
+  background: var(--orbital-surface-container-lowest);
+  color: var(--orbital-on-surface);
+  font-family: var(--orbital-font-telemetry);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+}
+
+.calibration > span {
+  color: var(--orbital-tertiary);
+}
+
+.calibration em {
+  color: var(--orbital-primary);
+  font-style: normal;
+}
+
+.domain {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--orbital-space-3);
+  padding: var(--orbital-space-3);
+  border-radius: var(--orbital-radius-xl);
+  background: var(--orbital-surface-container-lowest);
+}
+
+.domain > span {
+  color: var(--orbital-primary);
+  font-size: 1.25rem;
+}
+
+.domain div {
+  display: grid;
+  flex: 1;
+  gap: var(--orbital-space-1);
+}
+
+.domain strong,
+.domain small {
+  color: var(--orbital-on-surface);
+  font-family: var(--orbital-font-telemetry);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.domain small {
+  color: var(--orbital-outline);
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.domain b {
+  padding: var(--orbital-space-2);
+  border-radius: var(--orbital-radius-md);
+  background: var(--orbital-surface-container-high);
+  color: var(--orbital-tertiary);
+  font-family: var(--orbital-font-telemetry);
+  font-size: 0.6875rem;
+}
+
+.routePanelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--orbital-space-3);
+}
+
+.routePanelHeader h2,
+.routePanelHeader span {
+  margin: 0;
+  color: var(--orbital-primary);
+  font-family: var(--orbital-font-telemetry);
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+}
+
+.routePanelHeader span {
+  color: var(--orbital-outline);
+}
+
+.recommendedCard,
+.routeCard {
+  display: grid;
+  gap: var(--orbital-space-3);
+  padding: var(--orbital-space-4);
+  border-radius: var(--orbital-radius-xl);
+  background: var(--orbital-surface-container-low);
+  box-shadow: var(--orbital-shadow-panel);
+}
+
+.recommendedCard {
+  background: rgb(87 48 146 / 90%);
+}
+
+.routeMeta,
+.routeStats,
+.routeFooter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--orbital-space-2);
+}
+
+.routeMeta span,
+.routeMeta small,
+.routeStats,
+.routeFooter > span {
+  color: var(--orbital-on-surface-variant);
+  font-family: var(--orbital-font-telemetry);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.recommendedCard .routeMeta span {
+  color: var(--orbital-tertiary);
+}
+
+.routeMeta small {
+  color: var(--orbital-primary);
+}
+
+.routeCard h3,
+.recommendedCard h3 {
+  margin: 0;
+  color: var(--orbital-on-surface);
+  font-family: var(--orbital-font-display);
+  font-size: 1.5rem;
+}
+
+.recommendedCard h3 {
+  color: var(--orbital-on-primary-container);
+}
+
+.routeStats {
+  justify-content: flex-start;
+}
+
+.sequence {
+  display: grid;
+  gap: var(--orbital-space-2);
+  padding: var(--orbital-space-3);
+  border-radius: var(--orbital-radius-md);
+  background: rgb(13 12 32 / 70%);
+}
+
+.sequence span {
+  color: var(--orbital-outline);
+  font-family: var(--orbital-font-telemetry);
+  font-size: 0.6875rem;
+}
+
+.sequence p {
+  margin: 0;
+  color: var(--orbital-on-surface);
+  font-family: var(--orbital-font-telemetry);
+  font-size: 0.75rem;
+  line-height: 1.6;
+}
+
+.primaryAction,
+.secondaryAction {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--orbital-space-2);
+  min-height: 2.75rem;
+  padding: var(--orbital-space-2) var(--orbital-space-4);
+  border-radius: var(--orbital-radius-full);
+  font-family: var(--orbital-font-display);
+  font-weight: 700;
+}
+
+.primaryAction {
+  background: var(--orbital-tertiary);
+  color: var(--orbital-on-tertiary);
+}
+
+.secondaryAction {
+  background: var(--orbital-surface-container);
+  color: var(--orbital-primary);
+}
+
+@media (max-width: 58rem) {
+  .resultGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 34rem) {
+  .results {
+    padding-inline: var(--orbital-gutter-mobile);
+  }
+
+  .routePanelHeader,
+  .routeFooter {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

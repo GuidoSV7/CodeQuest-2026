@@ -1,0 +1,319 @@
+.checkpoint,
+.state {
+  display: grid;
+  gap: var(--orbital-space-4);
+  padding: clamp(var(--orbital-space-5), 5vw, var(--orbital-space-7));
+  border: 1px solid var(--orbital-border);
+  border-radius: var(--orbital-radius-lg);
+  background: var(--orbital-panel);
+}
+
+.state h2,
+.checkpoint h2 {
+  margin: 0;
+  color: var(--orbital-ink);
+  font-family: var(--fuente-outfit), sans-serif;
+}
+
+.state p,
+.disclaimer {
+  margin: 0;
+  color: var(--orbital-ink-muted);
+  line-height: 1.5;
+}
+
+.kicker {
+  margin: 0;
+  color: var(--orbital-lime);
+  font-family: var(--fuente-space-mono), monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.options {
+  display: grid;
+  gap: var(--orbital-space-3);
+}
+
+.option,
+.optionSelected {
+  display: flex;
+  min-height: 4rem;
+  align-items: center;
+  gap: var(--orbital-space-3);
+  padding: var(--orbital-space-4);
+  border: 1px solid var(--orbital-border);
+  border-radius: var(--orbital-radius-md);
+  color: var(--orbital-ink);
+  cursor: pointer;
+}
+
+.optionSelected {
+  border-color: var(--orbital-lime);
+  background: var(--orbital-panel-raised);
+}
+
+.option input,
+.optionSelected input {
+  accent-color: var(--orbital-lime);
+}
+
+.option small,
+.optionSelected small {
+  display: block;
+  margin-top: var(--orbital-space-1);
+  color: var(--orbital-ink-muted);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--orbital-space-3);
+}
+
+.primaryAction,
+.secondaryAction {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  padding: var(--orbital-space-3) var(--orbital-space-4);
+  border: 1px solid transparent;
+  border-radius: var(--orbital-radius-sm);
+  font: inherit;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.primaryAction {
+  background: var(--orbital-lime);
+  color: var(--orbital-cosmos);
+}
+
+.secondaryAction {
+  border-color: var(--orbital-border-strong);
+  background: transparent;
+  color: var(--orbital-ink);
+}
+
+.primaryAction:disabled,
+.secondaryAction:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+@media (max-width: 34rem) {
+  .actions,
+  .primaryAction,
+  .secondaryAction {
+    width: 100%;
+  }
+}
+
+.checkpoint {
+  width: min(100%, 77.5rem);
+  margin: 0 auto;
+  padding: var(--orbital-space-5) var(--orbital-gutter);
+  border: 0;
+  background: transparent;
+}
+
+.dossierFrame {
+  position: relative;
+  display: grid;
+  gap: var(--orbital-space-5);
+  padding: clamp(var(--orbital-space-5), 5vw, var(--orbital-space-7));
+  border-radius: var(--orbital-radius-xl);
+  background: var(--orbital-surface-container-low);
+  box-shadow: var(--orbital-shadow-panel);
+}
+
+.coordinateTopLeft,
+.coordinateTopRight,
+.coordinateBottomLeft,
+.coordinateBottomRight {
+  position: absolute;
+  color: rgb(149 142 155 / 40%);
+  font-family: var(--orbital-font-telemetry);
+  font-size: 0.625rem;
+  letter-spacing: 0.1em;
+}
+
+.coordinateTopLeft {
+  top: var(--orbital-space-2);
+  left: var(--orbital-space-4);
+}
+
+.coordinateTopRight {
+  top: var(--orbital-space-2);
+  right: var(--orbital-space-4);
+}
+
+.coordinateBottomLeft {
+  bottom: var(--orbital-space-2);
+  left: var(--orbital-space-4);
+}
+
+.coordinateBottomRight {
+  right: var(--orbital-space-4);
+  bottom: var(--orbital-space-2);
+}
+
+.checkpointHeader {
+  display: grid;
+  gap: var(--orbital-space-3);
+  margin-top: var(--orbital-space-2);
+}
+
+.checkpointHeader h2 {
+  margin: 0;
+  color: var(--orbital-on-surface);
+  font-family: var(--orbital-font-display);
+  font-size: clamp(2rem, 5vw, 3rem);
+  line-height: 1.15;
+}
+
+.options {
+  display: grid;
+  gap: var(--orbital-space-4);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.option,
+.optionSelected {
+  display: grid;
+  min-height: 7.5rem;
+  align-items: start;
+  gap: var(--orbital-space-3);
+  padding: var(--orbital-space-4);
+  border: 1px solid rgb(120 94 172 / 20%);
+  border-radius: var(--orbital-radius-xl);
+  background: var(--orbital-surface-container);
+  color: var(--orbital-on-surface);
+  cursor: pointer;
+  grid-template-columns: auto 1fr auto;
+}
+
+.option:hover,
+.option:focus-within {
+  border-color: var(--orbital-primary);
+  background: var(--orbital-surface-container-high);
+}
+
+.optionSelected {
+  border-color: var(--orbital-secondary);
+  background: var(--orbital-surface-container-high);
+  box-shadow: 0 0 0 1px var(--orbital-secondary);
+}
+
+.option input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.optionNumber {
+  color: var(--orbital-outline);
+  font-family: var(--orbital-font-telemetry);
+  font-weight: 700;
+}
+
+.optionSelected .optionNumber {
+  color: var(--orbital-primary);
+}
+
+.option strong,
+.option small {
+  display: block;
+}
+
+.option strong {
+  font-family: var(--orbital-font-body);
+  line-height: 1.5;
+}
+
+.option small {
+  margin-top: var(--orbital-space-1);
+  color: var(--orbital-outline);
+}
+
+.option em {
+  align-self: center;
+  color: var(--orbital-primary);
+  font-family: var(--orbital-font-telemetry);
+  font-size: 0.625rem;
+  font-style: normal;
+  letter-spacing: 0.08em;
+  opacity: 0;
+}
+
+.option:hover em,
+.optionSelected em {
+  opacity: 1;
+}
+
+.actionFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--orbital-space-4);
+  padding-top: var(--orbital-space-5);
+  border-top: 1px solid rgb(120 94 172 / 20%);
+}
+
+.selectionStatus,
+.selectedStatus {
+  color: var(--orbital-on-surface-variant);
+  font-family: var(--orbital-font-telemetry);
+  font-size: 0.75rem;
+}
+
+.selectedStatus {
+  color: var(--orbital-secondary);
+}
+
+.primaryAction,
+.secondaryAction {
+  border-radius: var(--orbital-radius-full);
+}
+
+.primaryAction {
+  background: var(--orbital-tertiary);
+  color: var(--orbital-on-tertiary);
+}
+
+.primaryAction:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.disclaimer {
+  margin: var(--orbital-space-4) 0 0;
+  color: var(--orbital-outline);
+  font-family: var(--orbital-font-telemetry);
+  font-size: 0.6875rem;
+  text-align: center;
+}
+
+@media (max-width: 48rem) {
+  .options {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 34rem) {
+  .checkpoint {
+    padding-inline: var(--orbital-gutter-mobile);
+  }
+
+  .actionFooter {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .primaryAction {
+    width: 100%;
+  }
+}

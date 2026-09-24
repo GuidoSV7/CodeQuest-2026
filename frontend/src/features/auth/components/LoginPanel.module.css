@@ -1,37 +1,188 @@
 .panel {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  max-width: 28rem;
+  gap: var(--orbital-space-4);
+  width: min(100%, 28.75rem);
+  padding: var(--orbital-space-6);
+  border: 1px solid rgb(120 94 172 / 30%);
+  border-radius: var(--orbital-radius-xl);
+  background: var(--orbital-night);
+  box-shadow: 0 1.25rem 3.125rem rgb(0 0 0 / 60%);
 }
 
 .eyebrow {
   margin: 0;
-  font-size: 0.85rem;
-  letter-spacing: 0.08em;
+  color: var(--orbital-lime);
+  font-family: var(--fuente-space-mono), monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  opacity: 0.7;
+}
+
+.terminalLabel {
+  display: block;
+  color: var(--orbital-ink-muted);
+  font-family: var(--orbital-font-telemetry);
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 
 .title {
   margin: 0;
-  font-size: clamp(1.6rem, 3.5vw, 2.2rem);
-  line-height: 1.15;
+  color: var(--orbital-ink);
+  font-family: var(--orbital-font-display);
+  font-size: clamp(1.875rem, 6vw, 2.125rem);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
 }
 
 .lede,
 .muted {
   margin: 0;
+  color: var(--orbital-ink-muted);
   font-size: 1.05rem;
   line-height: 1.5;
-  opacity: 0.85;
+}
+
+.error {
+  margin: 0;
+  padding: var(--orbital-space-3);
+  border: 1px solid var(--orbital-error);
+  border-radius: var(--orbital-radius-sm);
+  color: var(--orbital-error);
+  line-height: 1.45;
 }
 
 .actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-top: 0.5rem;
+  gap: var(--orbital-space-3);
+  margin-top: var(--orbital-space-3);
+}
+
+.discordAction {
+  margin-bottom: var(--orbital-space-2);
+}
+
+.discordButton {
+  display: flex;
+  min-height: 3rem;
+  align-items: center;
+  justify-content: center;
+  gap: var(--orbital-space-3);
+  border-radius: var(--orbital-radius-full);
+  background: #5865f2;
+  color: var(--orbital-ink);
+  font-family: var(--orbital-font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  box-shadow: var(--orbital-shadow-panel);
+  transition: background var(--orbital-motion-fast), transform var(--orbital-motion-fast);
+}
+
+.discordButton:hover {
+  background: #4752c4;
+  transform: scale(0.99);
+}
+
+.discordLogo {
+  padding: var(--orbital-space-1) var(--orbital-space-2);
+  border: 1px solid rgb(255 255 255 / 20%);
+  border-radius: var(--orbital-radius-sm);
+  background: rgb(9 8 28 / 40%);
+  font-family: var(--orbital-font-telemetry);
+  font-size: 0.625rem;
+  letter-spacing: 0.08em;
+}
+
+.divider {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-block: var(--orbital-space-2);
+  border-top: 1px solid rgb(120 94 172 / 20%);
+}
+
+.divider span {
+  margin-top: -0.65rem;
+  padding-inline: var(--orbital-space-3);
+  background: var(--orbital-night);
+  color: rgb(180 140 243 / 60%);
+  font-family: var(--orbital-font-telemetry);
+  font-size: 0.75rem;
+}
+
+.presentationForm {
+  display: grid;
+  gap: var(--orbital-space-4);
+}
+
+.field {
+  display: grid;
+  gap: var(--orbital-space-1);
+}
+
+.field label {
+  color: rgb(255 255 255 / 80%);
+  font-family: var(--orbital-font-body);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.field input {
+  width: 100%;
+  min-height: 2.75rem;
+  padding-inline: var(--orbital-space-4);
+  border: 1px solid rgb(120 94 172 / 40%);
+  border-radius: var(--orbital-radius-md);
+  background: rgb(34 3 67 / 70%);
+  color: var(--orbital-ink);
+  font: inherit;
+}
+
+.field input::placeholder {
+  color: rgb(255 255 255 / 30%);
+}
+
+.field input:focus {
+  border-color: var(--orbital-ink-muted);
+  outline: 2px solid var(--orbital-ink-muted);
+  outline-offset: 1px;
+}
+
+.emailButton {
+  min-height: 2.75rem;
+  margin-top: var(--orbital-space-2);
+  border: 1px solid var(--orbital-border-strong);
+  border-radius: var(--orbital-radius-full);
+  background: transparent;
+  color: var(--orbital-ink-muted);
+  font-family: var(--orbital-font-display);
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background var(--orbital-motion-fast), color var(--orbital-motion-fast);
+}
+
+.emailButton:hover {
+  background: rgb(31 13 75 / 60%);
+  color: var(--orbital-ink);
+}
+
+.guestMode {
+  margin: var(--orbital-space-4) 0 0;
+  padding-top: var(--orbital-space-4);
+  border-top: 1px solid rgb(120 94 172 / 20%);
+  color: rgb(255 255 255 / 60%);
+  font-family: var(--orbital-font-telemetry);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  line-height: 1.5;
+  text-align: center;
 }
 
 .primary,
@@ -40,22 +191,28 @@
   align-items: center;
   justify-content: center;
   min-height: 2.75rem;
-  padding: 0.65rem 1.25rem;
-  border-radius: 0.35rem;
+  padding: var(--orbital-space-3) var(--orbital-space-5);
+  border-radius: var(--orbital-radius-sm);
   font: inherit;
-  font-weight: 600;
+  font-weight: 750;
   text-decoration: none;
   cursor: pointer;
   border: 1px solid transparent;
+  transition:
+    background var(--orbital-motion-fast),
+    border-color var(--orbital-motion-fast),
+    transform var(--orbital-motion-fast);
 }
 
 .primary {
-  background: #5865f2;
-  color: #fff;
+  background: var(--orbital-lime);
+  color: var(--orbital-cosmos);
 }
 
 .primary:hover {
-  filter: brightness(1.08);
+  border-color: var(--orbital-lime-strong);
+  background: var(--orbital-lime-strong);
+  transform: translateY(-2px);
 }
 
 .primary:disabled {
@@ -65,10 +222,22 @@
 
 .secondary {
   background: transparent;
-  color: inherit;
-  border-color: color-mix(in srgb, currentColor 35%, transparent);
+  color: var(--orbital-ink);
+  border-color: var(--orbital-border-strong);
 }
 
 .secondary:hover {
-  border-color: currentColor;
+  border-color: var(--orbital-lime);
+}
+
+@media (max-width: 34rem) {
+  .panel {
+    padding: var(--orbital-space-5) var(--orbital-space-4);
+  }
+
+  .actions,
+  .primary,
+  .secondary {
+    width: 100%;
+  }
 }

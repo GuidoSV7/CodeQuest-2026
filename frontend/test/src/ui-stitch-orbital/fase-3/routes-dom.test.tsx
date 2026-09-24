@@ -1,0 +1,101 @@
+// @vitest-environment jsdom
+
+import { act } from "react";
+import { createRoot } from "react-dom/client";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { orbitalDemoSessionFixture } from "@/../test/fixtures/ui-stitch-orbital";
+import { LearningPathsDashboard } from "@/features/learning-paths/components/LearningPathsDashboard";
+import { LearningPathsEmptyState } from "@/features/learning-paths/components/LearningPathsEmptyState";
+import { RouteDetail } from "@/features/learning-paths/components/RouteDetail";
+import { useAuthStore } from "@/stores/auth-session";
+
+globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+
+vi.mock("next/link", () => ({
+  default: ({
+    children,
+    href,
+    ...props
+  }: React.AnchorHTMLAttributes<HTMLAnchorElement> & { href: string }) => (
+    <a href={href} {...props}>
+      {children}
+    </a>
+  ),
+}));
+
+function mount(element: React.ReactNode) {
+  const container = document.createElement("div");
+  document.body.appendChild(container);
+  const root = createRoot(container);
+  act(() => root.render(element));
+  return { container, root };
+}
+
+beforeEach(() => {
+  useAuthStore.setState({ user: orbitalDemoSessionFixture, hydrated: true });
+});
+
+afterEach(() => {
+  document.body.replaceChildren();
+  act(() => useAuthStore.setState({ user: null, hydrated: false }));
+  vi.useRealTimers();
+  vi.restoreAllMocks();
+});
+
+describe("literal learning-path routes", () => {
+  it("renders the two source dashboard cards and telemetry without side effects", () => {
+    const fetchSpy = vi.fn();
+    const storageSpy = vi.spyOn(Storage.prototype, "setItem");
+    vi.stubGlobal("fetch", fetchSpy);
+    const { container, root } = mount(<LearningPathsDashboard />);
+
+    expect(container.querySelectorAll("article")).toHaveLength(2);
+    expect(container.textContent).toContain("Backend con Nest");
+    expect(container.textContent).toContain("34%");
+    expect(container.textContent).toContain("Frontend con React");
+    expect(container.textContent).toContain("HORAS: 14/42");
+    expect(container.textContent).toContain("BLOQUES: 08/24");
+    expect(container.textContent).toContain("Continuar donde quedé");
+    expect(container.textContent).toContain("Ver ruta");
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(storageSpy).not.toHaveBeenCalled();
+
+    act(() => root.unmount());
+  });
+
+  it("renders the source empty state from the same route surface", () => {
+    const { container, root } = mount(<LearningPathsEmptyState />);
+
+    expect(container.querySelector("h2")?.textContent).toBe("Aún no tienes rutas");
+    expect(container.querySelector("svg")).not.toBeNull();
+    expect(container.querySelector("a[href='/configurador-de-ruta']")).not.toBeNull();
+    expect(container.textContent).toContain("Responde el cuestionario y descubre tu Dev DNA");
+
+    act(() => root.unmount());
+  });
+
+  it("renders route detail alert, timeline and local telemetry transition", () => {
+    vi.useFakeTimers();
+    const fetchSpy = vi.fn();
+    vi.stubGlobal("fetch", fetchSpy);
+    const { container, root } = mount(<RouteDetail routeId="orbital-route-demo" />);
+
+    expect(container.textContent).toContain("Te atrasaste 4 días");
+    expect(container.textContent).toContain("backend con nest");
+    expect(container.textContent).toContain("Horas totales");
+    expect(container.textContent).toContain("git y github desde cero");
+    expect(container.textContent).toContain("typescript");
+
+    const completeButton = Array.from(container.querySelectorAll("button")).find(
+      (button) => button.textContent?.includes("Marcar sección completada"),
+    );
+    expect(completeButton).not.toBeUndefined();
+    act(() => completeButton?.click());
+    expect(container.textContent).toContain("REGISTRANDO TELEMETRÍA");
+    act(() => vi.advanceTimersByTime(800));
+    expect(container.textContent).toContain("SECCIÓN CONFIRMADA ✓");
+    expect(fetchSpy).not.toHaveBeenCalled();
+
+    act(() => root.unmount());
+  });
+});

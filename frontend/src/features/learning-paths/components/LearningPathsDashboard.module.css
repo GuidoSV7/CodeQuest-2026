@@ -1,0 +1,519 @@
+.dashboard,
+.state,
+.empty {
+  display: grid;
+  gap: var(--orbital-space-5);
+}
+
+.state,
+.empty {
+  padding: clamp(var(--orbital-space-5), 5vw, var(--orbital-space-7));
+  border: 1px solid var(--orbital-border);
+  border-radius: var(--orbital-radius-lg);
+  background: var(--orbital-panel);
+}
+
+.state h2,
+.empty h2,
+.state p,
+.empty p {
+  margin: 0;
+}
+
+.state h2,
+.empty h2,
+.routeCard h3,
+.routeCardIdle h3 {
+  color: var(--orbital-ink);
+  font-family: var(--fuente-outfit), sans-serif;
+}
+
+.state p:not(.kicker),
+.empty p:not(.kicker),
+.routeSummary,
+.progressText,
+.routeContext {
+  color: var(--orbital-ink-muted);
+  line-height: 1.5;
+}
+
+.kicker,
+.routeLabel {
+  margin: 0;
+  color: var(--orbital-lime);
+  font-family: var(--fuente-space-mono), monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.heading,
+.routeCardHeader,
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--orbital-space-4);
+}
+
+.heading h2,
+.routeCard h3 {
+  margin: var(--orbital-space-2) 0 0;
+}
+
+.heading h2 {
+  color: var(--orbital-ink);
+  font-family: var(--fuente-outfit), sans-serif;
+  font-size: clamp(1.75rem, 4vw, 2.75rem);
+}
+
+.statusBadge {
+  padding: var(--orbital-space-2) var(--orbital-space-3);
+  border: 1px solid var(--orbital-border-strong);
+  border-radius: 999px;
+  color: var(--orbital-ink-muted);
+  font-family: var(--fuente-space-mono), monospace;
+  font-size: 0.7rem;
+}
+
+.routeGrid {
+  display: grid;
+  gap: var(--orbital-space-5);
+}
+
+.routeCard {
+  display: grid;
+  gap: var(--orbital-space-4);
+  padding: var(--orbital-space-5);
+  border: 1px solid rgb(120 94 172 / 30%);
+  border-radius: var(--orbital-radius-xl);
+  background: var(--orbital-surface-container-low);
+  box-shadow: var(--orbital-shadow-panel);
+}
+
+.routeCardIdle {
+  composes: routeCard;
+  border-color: var(--orbital-border);
+  background: var(--orbital-surface-container-low);
+}
+
+.routeCard h3,
+.routeCardIdle h3 {
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+}
+
+.routeContext {
+  margin: var(--orbital-space-2) 0 0;
+  font-size: 0.9rem;
+}
+
+.routeSummary,
+.progressText,
+.routeContext {
+  margin: 0;
+}
+
+.gauge {
+  position: relative;
+  flex: 0 0 6rem;
+  width: 6rem;
+  height: 6rem;
+}
+
+.gaugeSvg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.gaugeTrack,
+.gaugeValue {
+  fill: transparent;
+  stroke-width: 7;
+}
+
+.gaugeTrack {
+  stroke: var(--orbital-surface-container-high);
+}
+
+.gaugeValue {
+  stroke: var(--orbital-primary);
+  stroke-linecap: round;
+}
+
+.routeCardIdle .gauge {
+  opacity: 0.6;
+}
+
+.routeCardIdle .gaugeValue {
+  stroke: var(--orbital-primary-container);
+}
+
+.gaugeLabel {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--orbital-primary);
+  font-family: var(--orbital-font-telemetry);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.routeCardIdle .gaugeLabel {
+  color: var(--orbital-outline);
+}
+
+.nextAction {
+  display: grid;
+  gap: var(--orbital-space-2);
+  padding: var(--orbital-space-4);
+  border: 1px solid rgb(120 94 172 / 40%);
+  border-radius: var(--orbital-radius-md);
+  background: rgb(87 48 146 / 30%);
+}
+
+.nextAction p,
+.nextActionHeader {
+  margin: 0;
+}
+
+.nextAction p {
+  color: var(--orbital-ink);
+  font-weight: 700;
+}
+
+.nextActionHeader,
+.telemetry {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--orbital-space-3);
+  color: var(--orbital-primary);
+  font-family: var(--orbital-font-telemetry);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.nextActionHeader span:last-child {
+  color: var(--orbital-tertiary);
+}
+
+.telemetry {
+  padding-top: var(--orbital-space-3);
+  border-top: 1px solid var(--orbital-border);
+  color: var(--orbital-outline);
+}
+
+.primaryAction,
+.secondaryAction {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  padding: var(--orbital-space-3) var(--orbital-space-4);
+  border: 1px solid transparent;
+  border-radius: var(--orbital-radius-sm);
+  font-weight: 750;
+}
+
+.primaryAction {
+  background: var(--orbital-lime);
+  color: var(--orbital-cosmos);
+}
+
+.secondaryAction {
+  border-color: var(--orbital-border-strong);
+  background: transparent;
+  color: var(--orbital-ink);
+}
+
+.primaryAction:hover,
+.secondaryAction:hover {
+  border-color: var(--orbital-lime);
+}
+
+.primaryAction:hover {
+  background: var(--orbital-lime-strong);
+}
+
+.secondaryAction:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+@media (max-width: 34rem) {
+  .routeCardHeader {
+    align-items: flex-start;
+  }
+
+  .gauge {
+    flex-basis: 5rem;
+    width: 5rem;
+    height: 5rem;
+  }
+
+  .actions,
+  .primaryAction,
+  .secondaryAction {
+    width: 100%;
+  }
+}
+
+@media (min-width: 52rem) {
+  .routeGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.dashboard {
+  display: grid;
+  gap: var(--orbital-space-5);
+}
+
+.routeGrid {
+  display: grid;
+  gap: var(--orbital-space-5);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.routeCard {
+  display: grid;
+  min-width: 0;
+  gap: var(--orbital-space-5);
+  padding: var(--orbital-space-5);
+  border: 1px solid rgb(120 94 172 / 30%);
+  border-radius: var(--orbital-radius-xl);
+  background: var(--orbital-surface-container-low);
+  box-shadow: var(--orbital-shadow-panel);
+}
+
+.cardBody {
+  display: grid;
+  gap: var(--orbital-space-4);
+}
+
+.cardStatus,
+.cardTitleRow,
+.cardFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--orbital-space-4);
+}
+
+.cardStatus {
+  padding-bottom: var(--orbital-space-2);
+  border-bottom: 1px solid rgb(120 94 172 / 20%);
+  color: var(--orbital-outline);
+  font-family: var(--orbital-font-telemetry);
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.stageBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--orbital-space-2);
+  padding: var(--orbital-space-1) var(--orbital-space-2);
+  border: 1px solid rgb(189 209 0 / 40%);
+  border-radius: var(--orbital-radius-full);
+  color: var(--orbital-tertiary);
+  font-size: 0.6875rem;
+}
+
+.stageBadge i {
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 50%;
+  background: var(--orbital-tertiary);
+}
+
+.cardTitleRow {
+  align-items: flex-start;
+}
+
+.cardTitleRow h2 {
+  margin: var(--orbital-space-1) 0 0;
+  color: var(--orbital-on-surface);
+  font-family: var(--orbital-font-display);
+  font-size: 1.5rem;
+}
+
+.routeLabel {
+  color: var(--orbital-outline);
+  font-family: var(--orbital-font-telemetry);
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.nextAction {
+  display: grid;
+  gap: var(--orbital-space-2);
+  padding: var(--orbital-space-4);
+  border: 1px solid rgb(120 94 172 / 40%);
+  border-radius: var(--orbital-radius-md);
+  background: rgb(87 48 146 / 30%);
+}
+
+.nextActionHeader,
+.telemetry {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--orbital-space-2);
+  color: var(--orbital-primary);
+  font-family: var(--orbital-font-telemetry);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.nextActionHeader span:last-child {
+  color: var(--orbital-tertiary);
+}
+
+.nextAction p {
+  margin: 0;
+  color: var(--orbital-on-surface);
+  font-family: var(--orbital-font-body);
+  font-weight: 700;
+}
+
+.cardFooter {
+  align-items: center;
+  padding-top: var(--orbital-space-3);
+  border-top: 1px solid rgb(120 94 172 / 20%);
+}
+
+.telemetry {
+  color: var(--orbital-outline);
+}
+
+.primaryAction,
+.secondaryAction {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  padding: var(--orbital-space-2) var(--orbital-space-5);
+  border-radius: var(--orbital-radius-full);
+  font-family: var(--orbital-font-display);
+  font-weight: 700;
+  text-align: center;
+}
+
+.primaryAction {
+  background: var(--orbital-tertiary);
+  color: var(--orbital-on-tertiary);
+}
+
+.secondaryAction {
+  border: 1px solid rgb(120 94 172 / 50%);
+  color: var(--orbital-primary);
+}
+
+.primaryAction:hover,
+.secondaryAction:hover {
+  border-color: var(--orbital-primary);
+}
+
+.state {
+  padding: var(--orbital-space-6);
+  border: 1px solid var(--orbital-border);
+  border-radius: var(--orbital-radius-xl);
+  background: var(--orbital-surface-container-low);
+  color: var(--orbital-on-surface-variant);
+}
+
+.empty {
+  display: flex;
+  min-height: 34rem;
+  align-items: center;
+  justify-content: center;
+  gap: var(--orbital-space-4);
+  padding: var(--orbital-space-6);
+  border: 1px solid rgb(120 94 172 / 20%);
+  border-radius: var(--orbital-radius-xl);
+  background: var(--orbital-surface-container-lowest);
+  text-align: center;
+}
+
+.emptyRadar {
+  width: min(100%, 24rem);
+}
+
+.emptyRadar svg {
+  width: 100%;
+  fill: none;
+  stroke: var(--orbital-border-strong);
+  stroke-dasharray: 4 6;
+  stroke-width: 1;
+}
+
+.emptyRadar path {
+  stroke: var(--orbital-primary);
+  stroke-dasharray: none;
+  opacity: 0.6;
+}
+
+.emptyCore {
+  fill: var(--orbital-primary);
+  stroke: var(--orbital-primary);
+}
+
+.emptyNode {
+  fill: var(--orbital-night);
+  stroke: var(--orbital-primary);
+}
+
+.empty h2 {
+  margin: 0;
+  color: var(--orbital-on-surface);
+  font-family: var(--orbital-font-display);
+  font-size: 2.25rem;
+}
+
+.empty p {
+  margin: 0;
+  color: var(--orbital-on-surface-variant);
+  font-family: var(--orbital-font-body);
+  font-size: 1.125rem;
+}
+
+.state h2,
+.state p {
+  margin: 0;
+}
+
+.state h2 {
+  color: var(--orbital-on-surface);
+  font-family: var(--orbital-font-display);
+}
+
+.state p + p {
+  margin-top: var(--orbital-space-2);
+}
+
+@media (max-width: 52rem) {
+  .routeGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 34rem) {
+  .cardTitleRow,
+  .cardFooter {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .primaryAction,
+  .secondaryAction {
+    width: 100%;
+  }
+}

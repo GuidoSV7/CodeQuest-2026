@@ -1,61 +1,87 @@
 :root {
-  /* Fondo general (capa mas externa) */
-  --fondo: #040f12;
+  --orbital-surface: #121125;
+  --orbital-surface-dim: #121125;
+  --orbital-surface-bright: #38374d;
+  --orbital-cosmos: #09081c;
+  --orbital-night: #110c30;
+  --orbital-panel: #1f0d4b;
+  --orbital-panel-raised: #3e287b;
+  --orbital-ink: #ffffff;
+  --orbital-ink-muted: #b48cf3;
+  --orbital-lime: #c8dd0b;
+  --orbital-lime-strong: #d9ee1c;
+  --orbital-focus: #b48cf3;
+  --orbital-success: #c8dd0b;
+  --orbital-info: #b48cf3;
+  --orbital-error: #ffb4ab;
+  --orbital-warning: #d9ee1c;
+  --orbital-border: rgb(120 94 172 / 30%);
+  --orbital-border-strong: #785eac;
+  --orbital-surface-container-lowest: #0d0c20;
+  --orbital-surface-container-low: #1a192e;
+  --orbital-surface-container: #1e1d32;
+  --orbital-surface-container-high: #29283d;
+  --orbital-surface-container-highest: #343248;
+  --orbital-outline: #958e9b;
+  --orbital-outline-variant: #494550;
+  --orbital-on-surface: #e3dffc;
+  --orbital-on-surface-variant: #cbc4d1;
+  --orbital-primary: #d3bbff;
+  --orbital-on-primary: #3a206b;
+  --orbital-primary-container: #785eac;
+  --orbital-on-primary-container: #f5ebff;
+  --orbital-secondary: #d6baff;
+  --orbital-tertiary: #bdd100;
+  --orbital-on-tertiary: #2e3400;
+  --orbital-error-container: #93000a;
+  --orbital-on-error-container: #ffdad6;
 
-  /* Texto principal para zonas claras (contenido) */
-  --texto: #131317;
-  --texto-primario: var(--texto);
-  --texto-secundario: color-mix(in srgb, var(--texto) 70%, transparent);
+  --orbital-space-1: 0.25rem;
+  --orbital-space-2: 0.5rem;
+  --orbital-space-3: 0.75rem;
+  --orbital-space-4: 1rem;
+  --orbital-space-5: 1.5rem;
+  --orbital-space-6: 2.5rem;
+  --orbital-space-7: 3rem;
+  --orbital-space-8: 5rem;
+  --orbital-radius-sm: 0.25rem;
+  --orbital-radius-md: 0.75rem;
+  --orbital-radius-lg: 1rem;
+  --orbital-radius-xl: 1.5rem;
+  --orbital-radius-full: 9999px;
+  --orbital-shadow-panel: 0 1rem 2.25rem -0.5rem rgb(0 0 0 / 65%),
+    0 0 0 1px rgb(120 94 172 / 25%);
+  --orbital-shadow-header: 0 1rem 2.25rem -0.5rem rgb(0 0 0 / 65%);
+  --orbital-shadow-inset: inset 0 0 0.5rem rgb(180 140 243 / 15%);
+  --orbital-header-surface: rgb(13 12 32 / 85%);
+  --orbital-header-border: rgb(120 94 172 / 30%);
+  --orbital-gutter: 1.5rem;
+  --orbital-gutter-mobile: 1rem;
+  --orbital-motion-fast: 160ms cubic-bezier(0.23, 1, 0.32, 1);
+  --orbital-motion-standard: 240ms cubic-bezier(0.77, 0, 0.175, 1);
+  --orbital-font-display: var(--fuente-outfit), sans-serif;
+  --orbital-font-body: var(--fuente-raleway), sans-serif;
+  --orbital-font-telemetry: var(--fuente-space-mono), monospace;
 
-  /* Panel del lado izquierdo (opciones) */
-  --panel-izquierdo-fondo: #1a1a2e;
-  --panel-izquierdo-acento: #6b63ff;
-  --panel-izquierdo-texto: #f0f2f5;
-  --panel-izquierdo-texto-secundario: color-mix(
-    in srgb,
-    var(--panel-izquierdo-texto) 70%,
-    transparent
-  );
-
-  /* Contenido principal (derecha) */
-  --superficie: #f0f2f5; /* fondo del area */
-  --tarjeta: #ffffff; /* tarjetas o bloques dentro del area */
-
-  --borde: color-mix(in srgb, var(--texto) 18%, transparent);
-  --borde-panel: color-mix(
-    in srgb,
-    var(--panel-izquierdo-texto) 22%,
-    transparent
-  );
-
-  /* Accento principal (botones y enlaces) */
-  --primario: #00f2ff;
-  --secundario: #00ebf7;
-
-  /* Colores para estados */
-  --estado-exito: #aef400;
-  --estado-informacion: #00ebf7;
-  --estado-error: #f500dc;
-  --estado-advertencia: #ffcc33;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    /* Mantener la misma identidad de color en modo oscuro */
-    --fondo: #040f12;
-    --texto: #131317;
-  }
-}
-
-/* Overrides del tema por ruta (se aplican vía ProveedorTemaPorRuta) */
-[data-area="admin"] {
-  --primario: #00f2ff;
-  --secundario: #00ebf7;
-}
-
-[data-area="cliente"] {
-  --primario: #00f2ff;
-  --secundario: #00ebf7;
+  /* Aliases kept for existing surfaces during the reversible migration. */
+  --fondo: var(--orbital-cosmos);
+  --texto: var(--orbital-ink);
+  --texto-primario: var(--orbital-ink);
+  --texto-secundario: var(--orbital-ink-muted);
+  --panel-izquierdo-fondo: var(--orbital-night);
+  --panel-izquierdo-acento: var(--orbital-lime);
+  --panel-izquierdo-texto: var(--orbital-ink);
+  --panel-izquierdo-texto-secundario: var(--orbital-ink-muted);
+  --superficie: var(--orbital-night);
+  --tarjeta: var(--orbital-panel);
+  --borde: var(--orbital-border);
+  --borde-panel: var(--orbital-border);
+  --primario: var(--orbital-lime);
+  --secundario: var(--orbital-lime-strong);
+  --estado-exito: var(--orbital-success);
+  --estado-informacion: var(--orbital-info);
+  --estado-error: var(--orbital-error);
+  --estado-advertencia: var(--orbital-warning);
 }
 
 html {
@@ -74,7 +100,7 @@ body {
   flex-direction: column;
   color: var(--texto-primario);
   background: var(--fondo);
-  font-family: var(--fuente-geist-sans, Arial), Arial, Helvetica, sans-serif;
+  font-family: var(--fuente-raleway, Arial), Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -83,7 +109,7 @@ code,
 pre,
 kbd {
   font-family: var(
-      --fuente-geist-mono,
+      --fuente-space-mono,
       ui-monospace,
       SFMono-Regular,
       Menlo,
@@ -106,8 +132,37 @@ a {
   text-decoration: none;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible,
+a:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid var(--orbital-focus);
+  outline-offset: 3px;
+}
+
+::selection {
+  color: var(--orbital-cosmos);
+  background: var(--orbital-lime);
+}
+
+html {
+  color-scheme: dark;
+  caret-color: var(--orbital-lime);
+  scrollbar-color: var(--orbital-border-strong) var(--orbital-cosmos);
+  scrollbar-width: thin;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
   }
 }

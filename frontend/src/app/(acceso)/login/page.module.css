@@ -1,0 +1,24 @@
+.main {
+  min-height: calc(100vh - 7rem);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: var(--orbital-space-4);
+  background: var(--orbital-cosmos);
+}
+
+.skipLink {
+  position: absolute;
+  left: var(--orbital-space-4);
+  top: -4rem;
+  padding: var(--orbital-space-3) var(--orbital-space-4);
+  border-radius: var(--orbital-radius-sm);
+  background: var(--orbital-lime);
+  color: var(--orbital-cosmos);
+  font-weight: 700;
+}
+
+.skipLink:focus {
+  top: var(--orbital-space-4);
+}
