@@ -1,64 +1,53 @@
 "use client";
 
-import { discordStartUrl } from "@/features/auth/api/auth.service";
+import Link from "next/link";
+import { authEntryPath, discordStartUrl } from "@/features/auth/api/auth.service";
 import styles from "./LoginPanel.module.css";
 
 type LoginPanelProps = {
   returnTo?: string;
+  intent?: "login" | "register";
 };
 
-export function LoginPanel({ returnTo = "/" }: LoginPanelProps) {
+export function LoginPanel({
+  returnTo = "/",
+  intent = "login",
+}: LoginPanelProps) {
+  const register = intent === "register";
+
   return (
     <section className={styles.panel} aria-labelledby="login-title">
       <span className={styles.terminalLabel}>TERMINAL DE ACCESO // AUTH</span>
       <h1 className={styles.title} id="login-title">
-        Inicia sesión en tu misión
+        {register ? "Creá tu cuenta" : "Inicia sesión en tu misión"}
       </h1>
+      <p className={styles.lede}>
+        {register
+          ? "La primera vez que entrás con Discord creamos tu usuario. No usamos correo ni contraseña."
+          : "Si ya tenés cuenta, Discord te vuelve a dejar entrar."}
+      </p>
       <div className={styles.discordAction}>
         <a
           className={styles.discordButton}
           href={discordStartUrl(returnTo)}
-          aria-label="Continuar con Discord para iniciar sesión"
+          aria-label={
+            register
+              ? "Crear cuenta con Discord"
+              : "Continuar con Discord para iniciar sesión"
+          }
         >
           <span className={styles.discordLogo} aria-hidden="true">
             LOGO
           </span>
-          <span>Continuar con Discord</span>
+          <span>{register ? "Crear cuenta con Discord" : "Continuar con Discord"}</span>
         </a>
       </div>
-      <div className={styles.divider} aria-hidden="true">
-        <span>o</span>
-      </div>
-      <form
-        className={styles.presentationForm}
-        onSubmit={(event) => event.preventDefault()}
-      >
-        <div className={styles.field}>
-          <label htmlFor="email">Correo electrónico</label>
-          <input
-            id="email"
-            name="email"
-            placeholder="piloto@devtalles.com"
-            required
-            type="email"
-          />
-        </div>
-        <div className={styles.field}>
-          <label htmlFor="password">Contraseña</label>
-          <input
-            id="password"
-            name="password"
-            placeholder="••••••••••••"
-            required
-            type="password"
-          />
-        </div>
-        <button className={styles.emailButton} type="submit">
-          Entrar con correo
-        </button>
-      </form>
       <p className={styles.guestMode}>
-        MODO INVITADO DISPONIBLE — tu ruta se guarda al iniciar sesión
+        {register ? (
+          <Link href={authEntryPath("login")}>Ya tengo cuenta</Link>
+        ) : (
+          <Link href={authEntryPath("register")}>Crear cuenta</Link>
+        )}
       </p>
     </section>
   );

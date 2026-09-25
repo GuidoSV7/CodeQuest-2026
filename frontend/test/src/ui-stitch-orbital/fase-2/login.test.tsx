@@ -9,6 +9,16 @@ import { LoginPanel } from "@/features/auth/components/LoginPanel";
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
+vi.mock("next/link", () => ({
+  default: ({
+    children,
+    href,
+  }: {
+    children: React.ReactNode;
+    href: string;
+  }) => <a href={href}>{children}</a>,
+}));
+
 const frontendRoot = resolve(import.meta.dirname, "../../../..");
 
 function readFrontendFile(relativePath: string): string {
@@ -21,7 +31,7 @@ afterEach(() => {
 });
 
 describe("Orbital login surface", () => {
-  it("renders Stitch copy and presentation Discord without a backend href", () => {
+  it("sends login to Discord and offers register", () => {
     const container = document.createElement("div");
     document.body.appendChild(container);
     const root = createRoot(container);
@@ -30,75 +40,49 @@ describe("Orbital login surface", () => {
       root.render(<LoginPanel returnTo="/mis-rutas" />);
     });
 
-    expect(container.querySelector("section")).not.toBeNull();
     expect(container.querySelector("h1")?.textContent).toBe(
       "Inicia sesión en tu misión",
     );
-    expect(container.querySelector("label[for='email']")?.textContent).toBe(
-      "Correo electrónico",
-    );
-    expect(container.querySelector("label[for='password']")?.textContent).toBe(
-      "Contraseña",
-    );
-    expect(container.querySelector("a[href*='/api/auth/discord']")).toBeNull();
     expect(
-      container.querySelector("button[aria-label='Continuar con Discord para iniciar sesión']"),
+      container.querySelector("a[href*='/api/auth/discord/start']"),
     ).not.toBeNull();
-    expect(container.textContent).toContain("MODO INVITADO DISPONIBLE");
-    expect(container.textContent).toContain("Entrar con correo");
+    expect(container.querySelector("a[href='/registro']")?.textContent).toBe(
+      "Crear cuenta",
+    );
+    expect(container.querySelector("input[type='password']")).toBeNull();
 
     act(() => root.unmount());
   });
 
-  it("does not request auth or persist data from presentation controls", () => {
-    const fetchSpy = vi.fn();
-    const storageSpy = vi.spyOn(Storage.prototype, "setItem");
-    vi.stubGlobal("fetch", fetchSpy);
+  it("sends register through the same Discord start", () => {
     const container = document.createElement("div");
     document.body.appendChild(container);
     const root = createRoot(container);
 
     act(() => {
-      root.render(<LoginPanel />);
+      root.render(<LoginPanel intent="register" returnTo="/" />);
     });
 
-    const form = container.querySelector("form");
-    expect(form).not.toBeNull();
-    act(() => {
-      form?.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
-    });
-
-    expect(fetchSpy).not.toHaveBeenCalled();
-    expect(storageSpy).not.toHaveBeenCalled();
-    expect(container.querySelector("input[type='email']")).not.toBeNull();
-    expect(container.querySelector("input[type='password']")).not.toBeNull();
+    expect(container.querySelector("h1")?.textContent).toBe("Creá tu cuenta");
+    expect(
+      container.querySelector("a[aria-label='Crear cuenta con Discord']"),
+    ).not.toBeNull();
+    expect(container.querySelector("a[href='/login']")?.textContent).toBe(
+      "Ya tengo cuenta",
+    );
 
     act(() => root.unmount());
   });
 
-  it("always shows the Stitch terminal without session loading branches", () => {
-    const panel = readFrontendFile(
-      "src/features/auth/components/LoginPanel.tsx",
-    );
-
-    expect(panel).toContain("Continuar con Discord");
-    expect(panel).toContain("Inicia sesión en tu misión");
-    expect(panel).not.toContain("!hydrated");
-    expect(panel).not.toContain("Cerrar sesión");
-    expect(panel).not.toContain("Cargando sesión");
-    expect(panel).not.toContain("discordStartUrl");
-  });
-
-  it("keeps Discord helpers in the service without wiring them in the panel", () => {
+  it("wires Discord helpers in the panel without local storage", () => {
     const panel = readFrontendFile(
       "src/features/auth/components/LoginPanel.tsx",
     );
     const service = readFrontendFile("src/features/auth/api/auth.service.ts");
 
-    expect(panel).not.toContain("discordStartUrl");
-    expect(panel).not.toContain("fetch(");
+    expect(panel).toContain("discordStartUrl");
     expect(panel).not.toContain("localStorage");
-    expect(service).toContain("discordStartUrl");
+    expect(service).toContain("authEntryPath");
   });
 
   it("uses CSS Modules with responsive controls and visible focus inherited globally", () => {

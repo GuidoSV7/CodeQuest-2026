@@ -24,3 +24,8 @@ export function discordStartUrl(returnTo?: string): string {
   const q = new URLSearchParams({ returnTo });
   return `${base}?${q.toString()}`;
 }
+
+/** Same Discord OAuth for both screens. Register creates the user on first callback. */
+export function authEntryPath(intent: "login" | "register"): string {
+  return intent === "register" ? "/registro" : "/login";
+}

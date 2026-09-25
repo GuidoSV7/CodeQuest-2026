@@ -1,0 +1,25 @@
+.account {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 2.25rem;
+  padding: 0 0.5rem;
+  border: 1px dashed var(--orbital-primary);
+  border-radius: var(--orbital-radius-sm);
+  color: var(--orbital-primary);
+  font-family: var(--orbital-font-telemetry);
+  font-size: 0.6875rem;
+  font-weight: 700;
+}
+
+.account a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.name {
+  max-width: 8rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

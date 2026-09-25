@@ -1,20 +1,25 @@
 "use client";
 
 import { useEffect } from "react";
-import { orbitalDemoSessionFixture } from "@/features/orbital/fixtures";
+import { fetchMe } from "@/features/auth/api/auth.service";
 import { useAuthStore } from "@/stores/auth-session";
 
-/**
- * Hydrates a local fixture session without network.
- * Backend auth helpers stay unused until an API exists.
- */
+/** Loads the Discord cookie session from GET /api/auth/me. */
 export function AuthSessionHydrator() {
   const setUser = useAuthStore((s) => s.setUser);
   const setHydrated = useAuthStore((s) => s.setHydrated);
 
   useEffect(() => {
-    setUser(orbitalDemoSessionFixture);
-    setHydrated(true);
+    let cancelled = false;
+    void (async () => {
+      const user = await fetchMe();
+      if (cancelled) return;
+      setUser(user);
+      setHydrated(true);
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [setUser, setHydrated]);
 
   return null;

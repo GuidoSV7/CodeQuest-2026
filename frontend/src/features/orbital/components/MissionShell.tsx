@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ShellAccount } from "@/features/auth/components/ShellAccount";
 import styles from "./MissionShell.module.css";
 import { MissionShellMobileNav } from "./MissionShellMobileNav";
 
@@ -31,9 +32,7 @@ export function MissionShell({
               </Link>
             ))}
           </nav>
-          <div className={styles.avatar} aria-label="Avatar">
-            AVATAR
-          </div>
+          <ShellAccount />
         </header>
         <a className={styles.skipLink} href="#login-shell-content">
           Saltar al contenido principal
@@ -64,9 +63,7 @@ export function MissionShell({
             ))}
           </nav>
           <MissionShellMobileNav links={[...PRODUCT_LINKS]} />
-          <div className={styles.avatar} aria-label="Avatar">
-            AVATAR
-          </div>
+          <ShellAccount />
         </div>
       </header>
       <div className={styles.content} id="orbital-content">
