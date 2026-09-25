@@ -11,6 +11,7 @@ type MissionShellProps = {
 const PRODUCT_LINKS = [
   { href: "/mis-rutas", label: "Mis rutas" },
   { href: "/configurador-de-ruta", label: "Descubre tu ruta" },
+  { href: "/docs/mcp", label: "MCP" },
   { href: "/ajustes/tokens", label: "Ajustes" },
 ] as const;
 

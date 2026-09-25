@@ -1,0 +1,112 @@
+.article {
+  width: min(100%, 46rem);
+  margin: 0 auto;
+  padding: clamp(5.5rem, 12vw, 8rem) var(--orbital-gutter-mobile) var(--orbital-space-8);
+  color: var(--orbital-ink);
+  font-family: var(--orbital-font-body);
+}
+
+.kicker {
+  margin: 0 0 var(--orbital-space-3);
+  color: var(--orbital-lime);
+  font-family: var(--orbital-font-telemetry);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0 0 var(--orbital-space-4);
+  font-family: var(--orbital-font-display);
+  font-size: clamp(2rem, 5vw, 3rem);
+  line-height: 1.1;
+}
+
+.lead,
+.section p {
+  color: var(--orbital-ink-muted);
+  line-height: 1.6;
+}
+
+.section {
+  margin-top: var(--orbital-space-8);
+}
+
+.section h2,
+.section h3 {
+  font-family: var(--orbital-font-display);
+}
+
+.section h2 {
+  margin: 0 0 var(--orbital-space-3);
+  font-size: 1.5rem;
+}
+
+.section h3 {
+  margin: var(--orbital-space-5) 0 var(--orbital-space-3);
+  font-size: 1.1rem;
+}
+
+.url,
+.code {
+  overflow-x: auto;
+  margin: var(--orbital-space-4) 0;
+  padding: var(--orbital-space-4);
+  border: 1px solid var(--orbital-header-border);
+  border-radius: var(--orbital-radius-sm);
+  background: var(--orbital-cosmos);
+  color: var(--orbital-lime);
+  font-family: var(--orbital-font-telemetry);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.url {
+  word-break: break-all;
+}
+
+.code {
+  white-space: pre-wrap;
+}
+
+.steps,
+.tools {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.steps li,
+.tools li {
+  margin-top: var(--orbital-space-3);
+  line-height: 1.5;
+}
+
+.steps {
+  counter-reset: step;
+}
+
+.steps li {
+  display: grid;
+  grid-template-columns: 2rem 1fr;
+  gap: var(--orbital-space-3);
+  counter-increment: step;
+}
+
+.steps li::before {
+  content: counter(step);
+  color: var(--orbital-lime);
+  font-family: var(--orbital-font-telemetry);
+}
+
+.tools li {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.tools code,
+.section code {
+  color: var(--orbital-lime);
+  font-family: var(--orbital-font-telemetry);
+  font-size: 0.9em;
+}
