@@ -65,11 +65,13 @@ export function createAuthService(deps: AuthServiceDeps) {
   } = deps
 
   return {
-    async startLogin(returnTo?: string): Promise<StartLoginResult> {
+    async startLogin(returnTo?: string, mcpResumeId?: string): Promise<StartLoginResult> {
       const state = randomBytes(32).toString('base64url')
+      const resume = mcpResumeId && /^[A-Za-z0-9_-]{8,128}$/.test(mcpResumeId) ? mcpResumeId : undefined
       const payload = {
         returnTo: sanitizeReturnTo(returnTo),
         createdAt: Date.now(),
+        mcpResumeId: resume,
       }
       try {
         await stateStore.save(state, payload, oauthStateTtlSeconds)
@@ -158,6 +160,15 @@ export function createAuthService(deps: AuthServiceDeps) {
         userId: user.id,
         displayName: user.displayName,
       })
+
+      if (statePayload.mcpResumeId) {
+        return {
+          ok: true,
+          token,
+          redirectUrl: `/oauth/resume?rid=${statePayload.mcpResumeId}`,
+          user,
+        }
+      }
 
       const redirectUrl = new URL(statePayload.returnTo, frontendUrl).toString()
       return { ok: true, token, redirectUrl, user }

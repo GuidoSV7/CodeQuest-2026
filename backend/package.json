@@ -37,6 +37,7 @@
     "cookie-parser": "^1.4.7",
     "ioredis": "^5.11.1",
     "jose": "^6.2.12",
+    "mcp-oauth-server": "1.0.0",
     "pg": "^8.23.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",

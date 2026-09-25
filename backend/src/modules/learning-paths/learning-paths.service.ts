@@ -254,6 +254,49 @@ export class LearningPathsService {
     return this.toDetail(userId, created, snapshot)
   }
 
+  async saveGenerated(
+    userId: string,
+    input: {
+      title?: string
+      courseIds: string[]
+      buckets?: Array<PathItemBucket | null>
+      sourcePathId?: string | null
+    },
+  ): Promise<LearningPathDetailDto> {
+    const snapshot = await this.requireCatalogForWrite()
+    this.assertNoDuplicateCourseIds(input.courseIds)
+    const items = input.courseIds.map((courseId, position) => {
+      const course = this.findCourse(snapshot, courseId)
+      if (!course || course.status !== 'ok') {
+        throw new UnprocessableEntityException({
+          code: 'COURSE_NOT_IN_CATALOG',
+          message: `Course ${courseId} is not in the current catalog`,
+        })
+      }
+      return {
+        courseId,
+        courseSlug: course.slug,
+        courseTitle: course.title,
+        position,
+        bucket: input.buckets?.[position] ?? null,
+      }
+    })
+    const source = input.sourcePathId && snapshot.paths.some((path) => path.id === input.sourcePathId)
+      ? input.sourcePathId
+      : null
+    const created = await this.paths.create({
+      userId,
+      title: input.title?.trim() || 'Ruta generada',
+      kind: 'generated',
+      catalogVersion: snapshot.version,
+      status: 'active',
+      questionnaireResponseId: null,
+      sourceCatalogPathId: source,
+      items,
+    })
+    return this.toDetail(userId, created, snapshot)
+  }
+
   private async createOfficial(
     userId: string,
     dto: CreateLearningPathDto,

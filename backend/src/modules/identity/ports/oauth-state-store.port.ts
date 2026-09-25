@@ -1,6 +1,7 @@
 export type OAuthStatePayload = {
   returnTo: string
   createdAt: number
+  mcpResumeId?: string
 }
 
 export type OAuthStateStore = {

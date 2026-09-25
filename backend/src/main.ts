@@ -9,17 +9,31 @@ import { AppModule } from './app.module'
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter'
 import { mountMcpHttpGuards } from './modules/mcp-public/mcp-http-guards'
 import { MAX_MCP_BODY_BYTES } from './modules/mcp-public/mcp-limits'
+import { MCP_CONSENT_USER, MCP_OAUTH_SERVER, CONNECTED_APPS, mountMcpAuthorization } from './modules/mcp-user/mount-mcp-authorization'
+import type { ConnectedApps } from './modules/mcp-user/mcp-consent.routes'
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule, { bodyParser: false })
   const http = app.getHttpAdapter().getInstance()
   http.set('trust proxy', 1)
   mountMcpHttpGuards(http)
+  mountMcpAuthorization(
+    http,
+    app.get(MCP_OAUTH_SERVER),
+    app.get(MCP_CONSENT_USER),
+    app.get<ConnectedApps>(CONNECTED_APPS),
+  )
   app.use(json({ limit: MAX_MCP_BODY_BYTES }))
   app.use(urlencoded({ extended: true, limit: MAX_MCP_BODY_BYTES }))
 
   app.setGlobalPrefix('api', {
-    exclude: [{ path: 'mcp', method: RequestMethod.ALL }],
+    exclude: [
+      { path: 'mcp', method: RequestMethod.ALL },
+      { path: 'mcp/user', method: RequestMethod.ALL },
+      { path: '.well-known/oauth-protected-resource', method: RequestMethod.GET },
+      { path: '.well-known/oauth-protected-resource/mcp/user', method: RequestMethod.GET },
+      { path: '.well-known/oauth-authorization-server', method: RequestMethod.GET },
+    ],
   })
   app.use(cookieParser())
   app.useGlobalPipes(

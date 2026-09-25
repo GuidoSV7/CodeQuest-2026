@@ -30,10 +30,11 @@ export class AuthController {
   @Get('discord/start')
   async startDiscord(
     @Query('returnTo') returnTo: string | undefined,
+    @Query('mcp_resume') mcpResume: string | undefined,
     @Res() res: Response,
   ): Promise<void> {
     try {
-      const { authorizeUrl } = await this.auth.startLogin(returnTo)
+      const { authorizeUrl } = await this.auth.startLogin(returnTo, mcpResume)
       res.redirect(302, authorizeUrl)
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err)

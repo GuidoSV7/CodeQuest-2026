@@ -312,4 +312,33 @@ describe('LearningPathsService', () => {
     expect(detail.items.map((i) => i.courseId)).toEqual(['100', '300'])
     expect(detail.items.map((i) => i.position)).toEqual([0, 1])
   })
+
+  it('saves a generated path using catalog titles', async () => {
+    const detail = await service.saveGenerated(USER_A, {
+      title: 'Mi meta',
+      courseIds: ['100', '200'],
+      buckets: ['required', 'recommended'],
+    })
+    expect(detail.kind).toBe('generated')
+    expect(detail.items.map((item) => item.courseTitle)).toEqual(['Course A', 'Course B'])
+    await expect(service.saveGenerated(USER_A, { courseIds: ['404'] })).rejects.toBeInstanceOf(
+      UnprocessableEntityException,
+    )
+  })
+
+  it('shows the same course progress on every path of the user', async () => {
+    const first = await service.create(USER_A, {
+      kind: 'custom',
+      title: 'Uno',
+      items: [{ courseId: '100' }],
+    })
+    const second = await service.create(USER_A, {
+      kind: 'custom',
+      title: 'Dos',
+      items: [{ courseId: '100' }],
+    })
+    await progress.upsertStatus(USER_A, '100', 'completed')
+    expect((await service.getById(USER_A, first.id)).items[0]?.progress.status).toBe('completed')
+    expect((await service.getById(USER_A, second.id)).items[0]?.progress.status).toBe('completed')
+  })
 })
