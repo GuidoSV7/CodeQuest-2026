@@ -32,16 +32,13 @@ export function ShellAccount() {
   return (
     <>
       <button
-        className={user.avatarUrl ? `${styles.avatar} ${styles.avatarPhoto}` : styles.avatar}
+        className={`${styles.avatar} ${styles.avatarWithName}`}
         type="button"
         aria-label="Avatar"
         onClick={() => setOpen(true)}
       >
-        {user.avatarUrl ? (
-          <img alt="" src={user.avatarUrl} />
-        ) : (
-          user.displayName
-        )}
+        {user.avatarUrl ? <img alt="" src={user.avatarUrl} /> : null}
+        <span className={styles.avatarName}>{user.displayName}</span>
       </button>
       {open ? (
         <AvatarUploadModal
