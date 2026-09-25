@@ -549,8 +549,35 @@
   }
 
   .protocol {
+    width: auto;
+    align-items: stretch;
     margin-inline: var(--orbital-gutter-mobile);
     padding: var(--orbital-space-4);
+  }
+
+  .protocolLead {
+    align-items: flex-start;
+    min-width: 0;
+  }
+
+  .protocolLead > div {
+    min-width: 0;
+  }
+
+  .protocol h2,
+  .protocol p {
+    overflow-wrap: anywhere;
+  }
+
+  .protocolItems {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--orbital-space-3);
+    letter-spacing: 0.06em;
+  }
+
+  .protocolItems span {
+    min-width: 0;
   }
 }
 
