@@ -25,6 +25,7 @@ export function mountMcpAuthorization(
   oauth: OAuthServer,
   getUser: ConsentUser,
   apps: ConnectedApps = new ConnectedApps(),
+  loginErrorUrl = '/auth/error',
 ): void {
   const options = { provider: oauth, rateLimit: RATE_LIMIT_OFF }
   server.use('/authorize', rewriteAuthorizeRedirect, authorizationHandler(options))
@@ -33,7 +34,7 @@ export function mountMcpAuthorization(
   server.use('/revoke', revocationHandler(options))
   server.use('/oauth/approve', rewriteAuthorizeRedirect, authenticateHandler({ ...options, getUser }))
   server.use('/oauth/consent', express.urlencoded({ extended: false }))
-  mountConsentRoutes(server, oauth, getUser, apps)
+  mountConsentRoutes(server, oauth, getUser, apps, loginErrorUrl)
 }
 
 function rewriteAuthorizeRedirect(req: Request, res: Response, next: NextFunction): void {

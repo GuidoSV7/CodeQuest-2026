@@ -57,6 +57,7 @@ export function mountConsentRoutes(
   oauth: OAuthServer,
   getUser: ConsentUser,
   apps: ConnectedApps,
+  loginErrorUrl = '/auth/error',
 ): void {
   server.use('/oauth/consent', async (req, res) => {
     const userId = await readUser(getUser, req)
@@ -121,12 +122,12 @@ export function mountConsentRoutes(
     const rid = typeof req.query.rid === 'string' ? req.query.rid : ''
     const fields = resumes.get(rid)
     if (!fields) {
-      res.redirect(302, '/auth/error')
+      res.redirect(302, loginErrorUrl)
       return
     }
     const userId = await readUser(getUser, req)
     if (!userId) {
-      res.redirect(302, '/auth/error')
+      res.redirect(302, loginErrorUrl)
       return
     }
     resumes.delete(rid)

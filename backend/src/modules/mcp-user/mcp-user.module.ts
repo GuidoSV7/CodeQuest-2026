@@ -11,7 +11,6 @@ import {
   MCP_CIMD_FETCH,
   MCP_CONSENT_USER,
   MCP_OAUTH_SERVER,
-  type ConsentUser,
 } from './mount-mcp-authorization'
 import {
   MCP_ISSUER_URL,
@@ -19,6 +18,7 @@ import {
   MCP_SCOPES,
 } from './mcp-oauth.metadata'
 import { MCP_TOKEN_VERIFIER, type McpTokenVerifier } from './mcp-token-verifier'
+import { sessionConsentUser } from './session-consent-user'
 
 @Module({
   controllers: [McpUserController, ConnectedAppsController],
@@ -28,9 +28,7 @@ import { MCP_TOKEN_VERIFIER, type McpTokenVerifier } from './mcp-token-verifier'
     { provide: MCP_CIMD_LOOKUP, useValue: undefined },
     {
       provide: MCP_CONSENT_USER,
-      useValue: (async () => {
-        throw new Error('consent_user_unavailable')
-      }) satisfies ConsentUser,
+      useValue: sessionConsentUser,
     },
     {
       provide: MCP_OAUTH_SERVER,
