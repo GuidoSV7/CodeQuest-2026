@@ -98,6 +98,20 @@
   font-weight: 700;
   letter-spacing: 0.15em;
   white-space: nowrap;
+  text-decoration: none;
+  transition:
+    color var(--orbital-motion-fast),
+    border-color var(--orbital-motion-fast),
+    background var(--orbital-motion-fast),
+    transform var(--orbital-motion-fast);
+}
+
+a.avatar:hover {
+  color: var(--orbital-night);
+  border-color: var(--orbital-lime);
+  border-style: solid;
+  background: var(--orbital-lime);
+  transform: translateY(-1px);
 }
 
 .mobileNav {

@@ -3,22 +3,27 @@
 import Link from "next/link";
 import { authEntryPath } from "@/features/auth/api/auth.service";
 import { useAuthStore } from "@/stores/auth-session";
-import styles from "./ShellAccount.module.css";
+import styles from "@/features/orbital/components/MissionShell.module.css";
 
 export function ShellAccount() {
   const user = useAuthStore((state) => state.user);
   const hydrated = useAuthStore((state) => state.hydrated);
 
+  if (hydrated && user) {
+    return (
+      <span className={styles.avatar} aria-label="Avatar">
+        {user.displayName}
+      </span>
+    );
+  }
+
   return (
-    <div className={styles.account} aria-label="Avatar">
-      {hydrated && user ? (
-        <span className={styles.name}>{user.displayName}</span>
-      ) : (
-        <>
-          <Link href={authEntryPath("login")}>Entrar</Link>
-          <Link href={authEntryPath("register")}>Crear cuenta</Link>
-        </>
-      )}
-    </div>
+    <Link
+      className={styles.avatar}
+      href={authEntryPath("login")}
+      aria-label="Avatar"
+    >
+      AVATAR
+    </Link>
   );
 }
