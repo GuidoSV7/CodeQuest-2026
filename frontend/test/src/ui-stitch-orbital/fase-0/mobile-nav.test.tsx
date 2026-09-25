@@ -124,7 +124,8 @@ describe("MissionShell mobile nav a11y", () => {
     );
 
     expect(container.querySelectorAll("header")).toHaveLength(1);
-    expect(container.querySelector("[aria-label='Avatar']")).not.toBeNull();
+    expect(container.querySelector("a[href='/login']")).not.toBeNull();
+    expect(container.querySelector("a[href='/registro']")).not.toBeNull();
     expect(container.querySelector("button[aria-expanded]")).not.toBeNull();
     expect(css).toContain("min-height: 4rem");
     expect(css).toContain("padding-top: 4rem");

@@ -15,13 +15,17 @@ export function ShellAccount() {
 
   if (!hydrated || !user) {
     return (
-      <Link
-        className={styles.avatar}
-        href={authEntryPath("login")}
-        aria-label="Avatar"
-      >
-        AVATAR
-      </Link>
+      <div className={styles.authActions}>
+        <Link className={styles.authButton} href={authEntryPath("login")}>
+          Login
+        </Link>
+        <Link
+          className={`${styles.authButton} ${styles.authButtonPrimary}`}
+          href={authEntryPath("register")}
+        >
+          Register
+        </Link>
+      </div>
     );
   }
 

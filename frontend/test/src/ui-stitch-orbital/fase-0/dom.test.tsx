@@ -69,7 +69,8 @@ describe("Orbital DOM foundation", () => {
     expect(container.querySelector("a[href='/mis-rutas']")).not.toBeNull();
     expect(container.querySelector("a[href='/configurador-de-ruta']")).not.toBeNull();
     expect(container.querySelector("a[href='/ajustes/tokens']")).not.toBeNull();
-    expect(container.querySelector("[aria-label='Avatar']")).not.toBeNull();
+    expect(container.querySelector("a[href='/login']")?.textContent).toBe("Login");
+    expect(container.querySelector("a[href='/registro']")?.textContent).toBe("Register");
     expect(container.querySelector("footer")).not.toBeNull();
     expect(container.textContent).toContain("DevTalles");
     expect(container.querySelector("aside[aria-label='Modo demo']")).toBeNull();
@@ -85,7 +86,8 @@ describe("Orbital DOM foundation", () => {
     );
 
     expect(container.querySelector("nav[aria-label='Navegación principal']")).not.toBeNull();
-    expect(container.querySelector("[aria-label='Avatar']")).not.toBeNull();
+    expect(container.querySelector("a[href='/login']")?.textContent).toBe("Login");
+    expect(container.querySelector("a[href='/registro']")?.textContent).toBe("Register");
     expect(container.querySelector("footer")).not.toBeNull();
     expect(container.textContent).toContain("DevTalles");
     expect(container.textContent).toContain("Code Quest 2026");
