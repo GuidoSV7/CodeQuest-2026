@@ -46,9 +46,13 @@ type DiscordMeResponse = {
   email?: string | null
 }
 
-function buildAvatarUrl(userId: string, avatar: string | null | undefined): string | null {
-  if (!avatar) return null
-  return `https://cdn.discordapp.com/avatars/${userId}/${avatar}.png`
+function buildAvatarUrl(userId: string, avatar: string | null | undefined): string {
+  if (avatar) {
+    const extension = avatar.startsWith('a_') ? 'gif' : 'png'
+    return `https://cdn.discordapp.com/avatars/${userId}/${avatar}.${extension}`
+  }
+  const index = Number((BigInt(userId) >> 22n) % 6n)
+  return `https://cdn.discordapp.com/embed/avatars/${index}.png`
 }
 
 function resolveDisplayName(

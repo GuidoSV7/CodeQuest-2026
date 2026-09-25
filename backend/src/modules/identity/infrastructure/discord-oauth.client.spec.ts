@@ -99,7 +99,9 @@ describe('DiscordOAuthClient', () => {
     const profile = await client.exchangeCodeAndFetchUser('code')
     expect(profile.email).toBeNull()
     expect(profile.displayName).toBe('noemail')
-    expect(profile.avatarUrl).toBeNull()
+    expect(profile.avatarUrl).toBe(
+      'https://cdn.discordapp.com/embed/avatars/0.png',
+    )
   })
 
   it('surfaces timeout/network errors', async () => {

@@ -159,9 +159,19 @@ button.avatar:hover {
   transform: translateY(-1px);
 }
 
-.avatar img {
-  width: 2rem;
-  height: 2rem;
+.avatarPhoto {
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  overflow: hidden;
+  border-radius: 999px;
+  letter-spacing: 0;
+}
+
+.avatar img,
+.avatarPhoto img {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   border-radius: 999px;
 }

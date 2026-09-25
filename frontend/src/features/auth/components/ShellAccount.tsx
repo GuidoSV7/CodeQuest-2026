@@ -32,7 +32,7 @@ export function ShellAccount() {
   return (
     <>
       <button
-        className={styles.avatar}
+        className={user.avatarUrl ? `${styles.avatar} ${styles.avatarPhoto}` : styles.avatar}
         type="button"
         aria-label="Avatar"
         onClick={() => setOpen(true)}
