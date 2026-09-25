@@ -95,10 +95,22 @@
   stroke-width: 1.2;
 }
 
+.beam {
+  transform-box: view-box;
+  transform-origin: center;
+  transition: transform 700ms ease;
+}
+
 .activeBeam {
   stroke: var(--orbital-lime);
   stroke-dasharray: 2 3;
   stroke-width: 1.5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .beam {
+    transition: none;
+  }
 }
 
 .core {

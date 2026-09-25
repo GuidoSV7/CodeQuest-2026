@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { landingFixture } from "@/features/orbital/fixtures";
 import styles from "./page.module.css";
-import { MissionRadar } from "@/features/orbital/components/MissionRadar";
+import { MissionRadarLive } from "@/features/orbital/components/MissionRadarLive";
 import { HomeAuthStatus } from "@/features/auth/components/HomeAuthStatus";
 
 export default function HomePage() {
@@ -52,7 +52,7 @@ export default function HomePage() {
             </div>
             <HomeAuthStatus />
           </div>
-          <MissionRadar />
+          <MissionRadarLive />
         </section>
 
         <section className={styles.doors} aria-labelledby="doors-title">

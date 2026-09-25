@@ -58,7 +58,7 @@ describe("Orbital public landing", () => {
       "puertas de acceso a la misión",
     );
     expect(container.querySelectorAll("article")).toHaveLength(4);
-    expect(container.querySelectorAll("svg circle")).toHaveLength(14);
+    expect(container.querySelectorAll("svg circle")).toHaveLength(13);
     expect(container.querySelector("a[href='/configurador-de-ruta']")).not.toBeNull();
 
     act(() => root.unmount());
@@ -72,7 +72,7 @@ describe("Orbital public landing", () => {
 
     expect(landingFixture.doors).toHaveLength(4);
     expect(page).toContain("landingFixture");
-    expect(page).toContain("<MissionRadar />");
+    expect(page).toContain("<MissionRadarLive />");
     expect(page).toContain("aria-label=\"Puertas de aprendizaje\"");
     expect(page).toContain('href={landingFixture.ctaHref}');
     expect(radar).toContain('role="img"');
