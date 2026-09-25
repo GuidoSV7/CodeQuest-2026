@@ -15,6 +15,7 @@ export type GeneratedPath = {
     bucket: McpBucket | null
     position: number
     already_known: boolean
+    partial: boolean
   }>
   edges: Array<{ from_course_id: string; to_course_id: string }>
   edges_meta: { kind: 'linear_required' | 'linear_ranked'; inferred: true }
@@ -81,6 +82,8 @@ function fromOfficial(
     })
     .sort((a, b) => a.position - b.position)
     .map((entry) => {
+      const course = coursesById.get(entry.courseId!)
+      if (!course) return null
       const courseId = String(entry.courseId)
       return {
         course_id: courseId,
@@ -89,8 +92,10 @@ function fromOfficial(
         bucket: BUCKET_OUT[entry.bucket],
         position: entry.position,
         already_known: known.has(courseId),
+        partial: course.status === 'partial',
       }
     })
+    .filter((item): item is NonNullable<typeof item> => item != null)
 
   const requiredIds = items
     .filter((item) => item.bucket === 'required')
@@ -127,6 +132,7 @@ function fromSearch(
     bucket: null,
     position: index,
     already_known: known.has(String(course.id)),
+    partial: false,
   }))
   const edges = chain(items.map((item) => item.course_id))
   const goal = normalizeForNotes(input.goal)

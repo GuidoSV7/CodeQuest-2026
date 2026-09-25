@@ -50,6 +50,23 @@ function sampleCatalog(version: number, courseIds: number[]): CatalogSnapshot {
 }
 
 describe('RedisCatalogRepository', () => {
+  it('getCurrentVersion reads only the pointer key', async () => {
+    const redis = createInMemoryRedis()
+    const gets: string[] = []
+    const wrapped = {
+      ...redis,
+      async get(key: string) {
+        gets.push(key)
+        return redis.get(key)
+      },
+    }
+    const repo = createRedisCatalogRepository(wrapped)
+    await repo.save(sampleCatalog(0, [1]))
+    gets.length = 0
+    await expect(repo.getCurrentVersion()).resolves.toBe('v1')
+    expect(gets).toEqual([REDIS_KEYS.current])
+  })
+
   it('getCurrent returns null when empty', async () => {
     const redis = createInMemoryRedis()
     const repo = createRedisCatalogRepository(redis)

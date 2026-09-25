@@ -34,7 +34,7 @@ export class McpUserController {
 
   @All('mcp/user')
   async handle(@Req() req: Request, @Res() res: Response): Promise<void> {
-    if (typeof req.query.access_token === 'string') {
+    if (Object.prototype.hasOwnProperty.call(req.query, 'access_token')) {
       res.status(400).json({ error: 'invalid_request' })
       return
     }

@@ -34,9 +34,12 @@ function wordMatch(goal: string, alias: string): boolean {
 export function matchOfficialPath(
   goal: string,
   availablePathIds?: ReadonlySet<string>,
+  entries?: AliasFile['entries'],
 ): { pathId: string; alias: string } | null {
   const normalizedGoal = normalizeText(goal)
-  const file = JSON.parse(readFileSync(ALIAS_PATH, 'utf8')) as AliasFile
+  const file = entries
+    ? { version: 0, entries }
+    : (JSON.parse(readFileSync(ALIAS_PATH, 'utf8')) as AliasFile)
   const matches: Array<{ pathId: string; alias: string }> = []
   for (const entry of file.entries) {
     for (const raw of entry.aliases) {

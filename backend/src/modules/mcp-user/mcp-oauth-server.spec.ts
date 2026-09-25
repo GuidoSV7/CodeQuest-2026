@@ -13,6 +13,7 @@ import {
 } from './mount-mcp-authorization'
 import type { OAuthServer } from 'mcp-oauth-server'
 import { MCP_RESOURCE_URL } from './mcp-oauth.metadata'
+import { MCP_CIMD_LOOKUP } from './cimd-fetch'
 
 const RESOURCE = MCP_RESOURCE_URL
 
@@ -47,6 +48,8 @@ describe('MCP authorization server', () => {
           { status: 200, headers: { 'content-type': 'application/json' } },
         )
       })
+      .overrideProvider(MCP_CIMD_LOOKUP)
+      .useValue(async () => ['1.1.1.1'])
       .overrideProvider('MCP_CONSENT_USER')
       .useValue(async () => '11111111-1111-4111-8111-111111111111')
       .compile()

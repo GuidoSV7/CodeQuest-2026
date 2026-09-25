@@ -121,7 +121,11 @@ export function getOfficialPath(snapshot: CatalogSnapshot, id: string) {
   if (!path || !OFFICIAL_PATH_IDS.includes(id as (typeof OFFICIAL_PATH_IDS)[number])) {
     throw new McpToolError('not_found')
   }
-  const published = new Set(snapshot.courses.filter((course) => course.status === 'ok').map((c) => c.id))
+  const published = new Map(
+    snapshot.courses
+      .filter((course) => course.status === 'ok' || course.status === 'partial')
+      .map((course) => [course.id, course.status === 'partial'] as const),
+  )
   const courses = path.entries
     .filter((entry) => entry.courseId != null && published.has(entry.courseId))
     .sort((a, b) => a.position - b.position)
@@ -131,6 +135,7 @@ export function getOfficialPath(snapshot: CatalogSnapshot, id: string) {
       url: entry.courseUrl,
       bucket: BUCKET[entry.bucket],
       position: entry.position,
+      partial: published.get(entry.courseId!) === true,
     }))
   const requiredIds = courses.filter((item) => item.bucket === 'required').map((item) => item.course_id)
   const edges = []

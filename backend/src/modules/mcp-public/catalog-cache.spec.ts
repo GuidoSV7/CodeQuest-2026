@@ -97,6 +97,9 @@ describe('catalog cache', () => {
     const seed = JSON.parse(readFileSync(SEED_PATH, 'utf8')) as CatalogSnapshot
     const readSeed = vi.fn(() => seed)
     const repo: CatalogRepository = {
+      async getCurrentVersion() {
+        throw new Error('redis down')
+      },
       async getCurrent() {
         throw new Error('redis down')
       },
@@ -112,5 +115,41 @@ describe('catalog cache', () => {
     expect(first.snapshot.source).toBe('seed')
     expect(second).toBe(first)
     expect(readSeed).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('catalog version window', () => {
+  it('does not read the snapshot again inside the window, and reloads once when the pointer changes', async () => {
+    let now = 1_000
+    let pointer: string | null = 'v1'
+    const v1 = snapshot(1)
+    const v2 = snapshot(2, [course(2, 'nest', 'Nest')])
+    const versionReads = vi.fn(async () => pointer)
+    const snapshotReads = vi.fn(async () => (pointer === 'v2' ? v2 : v1))
+    const repo: CatalogRepository = {
+      getCurrentVersion: versionReads,
+      getCurrent: snapshotReads,
+      async save(catalog) {
+        return catalog
+      },
+    }
+    const cache = createCatalogCache({
+      repository: repo,
+      now: () => now,
+      versionCheckIntervalMs: 30_000,
+      readSeed: () => snapshot(0),
+    })
+
+    await cache.load()
+    for (let i = 0; i < 8; i += 1) await cache.load()
+    expect(snapshotReads).toHaveBeenCalledTimes(1)
+    expect(versionReads).toHaveBeenCalledTimes(1)
+
+    now += 30_000
+    pointer = 'v2'
+    const next = await cache.load()
+    expect(versionReads).toHaveBeenCalledTimes(2)
+    expect(snapshotReads).toHaveBeenCalledTimes(2)
+    expect(next.snapshot.version).toBe(2)
   })
 })

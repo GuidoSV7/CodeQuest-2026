@@ -2,6 +2,8 @@ import type { CatalogSnapshot } from '../domain/catalog'
 
 export type CatalogRepository = {
   getCurrent(): Promise<CatalogSnapshot | null>
+  /** Pointer value of `catalog:current` (`vN`), without reading the snapshot JSON. */
+  getCurrentVersion?(): Promise<string | null>
   save(catalog: CatalogSnapshot): Promise<CatalogSnapshot>
 }
 

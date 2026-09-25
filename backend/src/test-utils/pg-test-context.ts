@@ -9,6 +9,7 @@ import { LearningPathOrmEntity } from '../modules/learning-paths/infrastructure/
 import { LearningPathItemOrmEntity } from '../modules/learning-paths/infrastructure/learning-path-item.orm-entity'
 import { UserCourseProgressOrmEntity } from '../modules/learning-paths/infrastructure/user-course-progress.orm-entity'
 import { InitAuthLearningPaths1758412800000 } from '../database/migrations/1758412800000-InitAuthLearningPaths'
+import { McpOauth1758600000000 } from '../database/migrations/1758600000000-McpOauth'
 
 const require = createRequire(import.meta.url)
 const EmbeddedPostgres =
@@ -77,7 +78,7 @@ export async function startPgTestContext(): Promise<PgTestContext> {
         LearningPathItemOrmEntity,
         UserCourseProgressOrmEntity,
       ],
-      migrations: [InitAuthLearningPaths1758412800000],
+      migrations: [InitAuthLearningPaths1758412800000, McpOauth1758600000000],
       migrationsTableName: 'migrations',
     })
     await dataSource.initialize()

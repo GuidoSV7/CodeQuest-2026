@@ -10,6 +10,9 @@ export function createDryRunCatalogRepository(
 ): CatalogRepository {
   return {
     getCurrent: () => inner.getCurrent(),
+    getCurrentVersion: inner.getCurrentVersion
+      ? () => inner.getCurrentVersion!()
+      : undefined,
     async save(catalog: CatalogSnapshot) {
       const current = await inner.getCurrent()
       const nextVersion = (current?.version ?? 0) + 1

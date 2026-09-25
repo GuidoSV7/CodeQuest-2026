@@ -115,7 +115,7 @@ Errores de tool (JSON-RPC tool error, `isError: true`), mensaje estable, sin sta
 | Código | Cuándo |
 |---|---|
 | `catalog_unavailable` | Ni Redis ni seed pudieron cargarse |
-| `invalid_input` | Schema roto (lo rechaza el SDK antes si el input no cumple Zod) |
+| `invalid_input` | El input no cumple el schema. El SDK responde con su texto de validación (`Input validation error: ...`), no con el código literal `invalid_input`. Aceptado. |
 | `not_found` | `get_course` o `get_official_path` con id inexistente en el snapshot actual |
 | `payload_too_large` | Body HTTP por encima del límite de §6 |
 
@@ -152,7 +152,7 @@ Errores de tool (JSON-RPC tool error, `isError: true`), mensaje estable, sin sta
 }
 ```
 
-Orden: el de §4.2. Cursos con `status !== "ok"` se excluyen. Cursos `partial` se excluyen.
+Orden: el de §4.4. Cursos con `status !== "ok"` se excluyen, incluidos los `partial`.
 
 ### 3.2 `get_course`
 
@@ -226,7 +226,8 @@ Orden: el de §4.2. Cursos con `status !== "ok"` se excluyen. Cursos `partial` s
       title: string                     // label de la entrada
       url: string
       bucket: "required" | "recommended" | "optional" | "anytime"
-      position: number                   // position global del snapshot
+      position: number
+      partial: boolean
     }>
     edges: Array<{ from_course_id: string, to_course_id: string }>
     edges_meta: { kind: "linear_required", inferred: true }
@@ -262,6 +263,7 @@ Se **omiten** entradas con `courseId` null (no hay curso real que devolver). El 
     bucket: "required" | "recommended" | "optional" | "anytime" | null
     position: number
     already_known: boolean
+    partial: boolean
   }>
   edges: Array<{ from_course_id: string, to_course_id: string }>
   edges_meta: { kind: "linear_required" | "linear_ranked", inferred: true }
@@ -282,7 +284,7 @@ Se **omiten** entradas con `courseId` null (no hay curso real que devolver). El 
 Aplicar en alias, `goal` y textos de curso, en este orden:
 
 1. `String.prototype.normalize("NFD")` y borrar marcas combinantes (`\p{M}`).
-2. Minúsculas (`toLowerCase("es")`).
+2. Minúsculas con `toLocaleLowerCase("es")`. `toLowerCase("es")` no existe en Node. Aceptado.
 3. Reemplazar `&` y `+` por espacio.
 4. Borrar todo carácter que no sea letra, número o espacio.
 5. Colapsar espacios y trim.
@@ -329,7 +331,8 @@ Dado el path y `include_optional`:
 
 - Siempre entran buckets `required` y `recommended`.
 - Si `include_optional` es true, también `optional` y `anytime`.
-- Se omiten entradas con `courseId` null.
+- Se omiten entradas con `courseId` null o cuyo curso no está en el snapshot.
+- Un curso `status === "partial"` se incluye, con `partial: true`. Un curso `ok` sale con `partial: false`. `search_courses` y `get_course` siguen excluyendo `partial`.
 - Orden: `position` ascendente. El `position` de salida es el del snapshot, no se reenumera.
 - `already_known` es true si el id está en `known_course_ids` (ids desconocidos en el catálogo se ignoran, no son error).
 - `title` es `label` de la entrada. `url` es `courseUrl`.
@@ -383,7 +386,7 @@ Escape de la etiqueta, en orden:
 2. `\` → `\\`.
 3. `"` → `\"`.
 
-No se usa el título como id. Así `"`, `+` y `:` en títulos reales no rompen el diagrama.
+No se usa el título como id. Así `"`, `+` y `:` en títulos reales no rompen el diagrama. Cada nodo lleva clase visual `:::bucket` y, si aplica, `Known` o `Partial` (`requiredPartial` para un obligatorio a medias), más las líneas `classDef`. Aceptado: el ejemplo de abajo muestra la cadena de flechas; la salida real agrega esas clases.
 
 Ejemplo real a partir de los tres REQUIRED de `programas-nest` en `catalog:v1` (flechas inferidas):
 
@@ -404,10 +407,11 @@ Ese es el `diagram.mermaid` de `get_official_path("programas-nest")` mientras el
 
 | Evento | Comportamiento |
 |---|---|
-| Primer uso | `GET catalog:current` + `GET catalog:vN`. Se guarda `{ version, snapshot }` en una variable de módulo |
-| Request siguiente, mismo `vN` | No se vuelve a leer el JSON del snapshot. Sí se relee el puntero `catalog:current` (string corto) para detectar rotación |
-| Puntero cambió | Se descarta el snapshot y se carga el nuevo |
-| Redis lanza o timeout | Se usa el seed en disco, una sola lectura. `catalog_version` de las respuestas es el `version` de ese JSON (hoy `0`). `notes` agrega la frase fija `Catálogo desde seed local porque Redis no respondió.` |
+| Primer uso | `GET catalog:current` (`getCurrentVersion`, solo el puntero) y, si hay versión, `GET catalog:vN`. Se guarda `{ pointer, snapshot }` |
+| Requests siguientes dentro de 30 s | Cero lecturas. Ni puntero ni snapshot. El intervalo es `versionCheckIntervalMs` (default 30_000) |
+| Pasada la ventana, mismo puntero | Un `GET` del puntero. No se descarga el snapshot |
+| Puntero cambió | Se descarga el snapshot una vez y se reemplaza el cache |
+| Redis lanza o no hay puntero | Se usa el seed en disco, una sola lectura. `catalog_version` de las respuestas es el `version` de ese JSON (hoy `0`). `notes` agrega la frase fija `Catálogo desde seed local porque Redis no respondió.` |
 | Seed también ilegible | `catalog_unavailable` |
 
 El cache no tiene TTL. La invalidación es la versión. Dos procesos Nest (dos réplicas) tienen caches independientes; cada uno observa el puntero. No hace falta pub/sub.
@@ -496,3 +500,9 @@ Los parsers del scraper y los tests de auth no se modifican para hacer pasar est
 7. **`search_courses.official_path_id`** filtra cursos que aparecen en esa ruta, no cambia el ranking más allá del filtro.
 8. **ANYTIME cuenta como opcional** para `include_optional`. Si producto quiere ANYTIME siempre incluido, se cambia el spec antes de implementar; hoy no.
 9. **Versión del SDK** fijada a 1.30.1 el 2026-09-25. Subir de patch está permitido si el API `StreamableHTTPServerTransport({ sessionIdGenerator: undefined })` sigue igual. Saltar a la línea 2 alpha no.
+
+## 11. Desviaciones aceptadas
+
+1. El error de schema es el texto del SDK (`Input validation error: ...`), no el código `invalid_input`.
+2. El Mermaid lleva `classDef` y clases de nodo (`:::required`, `:::requiredPartial`, `:::requiredKnown`).
+3. La normalización usa `toLocaleLowerCase("es")`.

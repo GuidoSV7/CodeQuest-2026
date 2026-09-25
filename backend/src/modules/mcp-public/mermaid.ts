@@ -3,6 +3,7 @@ export type MermaidItem = {
   title: string
   bucket: 'required' | 'recommended' | 'optional' | 'anytime' | null
   already_known: boolean
+  partial?: boolean
 }
 
 export type MermaidEdge = {
@@ -16,7 +17,8 @@ export function escapeMermaidLabel(title: string): string {
 
 export function mermaidClass(item: MermaidItem): string {
   const base = item.bucket ?? 'search'
-  return item.already_known ? `${base}Known` : base
+  const flagged = item.partial ? `${base}Partial` : base
+  return item.already_known ? `${flagged}Known` : flagged
 }
 
 export function renderMermaid(items: MermaidItem[], edges: MermaidEdge[]): string {
@@ -30,6 +32,7 @@ export function renderMermaid(items: MermaidItem[], edges: MermaidEdge[]): strin
     lines.push(`  c${edge.from_course_id} --> c${edge.to_course_id}`)
   }
   lines.push('  classDef required stroke:#b48cf3')
+  lines.push('  classDef requiredPartial stroke:#b48cf3,stroke-dasharray: 2 2')
   lines.push('  classDef recommended stroke:#7d6bff')
   lines.push('  classDef optional stroke:#8a849f')
   lines.push('  classDef anytime stroke:#5b5670')

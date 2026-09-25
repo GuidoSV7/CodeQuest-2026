@@ -31,6 +31,6 @@ export function buildTypeOrmOptions(
     migrations: [
       join(__dirname, '..', 'database', 'migrations', '[0-9]*.{ts,js}'),
     ],
-    migrationsTableName: 'migrations',
+    migrationsRun: true,
   }
 }

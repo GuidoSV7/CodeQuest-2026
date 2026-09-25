@@ -31,6 +31,12 @@ describe('migrations (postgres empty DB)', () => {
         'learning_paths',
         'learning_path_items',
         'user_course_progress',
+        'oauth_clients',
+        'oauth_cimd_documents',
+        'oauth_authorization_codes',
+        'oauth_access_tokens',
+        'oauth_refresh_tokens',
+        'oauth_resume',
         'migrations',
       ]),
     )
@@ -50,14 +56,17 @@ describe('migrations (postgres empty DB)', () => {
   })
 
   it('reverts the last migration (down) when supported', async () => {
-    // Ensure up
-    if ((await ctx.dataSource.showMigrations()) === false) {
-      // already applied from previous test in same DS — ok
-    } else {
+    if ((await ctx.dataSource.showMigrations()) !== false) {
       await ctx.dataSource.runMigrations()
     }
 
-    await ctx.dataSource.undoLastMigration()
+    const applied = await ctx.dataSource.query<{ n: string }[]>(
+      `SELECT COUNT(*)::text AS n FROM migrations`,
+    )
+    const count = Number(applied[0]?.n ?? 0)
+    for (let index = 0; index < count; index += 1) {
+      await ctx.dataSource.undoLastMigration()
+    }
 
     const tables = await ctx.dataSource.query<{ tablename: string }[]>(
       `SELECT tablename FROM pg_tables WHERE schemaname = 'public' AND tablename = 'users'`,

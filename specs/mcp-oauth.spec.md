@@ -22,7 +22,7 @@ El usuario conecta Claude, Cursor u otro cliente MCP a **su** catálogo personal
 | Resource canónico | `https://codequest-backend-zhydji-2dfcea-31-97-78-167.sslip.io/mcp/user` (sin barra final) |
 | Issuer | `https://codequest-backend-zhydji-2dfcea-31-97-78-167.sslip.io` (sin barra final, sin path) |
 | Librería AS | `mcp-oauth-server@1.0.0` (npm, 2026-08-11, MIT). Express, montada en el Nest actual |
-| Tokens | Opacos, de un solo uso en el refresh, guardados hasheados. **No JWT y no JWKS.** Ver §1 |
+| Tokens | Opacos, de un solo uso en el refresh. **Se acepta el token opaco en lugar de JWT**, con dos condiciones: en Postgres se guarda solo el hash SHA-256 (nunca el valor en claro) de códigos, access tokens y refresh tokens. **No JWT y no JWKS.** Ver §1 |
 | `sub` | `users.id` interno, columna de la fila del access token. Nunca el id de Discord y nunca un argumento de tool |
 | Audiencia | Campo `resource` del token = resource canónico (RFC 8707). Otro valor → 401 |
 | Login | El mismo Discord. Sin segundo flujo. El token de Discord no se reenvía ni se guarda |
@@ -30,6 +30,8 @@ El usuario conecta Claude, Cursor u otro cliente MCP a **su** catálogo personal
 | Scopes | `profile:read` `paths:read` `paths:write` `progress:read` `progress:write`. Sin `offline_access` |
 | Refresh | Grant `refresh_token`, no es un scope. Rotación en cada uso. Reuso → `invalid_grant` |
 | PAT | Bloque §11, opcional y recortable. Fuera del camino feliz |
+| Metadata | La sirve el backend (`McpUserController`), no el router de la librería. Aceptado |
+| `iss` | Sin barra final. El redirect reescribe el `href` de la librería, que sí la agrega |
 
 `/mcp` público sigue stateless, sin header `Authorization`, sin estas rutas y sin estas tablas.
 

@@ -159,4 +159,59 @@ describe('MCP user tools', () => {
     }
     expect(search.courses[0]?.id).toBe('100')
   })
+
+  it('reads profile, paths and progress for the token user', async () => {
+    const ada = await clientFor('token-a')
+    const saved = await ada.callTool({
+      name: 'save_learning_path',
+      arguments: { course_ids: ['100'], title: 'Ruta de Ada' },
+    })
+    const created = JSON.parse(textOf(saved)) as { id: string; title: string; items: Array<{ courseId: string }> }
+    expect(created.title).toBe('Ruta de Ada')
+    expect(created.items[0]?.courseId).toBe('100')
+
+    const profile = JSON.parse(textOf(await ada.callTool({ name: 'get_my_profile', arguments: {} }))) as {
+      display_name: string
+      active_path_count: number
+    }
+    expect(profile.display_name).toBe('Ada')
+    expect(profile.active_path_count).toBeGreaterThanOrEqual(1)
+
+    const listed = JSON.parse(textOf(await ada.callTool({ name: 'list_my_paths', arguments: {} }))) as {
+      paths: Array<{ id: string; title: string; completed_count: number }>
+    }
+    expect(listed.paths.find((path) => path.id === created.id)?.title).toBe('Ruta de Ada')
+
+    const detail = JSON.parse(textOf(await ada.callTool({ name: 'get_my_path', arguments: { id: created.id } }))) as {
+      id: string
+      items: Array<{ courseId: string; courseTitle: string; progress: { status: string } }>
+      diagram: { mermaid: string }
+    }
+    expect(detail.items[0]?.courseTitle).toBe('Course A')
+    expect(detail.items[0]?.progress.status).toBe('not_started')
+    expect(detail.diagram.mermaid).toContain('Course A')
+
+    const updated = JSON.parse(textOf(await ada.callTool({
+      name: 'update_course_progress',
+      arguments: { path_id: created.id, course_id: '100', status: 'completed' },
+    }))) as { course_id: string; status: string }
+    expect(updated).toEqual({ course_id: '100', status: 'completed' })
+
+    const after = JSON.parse(textOf(await ada.callTool({ name: 'get_my_path', arguments: { id: created.id } }))) as {
+      completedCount: number
+      items: Array<{ progress: { status: string } }>
+    }
+    expect(after.items[0]?.progress.status).toBe('completed')
+    expect(after.completedCount).toBe(1)
+
+    const bea = await clientFor('token-b')
+    const foreignList = JSON.parse(textOf(await bea.callTool({ name: 'list_my_paths', arguments: {} }))) as {
+      paths: Array<{ id: string }>
+    }
+    expect(foreignList.paths.map((path) => path.id)).not.toContain(created.id)
+  })
 })
+
+function textOf(result: { content?: Array<{ type: string; text?: string }> }): string {
+  return result.content?.find((item) => item.type === 'text')?.text ?? ''
+}

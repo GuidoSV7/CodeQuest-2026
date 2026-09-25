@@ -2,6 +2,7 @@ import { randomBytes } from 'node:crypto'
 import type { Request, Response } from 'express'
 import type { OAuthServer } from 'mcp-oauth-server'
 import { MCP_ISSUER_URL } from './mcp-oauth.metadata'
+import { issuedGrantId } from './oauth-grant-ledger'
 import type { ConsentUser } from './mount-mcp-authorization'
 
 export type ConnectedApp = {
@@ -16,6 +17,11 @@ export class ConnectedApps {
 
   add(userId: string, app: ConnectedApp): void {
     this.rows.set(app.grant_id, { ...app, userId })
+  }
+
+  owns(userId: string, grantId: string): boolean {
+    const row = this.rows.get(grantId)
+    return Boolean(row && row.userId === userId)
   }
 
   list(userId: string): ConnectedApp[] {
@@ -101,8 +107,10 @@ export function mountConsentRoutes(
       res,
     )
     const hostname = safeHostname(redirectUri)
+    const grantId = issuedGrantId(oauth.model, userId, client.client_id)
+    if (!grantId) return
     apps.add(userId, {
-      grant_id: randomBytes(12).toString('base64url'),
+      grant_id: grantId,
       client_name: client.client_name ?? client.client_id,
       hostname,
       scopes,

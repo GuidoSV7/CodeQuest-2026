@@ -14,6 +14,10 @@ export function createRedisCatalogRepository(
   const retain = options.retainPreviousVersions ?? 1
 
   return {
+    async getCurrentVersion() {
+      return redis.get(REDIS_KEYS.current)
+    },
+
     async getCurrent() {
       const pointer = await redis.get(REDIS_KEYS.current)
       if (!pointer) return null
