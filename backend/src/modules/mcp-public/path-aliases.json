@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "entries": [
+    { "path_id": "programas-fundamentos", "aliases": ["fundamentos", "javascript", "js"] },
+    { "path_id": "programas-react", "aliases": ["react", "reactjs"] },
+    { "path_id": "programas-vue", "aliases": ["vue", "vuejs"] },
+    { "path_id": "programas-angular", "aliases": ["angular"] },
+    { "path_id": "programas-node", "aliases": ["node", "nodejs"] },
+    { "path_id": "programas-nest", "aliases": ["nest", "nestjs"] },
+    { "path_id": "ruta-dart", "aliases": ["dart", "flutter", "movil"] },
+    { "path_id": "ruta-python", "aliases": ["python"] },
+    { "path_id": "ruta-java", "aliases": ["java"] },
+    { "path_id": "ruta-c", "aliases": ["csharp", "dotnet", "c"] },
+    { "path_id": "ruta-ia", "aliases": ["ia", "inteligencia artificial", "llm"] },
+    { "path_id": "ruta-php", "aliases": ["php"] },
+    { "path_id": "ruta-go", "aliases": ["go", "golang"] }
+  ]
+}

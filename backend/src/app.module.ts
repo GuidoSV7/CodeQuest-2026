@@ -8,6 +8,7 @@ import { HealthModule } from './modules/health/health.module'
 import { CatalogScraperModule } from './modules/catalog-scraper/nest/catalog-scraper.module'
 import { IdentityModule } from './modules/identity/identity.module'
 import { LearningPathsModule } from './modules/learning-paths/learning-paths.module'
+import { McpPublicModule } from './modules/mcp-public/mcp-public.module'
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { LearningPathsModule } from './modules/learning-paths/learning-paths.mod
     CatalogScraperModule,
     IdentityModule,
     LearningPathsModule,
+    McpPublicModule,
   ],
 })
 export class AppModule {}

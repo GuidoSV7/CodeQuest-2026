@@ -3,6 +3,16 @@
   "collection": "@nestjs/schematics",
   "sourceRoot": "src",
   "compilerOptions": {
-    "deleteOutDir": true
+    "deleteOutDir": true,
+    "assets": [
+      {
+        "include": "modules/catalog-scraper/data/catalog.seed.json",
+        "watchAssets": true
+      },
+      {
+        "include": "modules/mcp-public/path-aliases.json",
+        "watchAssets": true
+      }
+    ]
   }
 }
