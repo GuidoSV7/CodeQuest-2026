@@ -125,6 +125,8 @@
 .authButtonPrimary:hover {
   filter: brightness(1.08);
 }
+
+.avatar {
   display: grid;
   min-height: 2.25rem;
   padding: 0 var(--orbital-space-2);
