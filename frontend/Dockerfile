@@ -5,6 +5,7 @@ WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
 
 FROM base AS deps
+COPY path-diagram ./path-diagram
 COPY package.json package-lock.json* ./
 RUN npm ci
 

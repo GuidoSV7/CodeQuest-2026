@@ -19,6 +19,7 @@ const nextConfig: OrbitalNextConfig = {
   output: "standalone",
   allowedDevOrigins: ["10.110.100.99"],
   outputFileTracingRoot: moduleRoot,
+  transpilePackages: ["path-diagram"],
   turbopack: {
     root: moduleRoot,
   },

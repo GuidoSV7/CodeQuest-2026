@@ -33,10 +33,11 @@ Los ids de ruta que usa el catálogo son `programas-fundamentos` y `ruta-dart` (
 
 ## 1. Dónde vive el componente
 
-El repo es un workspace npm con `frontend/` y `backend/`. El widget no puede importar Next ni axios, y el backend no puede importar páginas de Next. El código compartido entra como tercer workspace.
+El repo es un workspace npm. Dokploy construye la imagen del frontend con contexto `frontend/`, así que el código compartido vive ahí y no en un paquete publicado.
 
 ```
-packages/path-diagram/
+frontend/path-diagram/
+```
   src/layout-path.ts          # layoutPath, pura, sin React
   src/path-diagram.tsx        # PathDiagram, @xyflow/react
   src/icons.ts                # SVG inline por categoría
@@ -48,7 +49,7 @@ packages/path-diagram/
 
 `frontend/package.json` depende de `path-diagram` (workspace). La página `frontend/src/app/(producto)/mis-rutas/[routeId]/page.tsx` hoy monta `RouteDetail`. Esa página, y solo el detalle de una ruta, renderiza `<PathDiagram model={...} mode="web" />`.
 
-El build del widget produce un solo archivo `packages/path-diagram/dist/path-diagram.html`. El Dockerfile del backend lo copia a `backend/dist/mcp-ui/path-diagram.html`. Al arrancar, un provider de Nest lo lee **una vez** y guarda el string en memoria. `resources/read` devuelve ese string. No vuelve a tocar el disco.
+El build del widget produce un solo archivo `frontend/path-diagram/dist/path-diagram.html`. El Dockerfile del backend lo copia a `backend/dist/mcp-ui/path-diagram.html`. Al arrancar, un provider de Nest lo lee **una vez** y guarda el string en memoria. `resources/read` devuelve ese string. No vuelve a tocar el disco.
 
 Hay un solo HTML para los dos servidores. El modo lo decide el resultado de la tool, no un segundo bundle: si `structuredContent.ui.allow_progress` es `true`, el widget muestra el control de progreso. Ese flag lo pone solo `get_my_path`.
 
