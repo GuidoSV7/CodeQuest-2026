@@ -166,6 +166,16 @@ export function createAuthService(deps: AuthServiceDeps) {
     async getMe(userId: string): Promise<UserRecord | null> {
       return users.findById(userId)
     },
+
+    async updateAvatar(userId: string, avatarUrl: string): Promise<UserRecord> {
+      const user = await users.findById(userId)
+      if (!user) throw new Error('user_not_found')
+      return users.updateProfile(userId, {
+        displayName: user.displayName,
+        avatarUrl,
+        email: user.email,
+      })
+    },
   }
 }
 

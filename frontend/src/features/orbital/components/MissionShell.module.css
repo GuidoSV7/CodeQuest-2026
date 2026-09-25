@@ -99,6 +99,7 @@
   letter-spacing: 0.15em;
   white-space: nowrap;
   text-decoration: none;
+  cursor: pointer;
   transition:
     color var(--orbital-motion-fast),
     border-color var(--orbital-motion-fast),
@@ -106,12 +107,20 @@
     transform var(--orbital-motion-fast);
 }
 
-a.avatar:hover {
+a.avatar:hover,
+button.avatar:hover {
   color: var(--orbital-night);
   border-color: var(--orbital-lime);
   border-style: solid;
   background: var(--orbital-lime);
   transform: translateY(-1px);
+}
+
+.avatar img {
+  width: 2rem;
+  height: 2rem;
+  object-fit: cover;
+  border-radius: 999px;
 }
 
 .mobileNav {
