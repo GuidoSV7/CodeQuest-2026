@@ -8,6 +8,7 @@ import {
 import type { CatalogSnapshot } from '../catalog-scraper/domain/catalog'
 import type { CatalogRepository } from '../catalog-scraper/ports/catalog-repository.port'
 import { LearningPathsService } from './learning-paths.service'
+import { LearningPathEventHub } from './learning-path-event.hub'
 import type {
   LearningPathItemRepository,
   LearningPathRepository,
@@ -340,5 +341,19 @@ describe('LearningPathsService', () => {
     await progress.upsertStatus(USER_A, '100', 'completed')
     expect((await service.getById(USER_A, first.id)).items[0]?.progress.status).toBe('completed')
     expect((await service.getById(USER_A, second.id)).items[0]?.progress.status).toBe('completed')
+  })
+
+  it('notifies only the owner when a generated path is saved', async () => {
+    const hub = new LearningPathEventHub()
+    const heard: string[] = []
+    hub.subscribe(USER_A, { send: (data) => heard.push(data) })
+    hub.subscribe(USER_B, { send: () => heard.push('leaked') })
+    const notifying = new LearningPathsService(paths, items, progress, catalog, hub)
+    await notifying.saveGenerated(USER_A, { courseIds: ['100'], title: 'Desde MCP' })
+    expect(heard).toHaveLength(1)
+    expect(JSON.parse(heard[0] ?? '')).toMatchObject({
+      type: 'path_created',
+      title: 'Desde MCP',
+    })
   })
 })

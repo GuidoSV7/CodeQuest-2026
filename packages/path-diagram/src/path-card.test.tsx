@@ -1,0 +1,74 @@
+// @vitest-environment jsdom
+
+import { act } from "react";
+import { createRoot } from "react-dom/client";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { PathCard } from "./path-card";
+
+globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+
+function mount(element: React.ReactNode) {
+  const container = document.createElement("div");
+  document.body.appendChild(container);
+  const root = createRoot(container);
+  act(() => {
+    root.render(element);
+  });
+  return { container, root };
+}
+
+const base = {
+  title: "React desde cero",
+  bucketLabel: "Requerido",
+  iconLabel: "Curso",
+  alreadyKnown: false,
+  partial: false,
+  completed: false,
+};
+
+afterEach(() => {
+  document.body.replaceChildren();
+});
+
+describe("PathCard", () => {
+  it("shows the title, the bucket badge and an icon", () => {
+    const { container, root } = mount(<PathCard {...base} onOpen={() => undefined} />);
+    expect(container.textContent).toContain("React desde cero");
+    expect(container.textContent).toContain("Requerido");
+    expect(container.querySelector("[role='img']")?.getAttribute("aria-label")).toBe("Curso");
+    act(() => root.unmount());
+  });
+
+  it("names already known, partial and completed in text", () => {
+    const known = mount(<PathCard {...base} alreadyKnown onOpen={() => undefined} />);
+    expect(known.container.textContent).toContain("Ya visto");
+    act(() => known.root.unmount());
+
+    const partial = mount(<PathCard {...base} partial onOpen={() => undefined} />);
+    expect(partial.container.textContent).toContain("Incompleto");
+    act(() => partial.root.unmount());
+
+    const done = mount(<PathCard {...base} alreadyKnown completed onOpen={() => undefined} />);
+    expect(done.container.textContent).toContain("Completado");
+    expect(done.container.textContent).not.toContain("Ya visto");
+    act(() => done.root.unmount());
+  });
+
+  it("opens the detail with click and with the keyboard", () => {
+    const onOpen = vi.fn();
+    const { container, root } = mount(<PathCard {...base} onOpen={onOpen} />);
+    const button = container.querySelector("button");
+    act(() => {
+      button?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    });
+    const enter = container.querySelector("button");
+    act(() => {
+      enter?.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
+    });
+    act(() => {
+      enter?.dispatchEvent(new KeyboardEvent("keydown", { key: " ", bubbles: true }));
+    });
+    expect(onOpen).toHaveBeenCalledTimes(3);
+    act(() => root.unmount());
+  });
+});

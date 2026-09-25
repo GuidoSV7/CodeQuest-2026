@@ -1,0 +1,42 @@
+.frame {
+  display: grid;
+  gap: 1rem;
+  background: #09081c;
+  color: #f4f1ff;
+}
+
+.canvas {
+  height: 560px;
+  border: 1px solid rgb(120 94 172 / 45%);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.canvas :global(.react-flow__edge-path) {
+  stroke: rgb(200 221 11 / 80%);
+  stroke-width: 1.25;
+}
+
+.header,
+.groupLabel {
+  color: #c8dd0b;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+}
+
+.dialog {
+  display: grid;
+  gap: 0.5rem;
+  padding: 1rem;
+  border: 1px solid rgb(120 94 172 / 45%);
+  border-radius: 12px;
+  background: #121028;
+}
+
+.dialog button {
+  justify-self: start;
+  border: 1px solid #c8dd0b;
+  background: transparent;
+  color: #c8dd0b;
+  padding: 0.4rem 0.8rem;
+}

@@ -10,7 +10,7 @@
         "watchAssets": true
       },
       {
-        "include": "modules/mcp-public/path-aliases.json",
+        "include": "modules/mcp-public/assets/**/*.html",
         "watchAssets": true
       }
     ]

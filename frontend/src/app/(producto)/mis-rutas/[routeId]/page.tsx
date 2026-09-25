@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { RouteDetail } from "@/features/learning-paths/components/RouteDetail";
+import { UserRouteDiagram } from "@/features/learning-paths/components/UserRouteDiagram";
 import styles from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -20,6 +21,7 @@ export default async function RoutePage({ params }: RoutePageProps) {
         Saltar al contenido
       </a>
       <div className={styles.shell} id="route-content">
+        <UserRouteDiagram routeId={routeId} />
         <RouteDetail routeId={routeId} />
       </div>
     </main>

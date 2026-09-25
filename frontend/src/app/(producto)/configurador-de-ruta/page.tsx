@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { AssessmentWizard } from "@/features/assessment/components/AssessmentWizard";
+import { MyRouteStatus } from "@/features/learning-paths/components/MyRouteStatus";
 import styles from "./page.module.css";
 
 export const metadata: Metadata = {
   title: "Configurador de ruta",
-  description: "Calibración local de una ruta de aprendizaje.",
+  description: "Rutas de aprendizaje de tu cuenta.",
 };
 
 export default function RouteConfiguratorPage() {
@@ -14,7 +14,7 @@ export default function RouteConfiguratorPage() {
         Saltar al contenido
       </a>
       <div className={styles.shell} id="assessment-content">
-        <AssessmentWizard />
+        <MyRouteStatus />
       </div>
     </main>
   );

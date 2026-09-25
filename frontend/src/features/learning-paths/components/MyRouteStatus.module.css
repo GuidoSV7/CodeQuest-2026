@@ -1,0 +1,51 @@
+.panel {
+  display: grid;
+  gap: var(--orbital-space-4);
+  color: var(--orbital-ink);
+  font-family: var(--orbital-font-body);
+}
+
+.kicker {
+  margin: 0;
+  color: var(--orbital-lime);
+  font-family: var(--orbital-font-telemetry);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--orbital-font-display);
+  font-size: clamp(2rem, 5vw, 3rem);
+}
+
+.empty,
+.note {
+  margin: 0;
+  color: var(--orbital-ink-muted);
+  font-size: 1.125rem;
+  line-height: 1.5;
+}
+
+.list {
+  display: grid;
+  gap: var(--orbital-space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.route {
+  display: block;
+  padding: var(--orbital-space-4);
+  border: 1px solid var(--orbital-header-border);
+  border-radius: var(--orbital-radius-sm);
+  color: var(--orbital-ink);
+  text-decoration: none;
+}
+
+.route:hover,
+.route:focus-visible {
+  color: var(--orbital-lime);
+}

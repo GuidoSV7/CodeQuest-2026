@@ -4,6 +4,7 @@ import { createCatalogCache } from '../mcp-public/catalog-cache'
 import { createLearningPathGenerator } from '../mcp-public/learning-path-generator'
 import { escapeMermaidLabel } from '../mcp-public/mermaid'
 import { registerMcpTools } from '../mcp-public/tools/register-mcp-tools'
+import { pathDiagramMeta, registerPathDiagram } from '../mcp-public/path-diagram-resource'
 import type { LearningPathsService } from '../learning-paths/learning-paths.service'
 import type { ProgressService } from '../learning-paths/progress.service'
 import { UnprocessableEntityException } from '@nestjs/common'
@@ -20,6 +21,7 @@ export type McpUserDeps = {
 export const mcpUserDeps: McpUserDeps = {}
 
 export function registerUserMcpServer(server: McpServer, userId: string): void {
+  registerPathDiagram(server)
   if (mcpUserDeps.catalog) {
     registerMcpTools(server, {
       cache: createCatalogCache({ repository: mcpUserDeps.catalog }),
@@ -47,6 +49,7 @@ export function registerUserMcpServer(server: McpServer, userId: string): void {
       description: 'Detalle de una ruta del usuario del token.',
       inputSchema: { id: z.string().uuid() },
       annotations: { ...annotations, readOnlyHint: true },
+      _meta: pathDiagramMeta,
     },
     async (args) => ok(await getPath(userId, args.id)),
   )
@@ -107,6 +110,19 @@ async function listPaths(userId: string, status: 'active' | 'archived' | 'all') 
   }
 }
 
+function requiredEdges(items: Array<{ courseId: string; bucket: string | null; position: number }>) {
+  const required = items
+    .filter((item) => item.bucket === 'required')
+    .sort((left, right) => left.position - right.position || left.courseId.localeCompare(right.courseId))
+  const edges: Array<{ from_course_id: string; to_course_id: string }> = []
+  for (let index = 0; index < required.length - 1; index += 1) {
+    const from = required[index]
+    const to = required[index + 1]
+    if (from && to) edges.push({ from_course_id: from.courseId, to_course_id: to.courseId })
+  }
+  return edges
+}
+
 async function getPath(userId: string, id: string) {
   try {
     const detail = await mcpUserDeps.paths?.getById(userId, id)
@@ -117,7 +133,7 @@ async function getPath(userId: string, id: string) {
       const state = item.progress.status === 'completed' ? 'Completed' : item.progress.status === 'in_progress' ? 'InProgress' : 'NotStarted'
       lines.push(`  c${item.courseId}["${escapeMermaidLabel(item.courseTitle)}"]:::${bucket}${state}`)
     }
-    return { ...detail, diagram: { mermaid: lines.join('\n') } }
+    return { ...detail, edges: requiredEdges(detail.items), ui: { allow_progress: true }, diagram: { mermaid: lines.join('\n') } }
   } catch {
     return fail('not_found')
   }

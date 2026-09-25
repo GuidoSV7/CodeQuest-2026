@@ -1,0 +1,121 @@
+import { describe, expect, it } from "vitest";
+import { layoutPath, type LayoutItem } from "./layout-path";
+
+function item(
+  courseId: string,
+  bucket: LayoutItem["bucket"],
+  position: number,
+): LayoutItem {
+  return { courseId, bucket, position };
+}
+
+describe("layoutPath", () => {
+  it("returns the same coordinates for the same input", () => {
+    const items = [
+      item("b", "required", 2),
+      item("a", "required", 1),
+      item("c", "anytime", 0),
+    ];
+    const edges = [{ fromCourseId: "a", toCourseId: "b" }];
+    const first = layoutPath(items, edges, 960);
+    const second = layoutPath([...items].reverse(), [...edges], 960);
+    expect(second).toEqual(first);
+  });
+
+  it("places each bucket in its column and sorts by position", () => {
+    const nodes = layoutPath(
+      [
+        item("req-late", "required", 5),
+        item("req-early", "required", 1),
+        item("rec", "recommended", 0),
+        item("opt", "optional", 0),
+        item("none", null, 0),
+      ],
+      [],
+      960,
+    ).nodes;
+    const at = (id: string) => nodes.find((node) => node.id === id);
+    expect(at("req-early")?.position).toEqual({ x: 40, y: 64 });
+    expect(at("req-late")?.position).toEqual({ x: 40, y: 184 });
+    expect(at("rec")?.position).toEqual({ x: 368, y: 64 });
+    expect(at("opt")?.position).toEqual({ x: 696, y: 184 });
+    expect(at("none")?.position).toEqual({ x: 696, y: 64 });
+  });
+
+  it("puts anytime courses inside a group below the columns", () => {
+    const { nodes } = layoutPath(
+      [item("req-a", "required", 0), item("req-b", "required", 1), item("any", "anytime", 0)],
+      [],
+      960,
+    );
+    const group = nodes.find((node) => node.id === "group:anytime");
+    const child = nodes.find((node) => node.id === "any");
+    expect(group?.type).toBe("group");
+    expect(group?.position).toEqual({ x: 24, y: 312 });
+    expect(child?.parentId).toBe("group:anytime");
+    expect(child?.position).toEqual({ x: 16, y: 52 });
+  });
+
+  it("stacks sections in one column below 720px", () => {
+    const { nodes } = layoutPath(
+      [item("req", "required", 0), item("any", "anytime", 0)],
+      [],
+      400,
+    );
+    expect(nodes.find((node) => node.id === "req")?.position).toEqual({ x: 24, y: 60 });
+    expect(nodes.find((node) => node.id === "any")?.position).toEqual({ x: 24, y: 216 });
+    expect(nodes.find((node) => node.id === "group:anytime")).toBeUndefined();
+    expect(nodes.filter((node) => node.type === "card").every((node) => node.position.x === 24)).toBe(true);
+  });
+
+  it("uses columns again at exactly 720px", () => {
+    const narrow = layoutPath([item("req", "required", 0)], [], 719);
+    const wide = layoutPath([item("req", "required", 0)], [], 720);
+    expect(narrow.nodes.find((node) => node.id === "req")?.position).toEqual({ x: 24, y: 60 });
+    expect(wide.nodes.find((node) => node.id === "req")?.position).toEqual({ x: 40, y: 64 });
+  });
+
+  it("keeps only edges whose endpoints exist", () => {
+    const { edges } = layoutPath(
+      [item("a", "required", 0), item("b", "required", 1)],
+      [
+        { fromCourseId: "a", toCourseId: "b" },
+        { fromCourseId: "a", toCourseId: "missing" },
+        { fromCourseId: "ghost", toCourseId: "b" },
+      ],
+      960,
+    );
+    expect(edges).toEqual([
+      { id: "a->b", source: "a", target: "b", type: "smoothstep" },
+    ]);
+  });
+
+  it("does not invent an edge when the list is empty", () => {
+    const result = layoutPath(
+      [item("a", "required", 0), item("b", "required", 1)],
+      [],
+      960,
+    );
+    expect(result.edges).toEqual([]);
+  });
+
+  it("lays out a single course", () => {
+    const { nodes, edges } = layoutPath([item("solo", "required", 9)], [], 960);
+    expect(edges).toEqual([]);
+    expect(nodes.find((node) => node.id === "solo")).toMatchObject({
+      type: "card",
+      position: { x: 40, y: 64 },
+    });
+  });
+
+  it("lays out an empty path with column headers and no edges", () => {
+    const { nodes, edges } = layoutPath([], [], 960);
+    expect(edges).toEqual([]);
+    expect(nodes.filter((node) => node.type === "card")).toEqual([]);
+    expect(nodes.map((node) => node.id)).toEqual([
+      "header:required",
+      "header:recommended",
+      "header:optional",
+    ]);
+  });
+});

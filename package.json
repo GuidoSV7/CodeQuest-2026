@@ -7,7 +7,8 @@
   },
   "workspaces": [
     "frontend",
-    "backend"
+    "backend",
+    "packages/path-diagram"
   ],
   "scripts": {
     "dev:backend": "npm run start:dev --workspace=backend",

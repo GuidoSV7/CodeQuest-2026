@@ -4,6 +4,7 @@ import {
   Injectable,
   Logger,
   NotFoundException,
+  Optional,
   ServiceUnavailableException,
   UnprocessableEntityException,
 } from '@nestjs/common'
@@ -16,6 +17,10 @@ import type { CreateLearningPathDto } from './dto/create-learning-path.dto'
 import type { UpdateLearningPathDto } from './dto/update-learning-path.dto'
 import type { AddPathItemDto } from './dto/add-path-item.dto'
 import type { ReorderPathItemsDto } from './dto/reorder-path-items.dto'
+import {
+  LEARNING_PATH_EVENTS,
+  LearningPathEventHub,
+} from './learning-path-event.hub'
 import {
   LEARNING_PATH_ITEM_REPOSITORY,
   LEARNING_PATH_REPOSITORY,
@@ -89,6 +94,9 @@ export class LearningPathsService {
     private readonly progress: UserCourseProgressRepository,
     @Inject(CATALOG_REPOSITORY)
     private readonly catalog: CatalogRepository,
+    @Optional()
+    @Inject(LEARNING_PATH_EVENTS)
+    private readonly events?: LearningPathEventHub,
   ) {}
 
   async list(
@@ -251,7 +259,7 @@ export class LearningPathsService {
       sourceCatalogPathId: null,
       items,
     })
-    return this.toDetail(userId, created, snapshot)
+    return this.announce(userId, await this.toDetail(userId, created, snapshot))
   }
 
   async saveGenerated(
@@ -294,7 +302,7 @@ export class LearningPathsService {
       sourceCatalogPathId: source,
       items,
     })
-    return this.toDetail(userId, created, snapshot)
+    return this.announce(userId, await this.toDetail(userId, created, snapshot))
   }
 
   private async createOfficial(
@@ -362,7 +370,7 @@ export class LearningPathsService {
       sourceCatalogPathId: catalogPath.id,
       items,
     })
-    return this.toDetail(userId, created, snapshot)
+    return this.announce(userId, await this.toDetail(userId, created, snapshot))
   }
 
   private async requireOwnedPath(
@@ -426,6 +434,11 @@ export class LearningPathsService {
       }
       seen.add(id)
     }
+  }
+
+  private announce(userId: string, detail: LearningPathDetailDto): LearningPathDetailDto {
+    this.events?.publishPathCreated(userId, { id: detail.id, title: detail.title })
+    return detail
   }
 
   private async toDetail(

@@ -9,6 +9,7 @@ import {
   McpToolError,
   searchCourses,
 } from '../catalog-read'
+import { pathDiagramMeta, registerPathDiagram } from '../path-diagram-resource'
 import type { LearningPathGenerator } from '../learning-path-generator'
 
 const annotations = { readOnlyHint: true as const, openWorldHint: false as const }
@@ -38,6 +39,7 @@ export function registerMcpTools(
   server: McpServer,
   deps: { cache: CatalogCache; generator: LearningPathGenerator },
 ): void {
+  registerPathDiagram(server)
   server.registerTool(
     'search_courses',
     {
@@ -111,6 +113,7 @@ export function registerMcpTools(
         'Devuelve una ruta oficial completa: cursos en el orden del sitio, bucket y un diagrama Mermaid. Usala cuando ya se conoce el id de la ruta. Las flechas del diagrama son el orden lineal de los cursos obligatorios, no un grafo scrapeado.',
       inputSchema: { id: z.string().trim().min(1).max(80) },
       annotations,
+      _meta: pathDiagramMeta,
     },
     async (args) => {
       try {
@@ -133,6 +136,7 @@ export function registerMcpTools(
         include_optional: z.boolean().optional(),
       },
       annotations,
+      _meta: pathDiagramMeta,
     },
     async (args) => {
       try {

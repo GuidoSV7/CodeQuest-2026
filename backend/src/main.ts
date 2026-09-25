@@ -18,6 +18,8 @@ import {
 import { AUTH_COOKIE_OPTIONS, SESSION_JWT } from './modules/identity/identity.tokens'
 import type { AuthCookieOptions } from './modules/identity/identity.tokens'
 import type { SessionJwt } from './modules/identity/infrastructure/session-jwt'
+import { LEARNING_PATH_EVENTS, LearningPathEventHub } from './modules/learning-paths/learning-path-event.hub'
+import { attachLearningPathSocket } from './modules/learning-paths/learning-path-socket'
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule, { bodyParser: false })
@@ -87,6 +89,12 @@ async function bootstrap(): Promise<void> {
   })
 
   const port = config.get<number>('PORT', 3000)
+  attachLearningPathSocket({
+    server: app.getHttpServer(),
+    hub: app.get<LearningPathEventHub>(LEARNING_PATH_EVENTS),
+    sessionJwt: app.get<SessionJwt>(SESSION_JWT),
+    cookieName: cookie.name,
+  })
   await app.listen(port, '0.0.0.0')
 
   new Logger('Bootstrap').log(`API running on http://0.0.0.0:${port}/api`)

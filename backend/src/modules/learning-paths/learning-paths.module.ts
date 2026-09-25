@@ -18,6 +18,7 @@ import {
   USER_COURSE_PROGRESS_REPOSITORY,
 } from './ports/learning-path.ports'
 import { ProgressService } from './progress.service'
+import { LEARNING_PATH_EVENTS, LearningPathEventHub } from './learning-path-event.hub'
 
 @Module({
   imports: [
@@ -50,7 +51,8 @@ import { ProgressService } from './progress.service'
     },
     LearningPathsService,
     ProgressService,
+    { provide: LEARNING_PATH_EVENTS, useClass: LearningPathEventHub },
   ],
-  exports: [LearningPathsService, ProgressService],
+  exports: [LearningPathsService, ProgressService, LEARNING_PATH_EVENTS],
 })
 export class LearningPathsModule {}

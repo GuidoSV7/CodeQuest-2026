@@ -1,0 +1,59 @@
+.card {
+  display: grid;
+  grid-template-columns: 2rem 1fr;
+  gap: 0.75rem;
+  width: 248px;
+  min-height: 96px;
+  padding: 0.75rem;
+  border: 1px solid rgb(120 94 172 / 45%);
+  border-radius: 12px;
+  background: #121028;
+  color: #f4f1ff;
+  text-align: left;
+  cursor: pointer;
+}
+
+.card:focus-visible {
+  outline: 2px solid #c8dd0b;
+  outline-offset: 2px;
+}
+
+.icon {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid rgb(200 221 11 / 70%);
+  border-radius: 999px;
+  color: #c8dd0b;
+}
+
+.icon svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+}
+
+.copy {
+  display: grid;
+  align-content: center;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.bucket,
+.status {
+  color: #c8dd0b;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.title {
+  overflow: hidden;
+  font-size: 0.95rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
