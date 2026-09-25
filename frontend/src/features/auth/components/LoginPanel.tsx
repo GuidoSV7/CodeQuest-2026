@@ -1,13 +1,13 @@
 "use client";
 
+import { discordStartUrl } from "@/features/auth/api/auth.service";
 import styles from "./LoginPanel.module.css";
 
 type LoginPanelProps = {
   returnTo?: string;
 };
 
-/** Stitch login card — presentation only; no backend or Discord redirect. */
-export function LoginPanel(_props: LoginPanelProps) {
+export function LoginPanel({ returnTo = "/" }: LoginPanelProps) {
   return (
     <section className={styles.panel} aria-labelledby="login-title">
       <span className={styles.terminalLabel}>TERMINAL DE ACCESO // AUTH</span>
@@ -15,16 +15,16 @@ export function LoginPanel(_props: LoginPanelProps) {
         Inicia sesión en tu misión
       </h1>
       <div className={styles.discordAction}>
-        <button
+        <a
           className={styles.discordButton}
-          type="button"
+          href={discordStartUrl(returnTo)}
           aria-label="Continuar con Discord para iniciar sesión"
         >
           <span className={styles.discordLogo} aria-hidden="true">
             LOGO
           </span>
           <span>Continuar con Discord</span>
-        </button>
+        </a>
       </div>
       <div className={styles.divider} aria-hidden="true">
         <span>o</span>

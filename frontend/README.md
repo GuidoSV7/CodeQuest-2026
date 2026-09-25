@@ -4,9 +4,9 @@ Next.js App Router scaffold for CodeQuest (sin Solana ni dominios ajenos).
 
 ```bash
 cd frontend
-cp .env.example .env.local
+cp .env.example .env
 npm install
 npm run dev
 ```
 
-API: `NEXT_PUBLIC_API_URL` → Nest backend (default `http://localhost:3000`).
+API: `NEXT_PUBLIC_API_URL` se lee de `frontend/.env`.

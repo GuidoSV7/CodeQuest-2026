@@ -3,7 +3,7 @@
 import { act } from "react";
 import { createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { orbitalDemoSessionFixture } from "@/../test/fixtures/ui-stitch-orbital";
+import { orbitalDemoSessionFixture } from "@/features/orbital/fixtures";
 import { LearningPathsDashboard } from "@/features/learning-paths/components/LearningPathsDashboard";
 import { LearningPathsEmptyState } from "@/features/learning-paths/components/LearningPathsEmptyState";
 import { RouteDetail } from "@/features/learning-paths/components/RouteDetail";

@@ -1,4 +1,4 @@
-import type { OrbitalFixtureMode } from "@/../test/fixtures/ui-stitch-orbital";
+import type { OrbitalFixtureMode } from "@/features/orbital/fixtures";
 
 export type LearningPathStatus =
   | "anonymous"

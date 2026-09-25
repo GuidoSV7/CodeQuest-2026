@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { tokenPreviewFixture } from "@/../test/fixtures/ui-stitch-orbital";
+import { tokenPreviewFixture } from "@/features/orbital/fixtures";
 import {
   getBrowserCapabilities,
   type BrowserCapabilities,

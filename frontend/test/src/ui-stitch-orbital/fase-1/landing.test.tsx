@@ -5,7 +5,7 @@ import { createRoot } from "react-dom/client";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { landingFixture } from "@/../test/fixtures/ui-stitch-orbital";
+import { landingFixture } from "@/features/orbital/fixtures";
 import HomePage from "@/app/(producto)/page";
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;

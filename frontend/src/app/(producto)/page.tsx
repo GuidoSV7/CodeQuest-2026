@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { landingFixture } from "@/../test/fixtures/ui-stitch-orbital";
+import { landingFixture } from "@/features/orbital/fixtures";
 import styles from "./page.module.css";
 import { MissionRadar } from "@/features/orbital/components/MissionRadar";
 import { HomeAuthStatus } from "@/features/auth/components/HomeAuthStatus";

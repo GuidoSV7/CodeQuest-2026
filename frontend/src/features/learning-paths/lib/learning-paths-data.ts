@@ -1,7 +1,7 @@
 import {
   learningPathFixtures,
   type OrbitalFixtureMode,
-} from "@/../test/fixtures/ui-stitch-orbital";
+} from "@/features/orbital/fixtures";
 import { OrbitalDataSource } from "@/features/orbital/lib/data-source";
 import type { LearningPathCollection } from "../types/learning-path.types";
 

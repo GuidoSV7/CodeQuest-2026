@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import { learningPathFixtures } from "@/../test/fixtures/ui-stitch-orbital";
+import { learningPathFixtures } from "@/features/orbital/fixtures";
 import { getLearningPaths } from "@/features/learning-paths/lib/learning-paths-data";
 
 const frontendRoot = resolve(import.meta.dirname, "../../../..");

@@ -2,7 +2,7 @@ import {
   ORBITAL_MODES,
   assessmentFixtures,
   type OrbitalFixtureMode,
-} from "@/../test/fixtures/ui-stitch-orbital";
+} from "@/features/orbital/fixtures";
 import type { AssessmentDataResult } from "../types/assessment.types";
 
 function isFixtureMode(value: string): value is OrbitalFixtureMode {

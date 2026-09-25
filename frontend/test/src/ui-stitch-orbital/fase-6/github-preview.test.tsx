@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import { githubPreviewFixture } from "@/../test/fixtures/ui-stitch-orbital";
+import { githubPreviewFixture } from "@/features/orbital/fixtures";
 import { getBrowserCapabilities } from "@/features/integrations/lib/browser-capabilities";
 
 const frontendRoot = resolve(import.meta.dirname, "../../../..");

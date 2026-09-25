@@ -1,4 +1,4 @@
-import type { ReplanningFixture } from "@/../test/fixtures/ui-stitch-orbital";
+import type { ReplanningFixture } from "@/features/orbital/fixtures";
 
 export type ReplanningActionState = "idle" | "loading" | "success" | "error";
 

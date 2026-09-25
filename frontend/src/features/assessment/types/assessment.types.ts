@@ -1,7 +1,7 @@
 import type {
   AssessmentFixture,
   AssessmentQuestion,
-} from "@/../test/fixtures/ui-stitch-orbital";
+} from "@/features/orbital/fixtures";
 
 export type AssessmentAnswers = Readonly<Record<string, string>>;
 

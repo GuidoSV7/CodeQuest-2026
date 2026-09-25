@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { authFixtures, ORBITAL_MODES } from "@/../test/fixtures/ui-stitch-orbital";
+import { authFixtures, ORBITAL_MODES } from "@/features/orbital/fixtures";
 
 describe("Orbital fixture boundary", () => {
   it("defines every presentation mode without sensitive or external data", () => {

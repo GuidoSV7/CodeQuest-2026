@@ -9,10 +9,7 @@ type OrbitalNextConfig = NextConfig & {
 const nextConfig: OrbitalNextConfig = {
   output: "standalone",
   allowedDevOrigins: ["10.110.100.99"],
-  outputFileTracingRoot: path.join(
-    path.dirname(fileURLToPath(import.meta.url)),
-    "..",
-  ),
+  outputFileTracingRoot: path.dirname(fileURLToPath(import.meta.url)),
 };
 
 export default nextConfig;

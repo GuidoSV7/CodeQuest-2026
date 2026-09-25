@@ -1,7 +1,7 @@
 import {
   ORBITAL_MODES,
   type OrbitalFixtureMode,
-} from "@/../test/fixtures/ui-stitch-orbital";
+} from "@/features/orbital/fixtures";
 import type {
   OrbitalDataMode,
   OrbitalDataResult,

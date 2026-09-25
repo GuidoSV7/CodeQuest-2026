@@ -79,6 +79,7 @@
   font-family: var(--orbital-font-display);
   font-size: 1rem;
   font-weight: 700;
+  text-decoration: none;
   cursor: pointer;
   box-shadow: var(--orbital-shadow-panel);
   transition: background var(--orbital-motion-fast), transform var(--orbital-motion-fast);

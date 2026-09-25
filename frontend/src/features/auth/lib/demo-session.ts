@@ -1,4 +1,4 @@
-import { orbitalDemoSessionFixture } from "@/../test/fixtures/ui-stitch-orbital";
+import { orbitalDemoSessionFixture } from "@/features/orbital/fixtures";
 import type { SessionUser } from "../types/auth.types";
 
 export type OrbitalDemoEnvironment = Readonly<{

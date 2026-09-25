@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import { assessmentFixtures } from "@/../test/fixtures/ui-stitch-orbital";
+import { assessmentFixtures } from "@/features/orbital/fixtures";
 import { getAssessment } from "@/features/assessment/lib/assessment-data";
 import { answerQuestion, canAdvance } from "@/features/assessment/lib/assessment-state";
 

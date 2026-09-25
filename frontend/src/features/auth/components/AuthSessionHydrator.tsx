@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { orbitalDemoSessionFixture } from "@/../test/fixtures/ui-stitch-orbital";
+import { orbitalDemoSessionFixture } from "@/features/orbital/fixtures";
 import { useAuthStore } from "@/stores/auth-session";
 
 /**

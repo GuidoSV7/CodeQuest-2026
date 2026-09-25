@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { replanningFixture } from "@/../test/fixtures/ui-stitch-orbital";
+import { replanningFixture } from "@/features/orbital/fixtures";
 import {
   initialReplanningState,
   isActionDisabled,
