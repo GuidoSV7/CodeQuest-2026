@@ -4,13 +4,13 @@ import express, { type Express, type NextFunction, type Request, type Response }
 import type { OAuthServer } from 'mcp-oauth-server'
 import { CONNECTED_APPS, ConnectedApps, mountConsentRoutes } from './mcp-consent.routes'
 
-const require = createRequire(__filename)
-const libraryRoot = path.dirname(require.resolve('mcp-oauth-server'))
-const { authorizationHandler } = require(path.join(libraryRoot, 'handlers/authorize.js')) as typeof import('mcp-oauth-server/dist/handlers/authorize.js')
-const { tokenHandler } = require(path.join(libraryRoot, 'handlers/token.js')) as typeof import('mcp-oauth-server/dist/handlers/token.js')
-const { clientRegistrationHandler } = require(path.join(libraryRoot, 'handlers/register.js')) as typeof import('mcp-oauth-server/dist/handlers/register.js')
-const { revocationHandler } = require(path.join(libraryRoot, 'handlers/revoke.js')) as typeof import('mcp-oauth-server/dist/handlers/revoke.js')
-const { authenticateHandler } = require(path.join(libraryRoot, 'handlers/authenticate.js')) as typeof import('mcp-oauth-server/dist/handlers/authenticate.js')
+const load = createRequire(__filename)
+const libraryRoot = path.dirname(load.resolve('mcp-oauth-server'))
+const { authorizationHandler } = load(path.join(libraryRoot, 'handlers/authorize.js')) as typeof import('mcp-oauth-server/dist/handlers/authorize.js')
+const { tokenHandler } = load(path.join(libraryRoot, 'handlers/token.js')) as typeof import('mcp-oauth-server/dist/handlers/token.js')
+const { clientRegistrationHandler } = load(path.join(libraryRoot, 'handlers/register.js')) as typeof import('mcp-oauth-server/dist/handlers/register.js')
+const { revocationHandler } = load(path.join(libraryRoot, 'handlers/revoke.js')) as typeof import('mcp-oauth-server/dist/handlers/revoke.js')
+const { authenticateHandler } = load(path.join(libraryRoot, 'handlers/authenticate.js')) as typeof import('mcp-oauth-server/dist/handlers/authenticate.js')
 
 export const MCP_CIMD_FETCH = 'MCP_CIMD_FETCH'
 export const MCP_CONSENT_USER = 'MCP_CONSENT_USER'

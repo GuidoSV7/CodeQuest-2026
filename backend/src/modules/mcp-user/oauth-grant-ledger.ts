@@ -14,7 +14,9 @@ export function captureIssuedGrants(model: OAuthServerModel): OAuthServerModel {
     get(target, prop, receiver) {
       if (prop === 'saveAuthorizationCode') {
         return async (code: AuthorizationCode, client: OAuthClientInformationFull) => {
-          await target.saveAuthorizationCode(code, client)
+          const save = target.saveAuthorizationCode
+          if (!save) throw new Error('oauth model cannot store authorization codes')
+          await save.call(target, code, client)
           if (code.grantId && code.userId) {
             ledger.set(grantKey(code.userId, code.clientId), code.grantId)
           }
