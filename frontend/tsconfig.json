@@ -30,5 +30,11 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules",
+    "path-diagram/**/*.test.ts",
+    "path-diagram/**/*.test.tsx",
+    "path-diagram/vite.widget.config.ts",
+    "path-diagram/vitest.config.ts"
+  ]
 }

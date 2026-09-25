@@ -2,7 +2,11 @@ import { App } from "@modelcontextprotocol/ext-apps";
 import { createRoot } from "react-dom/client";
 import { modelFromToolResult, modelFromUserPath, PathDiagram, type DiagramModel } from "../src/index";
 
-const app = new App({ name: "codequest-path-diagram", version: "1.0.0" }, { autoResize: true });
+const app = new App(
+  { name: "codequest-path-diagram", version: "1.0.0" },
+  {},
+  { autoResize: true },
+);
 const root = createRoot(document.getElementById("root")!);
 let current: DiagramModel | null = null;
 
