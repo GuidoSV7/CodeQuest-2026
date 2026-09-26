@@ -16,6 +16,7 @@ describe('validateEnv auth vars', () => {
     expect(env.SESSION_COOKIE_SECURE).toBe(false)
     expect(env.SESSION_COOKIE_SAMESITE).toBe('lax')
     expect(env.FRONTEND_URL).toBe('http://localhost:3000')
+    expect(env.LOG_LEVEL).toBeUndefined()
   })
 
   it('rejects SameSite=None without Secure', () => {

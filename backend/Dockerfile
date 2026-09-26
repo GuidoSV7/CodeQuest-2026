@@ -23,8 +23,10 @@ RUN npm run build \
 FROM node:22-alpine AS runner
 WORKDIR /app
 
+ARG GIT_COMMIT=unknown
 ENV NODE_ENV=production
 ENV PORT=3000
+ENV GIT_COMMIT=$GIT_COMMIT
 
 RUN apk add --no-cache libc6-compat wget \
   && addgroup -S nodejs \

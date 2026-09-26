@@ -1,6 +1,7 @@
 import { App } from "@modelcontextprotocol/ext-apps";
 import { createRoot } from "react-dom/client";
 import { modelFromToolResult, modelFromUserPath, PathDiagram, type DiagramModel } from "../src/index";
+import { WIDGET_RESULT_TIMEOUT_MS, widgetView } from "../src/widget-status";
 
 const app = new App(
   { name: "codequest-path-diagram", version: "1.0.0" },
@@ -35,12 +36,30 @@ function render(model: DiagramModel) {
   );
 }
 
+const startedAt = Date.now();
+const timeout = setTimeout(() => {
+  if (current) return;
+  const view = widgetView({ text: null, isError: false, elapsedMs: Date.now() - startedAt });
+  root.render(<p>{view.message}</p>);
+}, WIDGET_RESULT_TIMEOUT_MS);
+
 app.ontoolresult = (result) => {
+  clearTimeout(timeout);
   const structured = result.structuredContent as Record<string, unknown> | undefined;
   const text = result.content?.find((item) => item.type === "text" && "text" in item)?.text;
-  const payload = structured ?? parseText(typeof text === "string" ? text : "");
+  const received = typeof text === "string" ? text : null;
+  const view = widgetView({
+    text: received,
+    isError: result.isError === true,
+    elapsedMs: Date.now() - startedAt,
+  });
+  if (view.kind === "error") {
+    root.render(<p>{view.message}</p>);
+    return;
+  }
+  const payload = structured ?? parseText(received ?? "");
   if (!payload) {
-    root.render(<p>Esperando la ruta…</p>);
+    root.render(<p>{view.message}</p>);
     return;
   }
   const userItems = Array.isArray(payload.items) && payload.items[0] && "courseId" in (payload.items[0] as object);

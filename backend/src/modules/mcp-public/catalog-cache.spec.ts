@@ -116,6 +116,27 @@ describe('catalog cache', () => {
     expect(second).toBe(first)
     expect(readSeed).toHaveBeenCalledTimes(1)
   })
+
+  it('throws catalog_unavailable only when Redis and the seed both fail', async () => {
+    const repo: CatalogRepository = {
+      async getCurrentVersion() {
+        throw new Error('redis down')
+      },
+      async getCurrent() {
+        throw new Error('redis down')
+      },
+      async save(catalog) {
+        return catalog
+      },
+    }
+    const cache = createCatalogCache({
+      repository: repo,
+      readSeed: () => {
+        throw new Error('seed missing')
+      },
+    })
+    await expect(cache.load()).rejects.toMatchObject({ message: 'catalog_unavailable' })
+  })
 })
 
 describe('catalog version window', () => {

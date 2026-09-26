@@ -7,6 +7,9 @@ import { CATALOG_REPOSITORY } from '../catalog-scraper/ports/catalog-repository.
 import { createCatalogCache } from './catalog-cache'
 import { createLearningPathGenerator } from './learning-path-generator'
 import { registerMcpTools } from './tools/register-mcp-tools'
+import { internalErrorText } from './mcp-tool-log'
+import { mcpRequestFields } from './mcp-request-fields'
+import { releaseCommit } from '../../release'
 
 @Controller()
 export class McpHttpController {
@@ -20,19 +23,28 @@ export class McpHttpController {
 
   @All('mcp')
   async handle(@Req() req: Request, @Res() res: Response): Promise<void> {
-    const server = new McpServer({ name: 'codequest-catalog', version: '1.0.0' })
+    const started = Date.now()
+    const fields = { surface: 'public' as const, ...mcpRequestFields(req.body) }
+    const server = new McpServer({ name: 'codequest-catalog', version: releaseCommit() })
     const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined })
     registerMcpTools(server, { cache: this.cache, generator: this.generator })
     try {
       await server.connect(transport)
       await transport.handleRequest(req, res, req.body)
+      this.logger.log(
+        { event: 'mcp_request_completed', ...fields, durationMs: Date.now() - started },
+        'MCP request completed',
+      )
     } catch (error) {
-      this.logger.error(error instanceof Error ? error.message : 'mcp_request_failed')
+      const message = internalErrorText(error, {
+        ...fields,
+        durationMs: Date.now() - started,
+      })
       if (!res.headersSent) {
         res.status(500).json({
           jsonrpc: '2.0',
           id: null,
-          error: { code: -32603, message: 'catalog_unavailable' },
+          error: { code: -32603, message },
         })
       }
     } finally {

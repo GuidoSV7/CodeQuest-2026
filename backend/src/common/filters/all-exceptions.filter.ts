@@ -54,10 +54,19 @@ export class AllExceptionsFilter implements ExceptionFilter {
     }
 
     if (status >= 500) {
+      const request = ctx.getRequest<{ method?: string }>()
       this.logger.error(
-        exception instanceof Error
-          ? (exception.stack ?? exception.message)
-          : String(exception),
+        {
+          event: 'unhandled_exception',
+          err:
+            exception instanceof Error
+              ? { type: exception.name, message: exception.message, stack: exception.stack }
+              : { message: String(exception) },
+          path: httpAdapter.getRequestUrl(ctx.getRequest()),
+          method: request.method,
+          statusCode: status,
+        },
+        'Unhandled exception',
       )
     }
 

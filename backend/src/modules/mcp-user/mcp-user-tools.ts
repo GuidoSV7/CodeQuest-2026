@@ -5,6 +5,7 @@ import { createLearningPathGenerator } from '../mcp-public/learning-path-generat
 import { escapeMermaidLabel } from '../mcp-public/mermaid'
 import { registerMcpTools } from '../mcp-public/tools/register-mcp-tools'
 import { pathDiagramMeta, registerPathDiagram } from '../mcp-public/path-diagram-resource'
+import { logMcpSwallowed, runMcpTool } from '../mcp-public/mcp-tool-log'
 import type { LearningPathsService } from '../learning-paths/learning-paths.service'
 import type { ProgressService } from '../learning-paths/progress.service'
 import { UnprocessableEntityException } from '@nestjs/common'
@@ -32,7 +33,8 @@ export function registerUserMcpServer(server: McpServer, userId: string): void {
   server.registerTool(
     'get_my_profile',
     { description: 'Perfil del usuario del token.', inputSchema: {}, annotations: { ...annotations, readOnlyHint: true } },
-    async () => ok(await profile(userId)),
+    async () =>
+      runMcpTool({ surface: 'user', tool: 'get_my_profile', userId }, async () => ok(await profile(userId))),
   )
   server.registerTool(
     'list_my_paths',
@@ -41,7 +43,10 @@ export function registerUserMcpServer(server: McpServer, userId: string): void {
       inputSchema: { status: z.enum(['active', 'archived', 'all']).optional() },
       annotations: { ...annotations, readOnlyHint: true },
     },
-    async (args) => ok(await listPaths(userId, args.status ?? 'active')),
+    async (args) =>
+      runMcpTool({ surface: 'user', tool: 'list_my_paths', userId }, async () =>
+        ok(await listPaths(userId, args.status ?? 'active')),
+      ),
   )
   server.registerTool(
     'get_my_path',
@@ -51,7 +56,10 @@ export function registerUserMcpServer(server: McpServer, userId: string): void {
       annotations: { ...annotations, readOnlyHint: true },
       _meta: pathDiagramMeta,
     },
-    async (args) => ok(await getPath(userId, args.id)),
+    async (args) =>
+      runMcpTool({ surface: 'user', tool: 'get_my_path', userId }, async () =>
+        ok(await getPath(userId, args.id)),
+      ),
   )
   server.registerTool(
     'save_learning_path',
@@ -65,7 +73,10 @@ export function registerUserMcpServer(server: McpServer, userId: string): void {
       },
       annotations,
     },
-    async (args) => ok(await savePath(userId, args)),
+    async (args) =>
+      runMcpTool({ surface: 'user', tool: 'save_learning_path', userId }, async () =>
+        ok(await savePath(userId, args)),
+      ),
   )
   server.registerTool(
     'update_course_progress',
@@ -78,7 +89,10 @@ export function registerUserMcpServer(server: McpServer, userId: string): void {
       },
       annotations,
     },
-    async (args) => ok(await updateProgress(userId, args.path_id, args.course_id, args.status)),
+    async (args) =>
+      runMcpTool({ surface: 'user', tool: 'update_course_progress', userId }, async () =>
+        ok(await updateProgress(userId, args.path_id, args.course_id, args.status)),
+      ),
   )
 }
 
@@ -134,7 +148,8 @@ async function getPath(userId: string, id: string) {
       lines.push(`  c${item.courseId}["${escapeMermaidLabel(item.courseTitle)}"]:::${bucket}${state}`)
     }
     return { ...detail, edges: requiredEdges(detail.items), ui: { allow_progress: true }, diagram: { mermaid: lines.join('\n') } }
-  } catch {
+  } catch (error) {
+    logMcpSwallowed({ surface: 'user', tool: 'get_my_path', userId }, error)
     return fail('not_found')
   }
 }
@@ -153,7 +168,9 @@ async function savePath(
     if (!saved) return fail('not_found')
     return saved
   } catch (error) {
-    if (error instanceof UnprocessableEntityException) return fail('invalid_input')
+    if (!(error instanceof UnprocessableEntityException)) {
+      logMcpSwallowed({ surface: 'user', tool: 'save_learning_path', userId }, error)
+    }
     return fail('invalid_input')
   }
 }

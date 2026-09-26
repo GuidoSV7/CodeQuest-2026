@@ -1,7 +1,12 @@
 import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
+import { Logger } from '@nestjs/common'
 import type { CatalogSnapshot } from '../catalog-scraper/domain/catalog'
 import type { CatalogRepository } from '../catalog-scraper/ports/catalog-repository.port'
+import { McpToolError } from './catalog-read'
+import { briefError } from './mcp-tool-log'
+
+const cacheLogger = new Logger('CatalogCache')
 
 export type CatalogLoad = {
   snapshot: CatalogSnapshot
@@ -94,8 +99,17 @@ export function createCatalogCache(deps: {
 
   function useSeed(): CatalogLoad {
     if (cached?.fromSeed) return cached
-    cachedPointer = null
-    cached = { snapshot: readSeed(), fromSeed: true }
-    return cached
+    try {
+      cachedPointer = null
+      cached = { snapshot: readSeed(), fromSeed: true }
+      return cached
+    } catch (error) {
+      if (cached) return cached
+      cacheLogger.error(
+        { event: 'catalog_read_failed', result: 'catalog_unavailable', err: briefError(error) },
+        'Catalog read failed',
+      )
+      throw new McpToolError('catalog_unavailable')
+    }
   }
 }

@@ -1,4 +1,4 @@
-import { All, Controller, Get, Inject, Req, Res } from '@nestjs/common'
+import { All, Controller, Get, Inject, Logger, Req, Res } from '@nestjs/common'
 import type { Request, Response } from 'express'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js'
@@ -12,9 +12,14 @@ import {
   unauthenticatedChallenge,
 } from './mcp-oauth.metadata'
 import { MCP_TOKEN_VERIFIER, type McpTokenVerifier } from './mcp-token-verifier'
+import { internalErrorText } from '../mcp-public/mcp-tool-log'
+import { mcpRequestFields } from '../mcp-public/mcp-request-fields'
+import { releaseCommit } from '../../release'
 
 @Controller()
 export class McpUserController {
+  private readonly logger = new Logger(McpUserController.name)
+
   constructor(@Inject(MCP_TOKEN_VERIFIER) private readonly tokens: McpTokenVerifier) {}
 
   @Get('.well-known/oauth-protected-resource')
@@ -34,13 +39,19 @@ export class McpUserController {
 
   @All('mcp/user')
   async handle(@Req() req: Request, @Res() res: Response): Promise<void> {
+    const started = Date.now()
+    const fields = { surface: 'user' as const, ...mcpRequestFields(req.body) }
     if (Object.prototype.hasOwnProperty.call(req.query, 'access_token')) {
+      this.logger.warn(
+        { event: 'mcp_access_token_query_rejected', ...fields },
+        'MCP access token in query rejected',
+      )
       res.status(400).json({ error: 'invalid_request' })
       return
     }
-    const header = req.headers.authorization
-    const token = readBearer(header)
+    const token = readBearer(req.headers.authorization)
     if (!token) {
+      this.logger.warn({ event: 'mcp_unauthenticated', ...fields }, 'MCP request unauthenticated')
       res.setHeader('WWW-Authenticate', unauthenticatedChallenge())
       res.status(401).json(rpc('invalid_token'))
       return
@@ -49,12 +60,24 @@ export class McpUserController {
     try {
       verified = await this.tokens.verifyAccessToken(token)
     } catch {
+      this.logger.warn(
+        { event: 'mcp_token_rejected', reason: 'verify_failed', ...fields },
+        'MCP token rejected',
+      )
       res.setHeader('WWW-Authenticate', unauthenticatedChallenge())
       res.status(401).json(rpc('invalid_token'))
       return
     }
     const now = Math.floor(Date.now() / 1000)
     if (verified.expiresAt < now || verified.resource !== MCP_RESOURCE_URL) {
+      this.logger.warn(
+        {
+          event: 'mcp_token_rejected',
+          reason: verified.expiresAt < now ? 'expired' : 'resource_mismatch',
+          ...fields,
+        },
+        'MCP token rejected',
+      )
       res.setHeader('WWW-Authenticate', unauthenticatedChallenge())
       res.status(401).json(rpc('invalid_token'))
       return
@@ -62,23 +85,45 @@ export class McpUserController {
     const missing = missingScopes(req.body)
     if (missing.length > 0 && !missing.every((scope) => verified.scopes.includes(scope))) {
       const absent = missing.filter((scope) => !verified.scopes.includes(scope))
+      this.logger.warn(
+        { event: 'mcp_insufficient_scope', ...fields, missingScopes: absent, userId: verified.userId },
+        'MCP scope rejected',
+      )
       res.setHeader('WWW-Authenticate', insufficientScopeChallenge(absent))
       res.status(403).json(rpc('insufficient_scope'))
       return
     }
-    await this.dispatch(req, res, verified.userId)
+    this.logger.log(
+      { event: 'mcp_request_accepted', ...fields, userId: verified.userId },
+      'MCP request accepted',
+    )
+    try {
+      await this.dispatch(req, res, verified.userId)
+      this.logger.log(
+        {
+          event: 'mcp_request_completed',
+          ...fields,
+          userId: verified.userId,
+          durationMs: Date.now() - started,
+        },
+        'MCP request completed',
+      )
+    } catch (error) {
+      const message = internalErrorText(error, {
+        ...fields,
+        userId: verified.userId,
+        durationMs: Date.now() - started,
+      })
+      if (!res.headersSent) res.status(500).json(rpc(message))
+    }
   }
 
   private async dispatch(req: Request, res: Response, userId: string): Promise<void> {
-    const server = new McpServer({ name: 'codequest-user', version: '1.0.0' })
+    const server = new McpServer({ name: 'codequest-user', version: releaseCommit() })
     const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined })
     registerUserMcpServer(server, userId)
-    try {
-      await server.connect(transport)
-      await transport.handleRequest(req, res, req.body)
-    } catch {
-      if (!res.headersSent) res.status(500).json(rpc('catalog_unavailable'))
-    }
+    await server.connect(transport)
+    await transport.handleRequest(req, res, req.body)
   }
 }
 

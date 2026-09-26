@@ -233,6 +233,11 @@ describe('public MCP endpoint', () => {
       await toolText(client, 'generate_learning_path', { goal: 'React' }),
     )
     expect(generated.strategy).toBe('official_path')
+    for (const goal of ['frontend', 'backend', 'móvil']) {
+      const other = JSON.parse(await toolText(client, 'generate_learning_path', { goal }))
+      expect(other.diagram.mermaid).toContain('flowchart')
+      expect(other.strategy === 'official_path' || other.strategy === 'catalog_search').toBe(true)
+    }
     expect(generated.source_path_id).toBe('programas-react')
     expect(generated.diagram.mermaid).toContain('flowchart')
     expect(official.path.diagram.mermaid).toContain('flowchart')

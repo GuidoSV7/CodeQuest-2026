@@ -6,11 +6,11 @@ import {
   getCourse,
   getOfficialPath,
   listOfficialPaths,
-  McpToolError,
   searchCourses,
 } from '../catalog-read'
 import { pathDiagramMeta, registerPathDiagram } from '../path-diagram-resource'
 import type { LearningPathGenerator } from '../learning-path-generator'
+import { runMcpTool } from '../mcp-tool-log'
 
 const annotations = { readOnlyHint: true as const, openWorldHint: false as const }
 
@@ -20,14 +20,6 @@ function ok(payload: object) {
   return {
     content: [{ type: 'text' as const, text: JSON.stringify(payload) }],
     structuredContent: payload as Record<string, unknown>,
-  }
-}
-
-function fail(error: unknown) {
-  const message = error instanceof McpToolError ? error.message : 'catalog_unavailable'
-  return {
-    isError: true as const,
-    content: [{ type: 'text' as const, text: message }],
   }
 }
 
@@ -53,8 +45,8 @@ export function registerMcpTools(
       },
       annotations,
     },
-    async (args) => {
-      try {
+    async (args) =>
+      runMcpTool({ surface: 'public', tool: 'search_courses' }, async () => {
         const { snapshot } = await deps.cache.load()
         return ok(
           searchCourses(snapshot, {
@@ -64,10 +56,7 @@ export function registerMcpTools(
             limit: args.limit,
           }),
         )
-      } catch (error) {
-        return fail(error)
-      }
-    },
+      }),
   )
 
   server.registerTool(
@@ -78,14 +67,11 @@ export function registerMcpTools(
       inputSchema: { id: idSchema },
       annotations,
     },
-    async (args) => {
-      try {
+    async (args) =>
+      runMcpTool({ surface: 'public', tool: 'get_course' }, async () => {
         const { snapshot } = await deps.cache.load()
         return ok(getCourse(snapshot, courseId(args.id)))
-      } catch (error) {
-        return fail(error)
-      }
-    },
+      }),
   )
 
   server.registerTool(
@@ -96,14 +82,11 @@ export function registerMcpTools(
       inputSchema: {},
       annotations,
     },
-    async () => {
-      try {
+    async () =>
+      runMcpTool({ surface: 'public', tool: 'list_official_paths' }, async () => {
         const { snapshot } = await deps.cache.load()
         return ok(listOfficialPaths(snapshot))
-      } catch (error) {
-        return fail(error)
-      }
-    },
+      }),
   )
 
   server.registerTool(
@@ -115,14 +98,11 @@ export function registerMcpTools(
       annotations,
       _meta: pathDiagramMeta,
     },
-    async (args) => {
-      try {
+    async (args) =>
+      runMcpTool({ surface: 'public', tool: 'get_official_path' }, async () => {
         const { snapshot } = await deps.cache.load()
         return ok(getOfficialPath(snapshot, args.id))
-      } catch (error) {
-        return fail(error)
-      }
-    },
+      }),
   )
 
   server.registerTool(
@@ -138,8 +118,8 @@ export function registerMcpTools(
       annotations,
       _meta: pathDiagramMeta,
     },
-    async (args) => {
-      try {
+    async (args) =>
+      runMcpTool({ surface: 'public', tool: 'generate_learning_path' }, async () => {
         const loaded = await deps.cache.load()
         return ok(
           generatePath(loaded.snapshot, deps.generator, {
@@ -149,9 +129,6 @@ export function registerMcpTools(
             fromSeed: loaded.fromSeed,
           }),
         )
-      } catch (error) {
-        return fail(error)
-      }
-    },
+      }),
   )
 }

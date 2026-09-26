@@ -160,6 +160,18 @@ describe('MCP user tools', () => {
     expect(search.courses[0]?.id).toBe('100')
   })
 
+  it('generates a path for React, frontend, backend and móvil', async () => {
+    const ada = await clientFor('token-a')
+    for (const goal of ['React', 'frontend', 'backend', 'móvil']) {
+      const result = await ada.callTool({ name: 'generate_learning_path', arguments: { goal } })
+      expect(result.isError).not.toBe(true)
+      const text = result.content?.find((item) => item.type === 'text' && 'text' in item)?.text ?? ''
+      const parsed = JSON.parse(text) as { strategy: string; diagram: { mermaid: string } }
+      expect(parsed.diagram.mermaid).toContain('flowchart')
+      expect(['official_path', 'catalog_search']).toContain(parsed.strategy)
+    }
+  })
+
   it('reads profile, paths and progress for the token user', async () => {
     const ada = await clientFor('token-a')
     const saved = await ada.callTool({

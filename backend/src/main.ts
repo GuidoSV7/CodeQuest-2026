@@ -97,9 +97,9 @@ async function bootstrap(): Promise<void> {
   })
   await app.listen(port, '0.0.0.0')
 
-  new Logger('Bootstrap').log(`API running on http://0.0.0.0:${port}/api`)
-  new Logger('Bootstrap').log(`MCP running on http://0.0.0.0:${port}/mcp`)
-  new Logger('Bootstrap').log(`CORS origin: ${frontendUrl}`)
+  new Logger('Bootstrap').log({ port, event: 'api_listening' }, 'API listening')
+  new Logger('Bootstrap').log({ port, path: '/mcp', event: 'mcp_listening' }, 'MCP listening')
+  new Logger('Bootstrap').log({ frontendUrl, event: 'cors_configured' }, 'CORS origin configured')
 }
 
 void bootstrap()

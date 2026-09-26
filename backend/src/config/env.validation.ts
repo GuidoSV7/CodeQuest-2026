@@ -9,6 +9,7 @@ const boolString = z
 const baseEnvSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   PORT: z.coerce.number().int().positive().default(3000),
+  LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).optional(),
 
   // PostgreSQL / TypeORM
   DB_HOST: z.string().min(1).default('localhost'),
