@@ -12,7 +12,9 @@ export default async function LivePathPage({
   const { fixture } = await searchParams;
   return (
     <div className={text.className} style={{ ["--live-display" as string]: display.style.fontFamily }}>
-      <LivePathScreen fixture={fixture} />
+      {fixture ? <LivePathScreen fixture={fixture} /> : (
+        <p className={text.className}>Cuando Claude arme una ruta, aparece sobre la página en la que estés.</p>
+      )}
     </div>
   );
 }

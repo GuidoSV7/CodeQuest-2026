@@ -54,6 +54,23 @@ export function reduceLiveEvent(screen: LiveScreen, message: LiveRecord): LiveSc
   return screen;
 }
 
+export type LiveModalState = {
+  screen: LiveScreen;
+  open: boolean;
+};
+
+const MODAL_EVENTS = new Set(["path.generated", "path.saved", "path.choice_required"]);
+
+export function reduceLiveModal(
+  state: LiveModalState,
+  message: { event?: string; data?: Record<string, unknown> },
+): LiveModalState {
+  if (message.event === "dismiss") return { ...state, open: false };
+  const screen = reduceLiveEvent(state.screen, message);
+  const announced = MODAL_EVENTS.has(message.event ?? "");
+  return { screen, open: announced || (state.open && screen.kind !== "sin_sesion") };
+}
+
 export function appearanceDelay(index: number, reducedMotion: boolean): number {
   if (reducedMotion) return 0;
   return index * 90;

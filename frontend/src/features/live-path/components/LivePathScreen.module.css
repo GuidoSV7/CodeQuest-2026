@@ -72,6 +72,47 @@
   overflow: hidden;
 }
 
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 24px 16px;
+  background: rgba(8, 5, 18, 0.72);
+}
+
+.dialog {
+  position: relative;
+  width: min(1100px, 100%);
+  max-height: min(860px, calc(100vh - 48px));
+  overflow: auto;
+  padding: 28px 20px 36px;
+  border: 1px solid rgba(192, 185, 252, 0.12);
+  border-radius: 20px;
+  background: #130c25;
+  color: #f0eeff;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+}
+
+.dialog .canvas {
+  height: min(560px, 60vh);
+}
+
+.close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 1;
+  border: 1px solid rgba(192, 185, 252, 0.28);
+  border-radius: 999px;
+  background: transparent;
+  color: #f0eeff;
+  padding: 6px 14px;
+  font: inherit;
+  cursor: pointer;
+}
+
 .sr {
   position: absolute;
   width: 1px;

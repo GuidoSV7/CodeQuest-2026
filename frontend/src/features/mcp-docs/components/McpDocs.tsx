@@ -46,6 +46,9 @@ export function McpDocs() {
     }
   }
 }`;
+  const livePrompt = `Usá solo el servidor codequest-cuenta (/mcp/user). No uses el catálogo público para esto.
+Armame una ruta para aprender React con generate_learning_path.
+Cuando la tool termine, repetí la frase que te devolvió, incluida la página.`;
 
   return (
     <article className={styles.article}>
@@ -130,6 +133,33 @@ export function McpDocs() {
           </li>
           <li>Cuando el conector figure conectado, pedí una ruta o tu progreso en el chat.</li>
         </ol>
+      </section>
+
+      <section className={styles.section} aria-labelledby="live-path">
+        <h2 id="live-path">5. Ver la ruta mientras hablás</h2>
+        <p>
+          La página <a href="/en-vivo">/en-vivo</a> dibuja la ruta en el momento.
+          Tiene que estar abierta con la misma cuenta de Discord del conector, y el
+          indicador tiene que decir <strong>En vivo</strong>. Si dice Sin sesión, el
+          navegador no tiene la cookie y no va a aparecer nada.
+        </p>
+        <p>
+          Solo el servidor <strong>codequest-cuenta</strong> actualiza esa página.
+          El catálogo público también arma rutas, pero no las manda a la web.
+          Pegá este pedido en Claude o en Cursor:
+        </p>
+        <pre className={styles.code}>
+          <code>{livePrompt}</code>
+        </pre>
+        <p>
+          La tool responde con la frase «La ruta se muestra en tu página» y el
+          diagrama aparece sin recargar. Si hay dos rutas parecidas, Claude dice
+          «Decile a Claude cuál preferís» y las opciones quedan en la página.
+          Respondé en el chat cuál querés: esas opciones no se clickean.
+        </p>
+        <p>
+          Para guardarla en tu cuenta, seguí con: «Guardá esa ruta en mi cuenta.»
+        </p>
       </section>
 
       <section className={styles.section} aria-labelledby="tools">

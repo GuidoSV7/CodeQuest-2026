@@ -2,6 +2,11 @@
 
 import { useEffect } from "react";
 import { fetchMe } from "@/features/auth/api/auth.service";
+import {
+  clearSignedOut,
+  readSignedOut,
+  resolveOrbitalSession,
+} from "@/features/auth/lib/demo-session";
 import { useAuthStore } from "@/stores/auth-session";
 
 /** Loads the Discord cookie session from GET /api/auth/me. */
@@ -12,9 +17,16 @@ export function AuthSessionHydrator() {
   useEffect(() => {
     let cancelled = false;
     void (async () => {
-      const user = await fetchMe();
+      const environment = {
+        nodeEnv: process.env.NODE_ENV,
+        demoSession: process.env.NEXT_PUBLIC_ORBITAL_DEMO_SESSION,
+      };
+      const user = readSignedOut()
+        ? await fetchMe()
+        : await resolveOrbitalSession(environment, fetchMe);
       if (cancelled) return;
-      setUser(user);
+      if (user) clearSignedOut();
+      setUser(readSignedOut() ? null : user);
       setHydrated(true);
     })();
     return () => {

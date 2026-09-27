@@ -8,10 +8,10 @@ export type AuthFixture = {
 };
 
 export const orbitalDemoSessionFixture: SessionUser = {
-  id: "orbital-demo-user",
-  displayName: "Orbital Demo",
-  avatarUrl: null,
-  email: null,
+  id: "e325e61b-e895-49a9-ae24-aa3a379fecc4",
+  displayName: "Guido Salazar",
+  avatarUrl: "https://cdn.discordapp.com/embed/avatars/0.png",
+  email: "guido.salazar.vargas7@gmail.com",
 };
 
 export const authFixtures: Readonly<Record<OrbitalFixtureMode, AuthFixture>> =

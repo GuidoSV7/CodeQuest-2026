@@ -56,10 +56,18 @@ export function LivePathScreen({ fixture }: { fixture?: string }) {
     }
   }, [fixture]);
 
+  return (
+    <main className={styles.page}>
+      <LivePathView screen={screen} reduced={reduced} />
+    </main>
+  );
+}
+
+export function LivePathView({ screen, reduced = false }: { screen: LiveScreen; reduced?: boolean }) {
   const label = screen.kind === "sin_sesion" ? "Sin sesión" : screen.connection === "reconectando" ? "Reconectando" : "En vivo";
 
   return (
-    <main className={styles.page}>
+    <>
       <header className={styles.top}>
         <p className={styles.kicker}>Ruta en vivo</p>
         <p className={styles.connection} data-state={screen.connection}>{label}</p>
@@ -70,7 +78,7 @@ export function LivePathScreen({ fixture }: { fixture?: string }) {
       {screen.kind === "esperando" ? <p className={styles.empty}>Esperando que Claude arme la ruta.</p> : null}
       {screen.kind === "eleccion" ? (
         <section>
-          <h1 className={styles.prompt}>{screen.prompt}</h1>
+          <h1 className={styles.prompt} id="live-path-modal-title">{screen.prompt}</h1>
           <ul className={styles.options}>
             {screen.options.map((option) => (
               <li key={option.path_id}>{option.title}</li>
@@ -79,7 +87,7 @@ export function LivePathScreen({ fixture }: { fixture?: string }) {
         </section>
       ) : null}
       {screen.kind === "ruta" ? <PathView screen={screen} reduced={reduced} /> : null}
-    </main>
+    </>
   );
 }
 
@@ -90,7 +98,7 @@ function PathView({ screen, reduced }: { screen: Extract<LiveScreen, { kind: "ru
   );
   return (
     <section>
-      <h1 className={styles.title}>{screen.model.title}</h1>
+      <h1 className={styles.title} id="live-path-modal-title">{screen.model.title}</h1>
       <div className={styles.canvas}>
         <PathDiagram model={screen.model} mode="web" />
       </div>

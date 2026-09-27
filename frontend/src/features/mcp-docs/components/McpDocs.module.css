@@ -47,6 +47,12 @@
   font-size: 1.1rem;
 }
 
+.section a {
+  color: var(--orbital-lime);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
 .url,
 .code {
   overflow-x: auto;

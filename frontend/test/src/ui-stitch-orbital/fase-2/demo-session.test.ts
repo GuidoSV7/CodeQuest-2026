@@ -2,32 +2,27 @@ import { describe, expect, it, vi } from "vitest";
 import {
   isOrbitalDemoSessionEnabled,
   resolveOrbitalSession,
+  sessionAfterSignOut,
 } from "@/features/auth/lib/demo-session";
 
 describe("orbital demo session guard", () => {
-  it("only enables the fixture in development with the explicit 1 flag", () => {
+  it("enables the fixture for every development session and never in production", () => {
     expect(
       isOrbitalDemoSessionEnabled({
         nodeEnv: "development",
-        demoSession: "1",
+        demoSession: undefined,
+      }),
+    ).toBe(true);
+    expect(
+      isOrbitalDemoSessionEnabled({
+        nodeEnv: "development",
+        demoSession: "true",
       }),
     ).toBe(true);
     expect(
       isOrbitalDemoSessionEnabled({
         nodeEnv: "production",
         demoSession: "1",
-      }),
-    ).toBe(false);
-    expect(
-      isOrbitalDemoSessionEnabled({
-        nodeEnv: "development",
-        demoSession: "true",
-      }),
-    ).toBe(false);
-    expect(
-      isOrbitalDemoSessionEnabled({
-        nodeEnv: "development",
-        demoSession: undefined,
       }),
     ).toBe(false);
   });
@@ -42,10 +37,10 @@ describe("orbital demo session guard", () => {
 
     expect(readSession).not.toHaveBeenCalled();
     expect(user).toEqual({
-      id: "orbital-demo-user",
-      displayName: "Orbital Demo",
-      avatarUrl: null,
-      email: null,
+      id: "e325e61b-e895-49a9-ae24-aa3a379fecc4",
+      displayName: "Guido Salazar",
+      avatarUrl: "https://cdn.discordapp.com/embed/avatars/0.png",
+      email: "guido.salazar.vargas7@gmail.com",
     });
   });
 
@@ -58,5 +53,17 @@ describe("orbital demo session guard", () => {
     );
 
     expect(readSession).toHaveBeenCalledOnce();
+  });
+
+  it("drops the default session after the user signs out", () => {
+    const user = {
+      id: "e325e61b-e895-49a9-ae24-aa3a379fecc4",
+      displayName: "Guido Salazar",
+      avatarUrl: "https://cdn.discordapp.com/embed/avatars/0.png",
+      email: "guido.salazar.vargas7@gmail.com",
+    };
+
+    expect(sessionAfterSignOut(user, true)).toBeNull();
+    expect(sessionAfterSignOut(user, false)).toEqual(user);
   });
 });

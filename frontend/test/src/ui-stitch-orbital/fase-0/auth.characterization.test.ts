@@ -17,9 +17,9 @@ describe("existing authentication presentation contract", () => {
       "src/features/auth/components/HomeAuthStatus.tsx",
     );
 
-    expect(hydrator).toContain("orbitalDemoSessionFixture");
+    expect(hydrator).toContain("resolveOrbitalSession");
     expect(hydrator).toContain("setHydrated(true)");
-    expect(hydrator).not.toContain("fetchMe");
+    expect(hydrator).toContain("fetchMe");
     expect(hydrator).not.toContain("axios");
     expect(homeStatus).toContain("!hydrated || !user");
     expect(homeStatus).toContain("user.displayName");
@@ -37,8 +37,8 @@ describe("existing authentication presentation contract", () => {
     expect(loginPage).toContain('startsWith("/")');
     expect(loginPage).toContain('startsWith("//")');
     expect(loginPanel).toContain("Continuar con Discord");
-    expect(loginPanel).toContain("event.preventDefault()");
-    expect(loginPanel).not.toContain("discordStartUrl");
+    expect(loginPanel).toContain("discordStartUrl");
+    expect(loginPanel).not.toContain("event.preventDefault()");
     expect(loginPanel).not.toContain("logoutSession");
     expect(loginPanel).not.toContain("fetchMe");
     expect(authService).toContain("/api/auth/discord/start");

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ShellAccount } from "@/features/auth/components/ShellAccount";
+import { LivePathModal } from "@/features/live-path/components/LivePathModal";
 import styles from "./MissionShell.module.css";
 import { MissionShellMobileNav } from "./MissionShellMobileNav";
 
@@ -40,6 +41,7 @@ export function MissionShell({
           Saltar al contenido principal
         </a>
         <div id="login-shell-content">{children}</div>
+        <LivePathModal />
         <footer className={styles.loginFooter}>
           DevTalles <span aria-hidden="true">•</span> Code Quest 2026
         </footer>
@@ -71,6 +73,7 @@ export function MissionShell({
       <div className={styles.content} id="orbital-content">
         {children}
       </div>
+      <LivePathModal />
       <footer className={styles.footer}>
         <div className={styles.footerContent}>
           <span className={styles.footerBrand}>DevTalles</span>

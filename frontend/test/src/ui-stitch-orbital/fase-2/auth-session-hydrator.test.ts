@@ -14,10 +14,8 @@ describe("auth session hydrator boundary", () => {
       "src/features/auth/components/AuthSessionHydrator.tsx",
     );
 
-    expect(hydrator).toContain("orbitalDemoSessionFixture");
-    expect(hydrator).toContain("setUser(orbitalDemoSessionFixture)");
+    expect(hydrator).toContain("resolveOrbitalSession");
+    expect(hydrator).toContain("fetchMe");
     expect(hydrator).toContain("setHydrated(true)");
-    expect(hydrator).not.toContain("fetchMe");
-    expect(hydrator).not.toContain("resolveOrbitalSession");
   });
 });

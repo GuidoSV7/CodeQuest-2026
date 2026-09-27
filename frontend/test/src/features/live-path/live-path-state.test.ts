@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { appearanceDelay, reduceLiveEvent, type LiveScreen } from "@/features/live-path/live-path-state";
+import {
+  appearanceDelay,
+  reduceLiveEvent,
+  reduceLiveModal,
+  type LiveScreen,
+} from "@/features/live-path/live-path-state";
 
 const generated = {
   type: "path.generated",
@@ -88,6 +93,62 @@ describe("live path screen", () => {
     const again = reduceLiveEvent(drawn, { event: "connection", data: { state: "reconectando" } });
     expect(again.kind).toBe("ruta");
     expect(again.connection).toBe("reconectando");
+  });
+});
+
+describe("live path modal", () => {
+  const waiting = { screen: { kind: "esperando" as const, connection: "conectado" as const }, open: false };
+
+  it("stays closed while waiting or without a session", () => {
+    const heartbeat = reduceLiveModal(waiting, { event: "heartbeat", data: { type: "heartbeat" } });
+    expect(heartbeat.open).toBe(false);
+    const signedOut = reduceLiveModal(waiting, { event: "session" });
+    expect(signedOut.open).toBe(false);
+    expect(signedOut.screen.kind).toBe("sin_sesion");
+  });
+
+  it("opens over the current page when Claude generates, saves, or asks for a choice", () => {
+    const generatedModal = reduceLiveModal(waiting, { event: "path.generated", data: generated });
+    expect(generatedModal.open).toBe(true);
+    expect(generatedModal.screen.kind).toBe("ruta");
+
+    const saved = reduceLiveModal(waiting, {
+      event: "path.saved",
+      data: { ...generated, path_id: "path-1", title: "Mi ruta" },
+    });
+    expect(saved.open).toBe(true);
+
+    const choice = reduceLiveModal(waiting, {
+      event: "path.choice_required",
+      data: {
+        type: "path.choice_required",
+        options: [{ path_id: "programas-react", title: "Ruta React", alias: "react" }],
+      },
+    });
+    expect(choice.open).toBe(true);
+    expect(choice.screen.kind).toBe("eleccion");
+  });
+
+  it("closes without losing the path and opens again on the next route", () => {
+    const open = reduceLiveModal(waiting, { event: "path.generated", data: generated });
+    const closed = reduceLiveModal(open, { event: "dismiss" });
+    expect(closed.open).toBe(false);
+    expect(closed.screen.kind).toBe("ruta");
+
+    const progress = reduceLiveModal(closed, {
+      event: "progress.updated",
+      data: { course_id: "3395229", status: "completed" },
+    });
+    expect(progress.open).toBe(false);
+    if (progress.screen.kind === "ruta") {
+      expect(progress.screen.model.items[0]?.completed).toBe(true);
+    }
+
+    const again = reduceLiveModal(closed, {
+      event: "path.generated",
+      data: { ...generated, source_path_id: "ruta-dart" },
+    });
+    expect(again.open).toBe(true);
   });
 });
 

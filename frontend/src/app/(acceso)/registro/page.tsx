@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { LoginPanel } from "@/features/auth/components/LoginPanel";
+import { AuthenticatedEntry } from "@/features/auth/components/AuthenticatedEntry";
 import styles from "../login/page.module.css";
 
 export const metadata: Metadata = {
@@ -21,7 +21,7 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
   return (
     <main className={styles.main}>
       <div id="login-content">
-        <LoginPanel intent="register" returnTo={safeReturnTo} />
+        <AuthenticatedEntry intent="register" returnTo={safeReturnTo} />
       </div>
     </main>
   );
