@@ -35,10 +35,10 @@ import { LivePathModule } from './modules/live-path/live-path.module'
     HealthModule,
     CatalogScraperModule,
     IdentityModule,
+    LivePathModule,
     LearningPathsModule,
     McpPublicModule,
     McpUserModule,
-    LivePathModule,
   ],
   providers: [McpUserBridge],
 })
