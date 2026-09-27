@@ -126,10 +126,9 @@ describe("MyRouteStatus", () => {
 
     const dialog = container.querySelector("[role='dialog']");
     expect(dialog?.textContent).toContain("El video va acá");
+    expect(dialog?.textContent).toContain("Copia y pega esto a tu IA para conectarte");
     expect(dialog?.textContent).toContain("/docs/mcp");
-    const copy = Array.from(dialog?.querySelectorAll("button") ?? []).find((button) =>
-      button.textContent?.includes("Copiar para tu IA"),
-    );
+    const copy = dialog?.querySelector("button[aria-label='Copiar']");
     await act(async () => {
       copy?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
       await Promise.resolve();

@@ -25,6 +25,8 @@
     height: min(320px, 46vh);
   }
 }
+
+.canvas :global(.react-flow__edge-path) {
   stroke: #dcd8ff;
   stroke-width: 2;
 }

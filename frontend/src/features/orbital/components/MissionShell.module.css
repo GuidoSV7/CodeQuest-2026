@@ -83,6 +83,28 @@
   color: var(--orbital-lime);
 }
 
+.accountMenu {
+  position: relative;
+}
+
+.accountPanel {
+  position: absolute;
+  z-index: 5;
+  top: calc(100% + 0.35rem);
+  right: 0;
+  min-width: 8rem;
+  padding: 0.35rem;
+  border: 1px solid var(--orbital-header-border);
+  border-radius: 12px;
+  background: #121028;
+  box-shadow: 0 12px 32px rgb(0 0 0 / 35%);
+}
+
+.accountPanel .authButton {
+  width: 100%;
+  justify-content: flex-start;
+}
+
 .authActions {
   display: flex;
   align-items: center;

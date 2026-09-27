@@ -35,7 +35,7 @@ describe("ShellAccount logout", () => {
     sessionStorage.clear();
   });
 
-  it("offers Salir next to the signed-in name and returns to Login", async () => {
+  it("opens Salir from the name and returns to Login", async () => {
     useAuthStore.setState({ user, hydrated: true });
     const container = document.createElement("div");
     document.body.appendChild(container);
@@ -45,11 +45,16 @@ describe("ShellAccount logout", () => {
       root?.render(<ShellAccount />);
     });
 
-    const salir = container.querySelector("button[type='button']");
-    const logout = [...container.querySelectorAll("button")].find((button) => button.textContent === "Salir");
     expect(container.textContent).toContain("Guido Salazar");
+    expect(container.textContent).not.toContain("Salir");
+    const account = [...container.querySelectorAll("button")].find((button) =>
+      button.textContent?.includes("Guido Salazar"),
+    );
+    act(() => {
+      account?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    });
+    const logout = [...container.querySelectorAll("button")].find((button) => button.textContent === "Salir");
     expect(logout).toBeTruthy();
-    expect(salir).toBeTruthy();
 
     await act(async () => {
       logout?.dispatchEvent(new MouseEvent("click", { bubbles: true }));

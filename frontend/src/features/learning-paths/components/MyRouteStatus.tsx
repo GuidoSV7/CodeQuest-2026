@@ -196,23 +196,35 @@ function McpStartDialog({ onClose }: { onClose: () => void }) {
         onClick={(event) => event.stopPropagation()}
       >
         <h2>Quiero hacerlo por MCP</h2>
-        <p>
-          Conectá CodeQuest a Cursor o Claude. Tu IA lee la guía y llama a
-          generate_learning_path. La ruta se abre en un modal sobre esta página.
-        </p>
         <div className={styles.videoSlot}>El video va acá</div>
-        <p className={styles.docsLink}>{docsUrl}</p>
-        <button
-          type="button"
-          onClick={() => {
-            void navigator.clipboard.writeText(prompt).then(
-              () => setCopied(true),
-              () => setCopied(false),
-            );
-          }}
-        >
-          {copied ? "Copiado" : "Copiar para tu IA"}
-        </button>
+        <div className={styles.copyBox}>
+          <div className={styles.copyHead}>
+            <p className={styles.copySubtitle}>Copia y pega esto a tu IA para conectarte</p>
+            <button
+              type="button"
+              className={styles.copyIcon}
+              aria-label={copied ? "Copiado" : "Copiar"}
+              onClick={() => {
+                void navigator.clipboard.writeText(prompt).then(
+                  () => setCopied(true),
+                  () => setCopied(false),
+                );
+              }}
+            >
+              <svg viewBox="0 0 16 16" aria-hidden="true">
+                <path
+                  fill="currentColor"
+                  d="M5 1.5h6.5A1.5 1.5 0 0 1 13 3v8h-1.5V3.2H5V1.5ZM3 4h7.5A1.5 1.5 0 0 1 12 5.5v8a1.5 1.5 0 0 1-1.5 1.5H3A1.5 1.5 0 0 1 1.5 13.5v-8A1.5 1.5 0 0 1 3 4Zm0 1.5v8h7.5v-8H3Z"
+                />
+              </svg>
+            </button>
+          </div>
+          <p>
+            Conectá CodeQuest a Cursor o Claude. Tu IA lee la guía y llama a
+            generate_learning_path. La ruta se abre en un modal sobre esta página.
+          </p>
+          <p className={styles.docsLink}>{docsUrl}</p>
+        </div>
         <button type="button" onClick={onClose}>
           Cerrar
         </button>
