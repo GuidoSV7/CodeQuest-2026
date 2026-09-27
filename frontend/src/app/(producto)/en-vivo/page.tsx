@@ -11,7 +11,7 @@ export default async function LivePathPage({
 }) {
   const { fixture } = await searchParams;
   return (
-    <div className={`${text.className} ${display.variable}`} style={{ ["--live-display" as string]: display.style.fontFamily }}>
+    <div className={text.className} style={{ ["--live-display" as string]: display.style.fontFamily }}>
       <LivePathScreen fixture={fixture} />
     </div>
   );

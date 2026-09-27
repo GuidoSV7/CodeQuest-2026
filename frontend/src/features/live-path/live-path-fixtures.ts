@@ -65,7 +65,7 @@ export function fixtureScreen(name: string): LiveScreen {
   };
 }
 
-function toItem(item: (typeof react.items)[number]) {
+function toItem(item: { course_id: string; title: string; url: string; bucket: string | null; position: number; already_known: boolean; partial: boolean }) {
   return {
     courseId: item.course_id,
     title: item.title,

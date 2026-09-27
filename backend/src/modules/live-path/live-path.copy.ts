@@ -21,10 +21,11 @@ export function attachLive<T extends {
   content?: Array<{ type: 'text'; text: string }>
   structuredContent?: Record<string, unknown>
 }>(result: T, choice = false): T {
-  if (result.isError) return result
+  const content = result.content ?? []
+  if (result.isError) return { ...result, content }
   return {
     ...result,
-    content: [...(result.content ?? []), { type: 'text' as const, text: liveNotice(choice) }],
+    content: [...content, { type: 'text' as const, text: liveNotice(choice) }],
     structuredContent: { ...(result.structuredContent ?? {}), live_url: LIVE_PAGE_URL },
   }
 }

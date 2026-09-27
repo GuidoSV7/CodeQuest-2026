@@ -5,7 +5,7 @@ export type LiveConnection = "conectado" | "reconectando";
 export type LiveChoice = { path_id: string; title: string; alias: string };
 
 export type LiveScreen =
-  | { kind: "sin_sesion"; connection: "conectado" }
+  | { kind: "sin_sesion"; connection: LiveConnection }
   | { kind: "esperando"; connection: LiveConnection }
   | { kind: "eleccion"; connection: LiveConnection; prompt: string; options: LiveChoice[] }
   | { kind: "ruta"; connection: LiveConnection; model: DiagramModel; replay: boolean };
