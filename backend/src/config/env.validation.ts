@@ -65,7 +65,8 @@ export const envSchema = baseEnvSchema
       data.SESSION_COOKIE_SECURE !== undefined
         ? data.SESSION_COOKIE_SECURE
         : data.NODE_ENV === 'production'
-    return { ...data, SESSION_COOKIE_SECURE: secure }
+    const sameSite = secure ? 'none' : data.SESSION_COOKIE_SAMESITE
+    return { ...data, SESSION_COOKIE_SECURE: secure, SESSION_COOKIE_SAMESITE: sameSite }
   })
   .superRefine((data, ctx) => {
     if (

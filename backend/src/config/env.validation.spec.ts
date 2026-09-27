@@ -52,5 +52,6 @@ describe('validateEnv auth vars', () => {
       FRONTEND_URL: 'https://app.example.com',
     })
     expect(env.SESSION_COOKIE_SECURE).toBe(true)
+    expect(env.SESSION_COOKIE_SAMESITE).toBe('none')
   })
 })
