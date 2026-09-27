@@ -1,4 +1,4 @@
-import { Controller, Headers, Post, Query, Res } from '@nestjs/common'
+import { BadRequestException, Controller, Get, Headers, NotFoundException, Param, Post, Query, Res } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import type { Response } from 'express'
 import { CatalogScraperService } from './catalog-scraper.service'
@@ -9,6 +9,16 @@ export class CatalogScraperController {
     private readonly service: CatalogScraperService,
     private readonly config: ConfigService,
   ) {}
+
+  @Get('courses/:courseId')
+  async course(@Param('courseId') courseId: string) {
+    if (!/^\d{1,12}$/.test(courseId)) {
+      throw new BadRequestException('courseId must be numeric')
+    }
+    const course = await this.service.getCourseCard(courseId)
+    if (!course) throw new NotFoundException('Course was not found')
+    return { course }
+  }
 
   /**
    * Sync manual protegido. Requiere `Authorization: Bearer <CATALOG_SYNC_TOKEN>`.

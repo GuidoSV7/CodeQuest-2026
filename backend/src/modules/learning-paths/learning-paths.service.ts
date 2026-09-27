@@ -8,6 +8,7 @@ import {
   ServiceUnavailableException,
   UnprocessableEntityException,
 } from '@nestjs/common'
+import { toCourseCard, type CourseCard } from '../catalog-scraper/application/course-card'
 import type { CatalogSnapshot } from '../catalog-scraper/domain/catalog'
 import {
   CATALOG_REPOSITORY,
@@ -44,17 +45,7 @@ export type CourseProgressDto = {
   updatedAt: string
 }
 
-export type LearningPathCourseCardDto = {
-  description: string | null
-  instructor: string | null
-  lessonCount: number | null
-  videoHours: number | null
-  previewYoutubeId: string | null
-  prerequisites: string[]
-  tags: string[]
-  sections: Array<{ title: string; lessons: string[] }>
-  url: string
-}
+export type LearningPathCourseCardDto = CourseCard
 
 export type LearningPathItemDto = {
   id: string
@@ -73,30 +64,7 @@ function courseCard(
   courseId: string,
 ): LearningPathCourseCardDto | null {
   if (catalog === 'degraded') return null
-  const course = catalog.courses.find((item) => String(item.id) === courseId)
-  if (!course) return null
-  const numericId = Number(courseId)
-  const tags = new Set<string>()
-  for (const path of catalog.paths) {
-    for (const entry of path.entries) {
-      if (entry.courseId !== numericId) continue
-      for (const tag of entry.tags) tags.add(tag)
-    }
-  }
-  return {
-    description: course.description,
-    instructor: course.instructor,
-    lessonCount: course.lessonCount,
-    videoHours: course.videoHours,
-    previewYoutubeId: course.previewYoutubeId,
-    prerequisites: course.prerequisites,
-    tags: [...tags].sort((left, right) => left.localeCompare(right)),
-    sections: course.sections.map((section) => ({
-      title: section.title,
-      lessons: section.lessons.map((lesson) => lesson.title),
-    })),
-    url: course.sourceUrl,
-  }
+  return toCourseCard(catalog, courseId)
 }
 
 export type LearningPathSummaryDto = {

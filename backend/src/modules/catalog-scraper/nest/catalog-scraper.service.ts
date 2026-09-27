@@ -2,6 +2,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common'
 import type { SyncSummary } from '../domain/catalog'
 import type { ScraperConfig } from '../domain/config'
 import { resolveCatalogCronConfig } from '../domain/cron-config'
+import { toCourseCard } from '../application/course-card'
 import { syncCatalog } from '../application/sync-catalog'
 import { manualSyncCatalog } from '../application/manual-sync'
 import {
@@ -62,6 +63,12 @@ export class CatalogScraperService {
       sync: this.runSync,
       logger: this.jobLogger,
     })
+  }
+
+  async getCourseCard(courseId: string) {
+    const snapshot = await this.repo.getCurrent()
+    if (!snapshot) return null
+    return toCourseCard(snapshot, courseId)
   }
 
   /** Endpoint HTTP protegido: valida token + corre el job. Devuelve {status, body}. */

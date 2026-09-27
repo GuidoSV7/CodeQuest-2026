@@ -18,6 +18,15 @@
   stroke-width: 2;
 }
 
+.canvas :global(.react-flow__handle) {
+  width: 8px;
+  height: 8px;
+  border: 0;
+  background: transparent;
+  opacity: 0;
+  pointer-events: none;
+}
+
 .header,
 .groupLabel {
   color: rgba(192, 185, 252, 0.55);

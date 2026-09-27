@@ -50,6 +50,9 @@ describe("PathDiagram start fork", () => {
       { fromCourseId: "csharp", toCourseId: "dotnet" },
       { fromCourseId: "csharp", toCourseId: "blazor" },
     ]);
+    expect(container.querySelectorAll(".react-flow__handle-top")).toHaveLength(3);
+    expect(container.querySelectorAll(".react-flow__handle-bottom")).toHaveLength(3);
+    expect(container.querySelector(".react-flow__edges")).not.toBeNull();
 
     act(() => root.unmount());
   });

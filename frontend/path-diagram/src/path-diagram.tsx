@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Background,
+  Handle,
   MarkerType,
+  Position,
   ReactFlow,
   ReactFlowProvider,
   useReactFlow,
@@ -9,7 +11,7 @@ import {
   type NodeProps,
 } from "@xyflow/react";
 import { layoutPath } from "./layout-path";
-import { bucketLabel, iconLabel, introVideoSrc, type DiagramItem, type DiagramModel } from "./model";
+import { bucketLabel, introVideoSrc, type CourseCard, type DiagramItem, type DiagramModel } from "./model";
 import { PathCard } from "./path-card";
 import styles from "./path-diagram.module.css";
 
@@ -22,16 +24,19 @@ type CardData = {
 function CardNode({ data }: NodeProps<Node<CardData>>) {
   const item = data.item;
   return (
-    <PathCard
-      title={item.title}
-      bucketLabel={bucketLabel(item.bucket)}
-      iconLabel={iconLabel(item.category)}
-      alreadyKnown={item.alreadyKnown}
-      partial={item.partial}
-      completed={item.completed}
-      step={data.step}
-      onOpen={() => data.onOpen(item)}
-    />
+    <>
+      <Handle type="target" position={Position.Top} isConnectable={false} />
+      <PathCard
+        title={item.title}
+        bucketLabel={bucketLabel(item.bucket)}
+        alreadyKnown={item.alreadyKnown}
+        partial={item.partial}
+        completed={item.completed}
+        step={data.step}
+        onOpen={() => data.onOpen(item)}
+      />
+      <Handle type="source" position={Position.Bottom} isConnectable={false} />
+    </>
   );
 }
 
@@ -66,6 +71,17 @@ function GroupNode({ data }: NodeProps<Node<{ label: string }>>) {
 }
 
 export type ProgressResult = { ok: boolean; message?: string };
+
+function withCard(item: DiagramItem, card: CourseCard | null | undefined): DiagramItem {
+  if (!card) return item;
+  return {
+    ...item,
+    url: card.url || item.url,
+    lessonCount: card.lessonCount,
+    videoHours: card.videoHours,
+    detail: card,
+  };
+}
 
 function CourseModal({
   item,
@@ -133,6 +149,17 @@ function CourseModal({
             </ul>
           </section>
         ))}
+        {item.detail?.price ? <p>{item.detail.price.amount} {item.detail.price.currency}</p> : null}
+        {item.detail?.related?.length ? (
+          <>
+            <h3>Cursos relacionados</h3>
+            <ul>
+              {item.detail.related.map((related) => (
+                <li key={related.url}>{related.title}</li>
+              ))}
+            </ul>
+          </>
+        ) : null}
         {item.detail?.prerequisites.length ? (
           <>
             <h3>Requisitos</h3>
@@ -175,14 +202,17 @@ export function PathDiagram({
   width: widthProp,
   openUrl,
   onProgress,
+  loadCourse,
 }: {
   model: DiagramModel;
   mode?: "web" | "mcp";
   width?: number;
   openUrl?: (url: string) => void;
   onProgress?: (courseId: string, status: "completed" | "not_started") => Promise<ProgressResult>;
+  loadCourse?: (courseId: string) => Promise<DiagramItem["detail"]>;
 }) {
   const [selected, setSelected] = useState<DiagramItem | null>(null);
+  const [loadedCard, setLoadedCard] = useState<DiagramItem["detail"]>(null);
   const [completed, setCompleted] = useState<Record<string, boolean>>({});
   const [progressError, setProgressError] = useState("");
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -200,6 +230,19 @@ export function PathDiagram({
     observer.observe(element);
     return () => observer.disconnect();
   }, [widthProp]);
+  useEffect(() => {
+    if (!selected || !loadCourse || selected.detail?.sections.length) {
+      setLoadedCard(null);
+      return;
+    }
+    let active = true;
+    loadCourse(selected.courseId).then((card) => {
+      if (active) setLoadedCard(card ?? null);
+    });
+    return () => {
+      active = false;
+    };
+  }, [loadCourse, selected]);
   const items = model.items.map((item) => ({
     ...item,
     completed: completed[item.courseId] ?? item.completed,
@@ -220,6 +263,8 @@ export function PathDiagram({
       draggable: false,
       selectable: node.type === "card",
       data: node.type === "card" && item ? { item, step: node.data.step, onOpen: setSelected } : { label: node.data.label },
+      width: node.width,
+      height: node.height,
       style: { width: node.width, height: node.height },
     };
   });
@@ -251,10 +296,14 @@ export function PathDiagram({
             nodeTypes={nodeTypes}
             fitView
             fitViewOptions={{ padding: 0.12 }}
-            panOnDrag
-            minZoom={0.4}
-            maxZoom={1.5}
+            panOnDrag={false}
+            panOnScroll={false}
+            zoomOnScroll={false}
+            zoomOnPinch={false}
+            zoomOnDoubleClick={false}
+            preventScrolling={false}
             nodesDraggable={false}
+            nodesConnectable={false}
             proOptions={{ hideAttribution: true }}
           >
             <FitWhenMeasured nodeCount={nodes.length} />
@@ -264,7 +313,7 @@ export function PathDiagram({
       </ReactFlowProvider>
       {selected ? (
         <CourseModal
-          item={items.find((item) => item.courseId === selected.courseId) ?? selected}
+          item={withCard(items.find((item) => item.courseId === selected.courseId) ?? selected, loadedCard)}
           mode={mode}
           allowProgress={model.allowProgress}
           progressError={progressError}

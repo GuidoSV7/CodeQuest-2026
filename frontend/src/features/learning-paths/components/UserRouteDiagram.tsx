@@ -2,6 +2,7 @@
 
 import { modelFromUserPath, PathDiagram } from "path-diagram";
 import { useEffect, useState } from "react";
+import { loadCourseCard } from "@/lib/load-course-card";
 import { loadPathDetail, type PathDetailResponse } from "../lib/load-path-detail";
 import "@xyflow/react/dist/style.css";
 
@@ -32,6 +33,6 @@ export function UserRouteDiagram({
   if (!detail) return <p role="alert">No pudimos cargar el diagrama</p>;
 
   return (
-    <PathDiagram model={modelFromUserPath(detail)} mode="web" />
+    <PathDiagram model={modelFromUserPath(detail)} mode="web" loadCourse={loadCourseCard} />
   );
 }

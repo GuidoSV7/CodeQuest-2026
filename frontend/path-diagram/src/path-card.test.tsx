@@ -22,7 +22,6 @@ function mount(element: React.ReactNode) {
 const base = {
   title: "React desde cero",
   bucketLabel: "Requerido",
-  iconLabel: "Curso",
   alreadyKnown: false,
   partial: false,
   completed: false,
@@ -33,11 +32,11 @@ afterEach(() => {
 });
 
 describe("PathCard", () => {
-  it("shows the title, the bucket badge and an icon", () => {
+  it("shows the title and the bucket badge", () => {
     const { container, root } = mount(<PathCard {...base} onOpen={() => undefined} />);
     expect(container.textContent).toContain("React desde cero");
     expect(container.textContent).toContain("Requerido");
-    expect(container.querySelector("[role='img']")?.getAttribute("aria-label")).toBe("Curso");
+    expect(container.querySelector("[role='img']")).toBeNull();
     act(() => root.unmount());
   });
 

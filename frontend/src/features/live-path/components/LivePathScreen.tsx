@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import "@xyflow/react/dist/style.css";
 import { PathDiagram } from "path-diagram";
+import { loadCourseCard } from "@/lib/load-course-card";
 import { appearanceDelay, type LiveScreen } from "../live-path-state";
 import styles from "./LivePathScreen.module.css";
 
@@ -58,7 +59,7 @@ function PathView({ screen, reduced }: { screen: Extract<LiveScreen, { kind: "ru
     <section>
       <h1 className={styles.title} id="live-path-modal-title">{screen.model.title}</h1>
       <div className={styles.canvas}>
-        <PathDiagram model={screen.model} mode="web" />
+        <PathDiagram model={screen.model} mode="web" loadCourse={loadCourseCard} />
       </div>
       {screen.instructors.length > 0 ? (
         <section className={styles.notes} aria-label="Instructores">

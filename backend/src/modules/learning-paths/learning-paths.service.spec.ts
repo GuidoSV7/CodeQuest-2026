@@ -297,6 +297,8 @@ describe('LearningPathsService', () => {
       tags: ['backend', 'bases'],
       sections: [{ title: 'Fundamentos', lessons: ['Variables'] }],
       url: course.sourceUrl,
+      price: { amount: 0, currency: 'USD' },
+      related: [],
     })
   })
 

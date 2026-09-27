@@ -12,6 +12,8 @@ export type CourseCard = {
   tags: string[];
   sections: Array<{ title: string; lessons: string[] }>;
   url: string;
+  price?: { amount: number; currency: "USD" } | null;
+  related?: Array<{ title: string; url: string }>;
 };
 
 export type DiagramItem = {
