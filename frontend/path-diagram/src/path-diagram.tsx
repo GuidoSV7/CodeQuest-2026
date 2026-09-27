@@ -102,6 +102,7 @@ function CourseModal({
   allowProgress,
   progressError,
   openUrl,
+  entered,
   onToggle,
   onClose,
 }: {
@@ -110,6 +111,7 @@ function CourseModal({
   allowProgress: boolean;
   progressError: string;
   openUrl?: (url: string) => void;
+  entered: boolean;
   onToggle: (item: DiagramItem) => void;
   onClose: () => void;
 }) {
@@ -126,9 +128,9 @@ function CourseModal({
   }, [onClose]);
 
   return (
-    <div className={styles.backdrop} onClick={onClose}>
+    <div className={entered ? `${styles.backdrop} ${styles.backdropOpen}` : styles.backdrop} onClick={onClose}>
       <div
-        className={styles.dialog}
+        className={entered ? `${styles.dialog} ${styles.dialogOpen}` : styles.dialog}
         role="dialog"
         aria-modal="true"
         aria-label={item.title}
@@ -246,6 +248,8 @@ export function PathDiagram({
   loadCourse?: (courseId: string) => Promise<DiagramItem["detail"]>;
 }) {
   const [selected, setSelected] = useState<DiagramItem | null>(null);
+  const [presented, setPresented] = useState<DiagramItem | null>(null);
+  const [entered, setEntered] = useState(false);
   const [loadedCard, setLoadedCard] = useState<DiagramItem["detail"]>(null);
   const [completed, setCompleted] = useState<Record<string, boolean>>({});
   const [progressError, setProgressError] = useState("");
@@ -328,6 +332,33 @@ export function PathDiagram({
     }
   };
 
+  const openCourse = selected
+    ? withCard(items.find((item) => item.courseId === selected.courseId) ?? selected, loadedCard)
+    : null;
+
+  useEffect(() => {
+    if (!openCourse) return;
+    setPresented(openCourse);
+  }, [selected, loadedCard]);
+
+  useEffect(() => {
+    if (!presented || !selected) return;
+    const frame = requestAnimationFrame(() => setEntered(true));
+    return () => cancelAnimationFrame(frame);
+  }, [presented, selected]);
+
+  useEffect(() => {
+    if (selected || !presented) return;
+    setEntered(false);
+    const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+    if (reducedMotion) {
+      setPresented(null);
+      return;
+    }
+    const timer = window.setTimeout(() => setPresented(null), 280);
+    return () => window.clearTimeout(timer);
+  }, [selected, presented]);
+
   return (
     <div className={styles.frame}>
       <ReactFlowProvider>
@@ -359,13 +390,14 @@ export function PathDiagram({
           </ReactFlow>
         </div>
       </ReactFlowProvider>
-      {selected ? (
+      {presented ? (
         <CourseModal
-          item={withCard(items.find((item) => item.courseId === selected.courseId) ?? selected, loadedCard)}
+          item={presented}
           mode={mode}
           allowProgress={model.allowProgress}
           progressError={progressError}
           openUrl={openUrl}
+          entered={entered}
           onToggle={(item) => void toggle(item)}
           onClose={() => setSelected(null)}
         />

@@ -4,26 +4,48 @@ import {
   radarBearingDegrees,
 } from "../lib/radar-progress";
 
-const NODES = [
-  { cx: 120, cy: 120, r: 5, label: "TS_FOUND", x: 110, y: 105, primary: true },
-  { cx: 200, cy: 90, r: 4, label: "NEST.SYS", x: 195, y: 76, primary: false },
-  { cx: 280, cy: 130, r: 6, label: "REACT_ARC", x: 290, y: 128, primary: false },
-  { cx: 310, cy: 220, r: 4, label: "DOCKER/K8S", x: 320, y: 225, primary: false },
-  { cx: 240, cy: 290, r: 5, label: "HEX_DOMAIN", x: 230, y: 310, primary: false },
-  { cx: 150, cy: 270, r: 4, label: "CLEAN_CODE", x: 90, y: 282, primary: false },
-] as const;
+type RadarNode = {
+  cx: number;
+  cy: number;
+  r: number;
+  label: string;
+  x: number;
+  y: number;
+  primary: boolean;
+};
+
+function placeTechnologies(labels: string[]): RadarNode[] {
+  const count = labels.length;
+  return labels.map((label, index) => {
+    const angle = -Math.PI / 2 + (index / count) * Math.PI * 2;
+    const cx = Math.round(200 + Math.cos(angle) * 118);
+    const cy = Math.round(200 + Math.sin(angle) * 118);
+    return {
+      label,
+      cx,
+      cy,
+      x: cx + 10,
+      y: cy - 8,
+      r: index === 0 ? 6 : 4,
+      primary: index === 0,
+    };
+  });
+}
 
 type MissionRadarProps = {
   progressRatio?: number;
   completedCount?: number;
+  technologies?: string[];
 };
 
 export function MissionRadar({
   progressRatio = 0,
   completedCount = 0,
+  technologies = [],
 }: MissionRadarProps) {
+  const nodes = placeTechnologies(technologies);
   const bearing = radarBearingDegrees(progressRatio);
-  const active = activeNodeIndex(progressRatio, NODES.length);
+  const active = activeNodeIndex(progressRatio, nodes.length);
   const orbit = (bearing / 360).toFixed(3);
 
   return (
@@ -39,7 +61,7 @@ export function MissionRadar({
         role="img"
         aria-labelledby="mission-radar-title mission-radar-description"
       >
-        <title id="mission-radar-title">Matriz orbital de seis nodos</title>
+        <title id="mission-radar-title">Matriz orbital del catálogo</title>
         <desc id="mission-radar-description">
           El haz marca el {Math.round((bearing / 360) * 100)}% del progreso.
           {completedCount} nodos completados.
@@ -51,12 +73,9 @@ export function MissionRadar({
         <path className={styles.axis} d="M200 20v360M20 200h360M72 72l256 256M72 328 328 72" />
         <path className={styles.track} d="M60 200C60 120 120 60 200 60c70 0 130 50 140 120" />
         <path className={styles.trackDashed} d="M80 260c50 70 180 80 240 20 30-40 10-130-40-160" />
-        {bearing > 0 ? (
-          <path className={styles.nodeLinks} d="m120 120 80-30 80 40 30 90-70 70-90-20z" />
-        ) : null}
         <circle className={styles.core} cx="200" cy="200" r="4" />
         <circle className={styles.coreRing} cx="200" cy="200" r="8" />
-        {NODES.map((node, index) => {
+        {nodes.map((node, index) => {
           const isActive = index === active;
           const nodeClass = isActive
             ? styles.nodeActive
@@ -70,6 +89,7 @@ export function MissionRadar({
               : styles.nodeLabel;
           return (
             <g key={node.label}>
+              <line className={styles.nodeLinks} x1="200" y1="200" x2={node.cx} y2={node.cy} />
               <circle className={nodeClass} cx={node.cx} cy={node.cy} r={node.r} />
               <text className={labelClass} x={node.x} y={node.y}>
                 {node.label}

@@ -31,6 +31,10 @@
   stroke-width: 2;
 }
 
+.canvas :global(.react-flow__node:hover) {
+  z-index: 12 !important;
+}
+
 .canvas :global(.react-flow__node.dragging) button {
   cursor: grabbing;
 }
@@ -61,6 +65,12 @@
   place-items: center;
   padding: 1rem;
   background: rgb(8 6 16 / 72%);
+  opacity: 0;
+  transition: opacity 280ms ease;
+}
+
+.backdropOpen {
+  opacity: 1;
 }
 
 .dialog {
@@ -74,6 +84,21 @@
   border-radius: 16px;
   background: #121028;
   line-height: 1.5;
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 280ms ease, transform 280ms ease;
+}
+
+.dialogOpen {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .backdrop,
+  .dialog {
+    transition: none;
+  }
 }
 
 .summary {

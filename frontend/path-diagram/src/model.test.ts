@@ -23,19 +23,23 @@ describe("modelFromUserPath", () => {
     ]);
   });
 
-  it("keeps a required sequence as a chain", () => {
+  it("keeps a required sequence as a chain and still links the other courses", () => {
     const model = modelFromUserPath({
       ...path,
       items: [
-        { courseId: "c", courseTitle: "C", bucket: "required", position: 2 },
-        { courseId: "a", courseTitle: "A", bucket: "required", position: 0 },
-        { courseId: "b", courseTitle: "B", bucket: "required", position: 1 },
+        { courseId: "micro", courseTitle: "Micro", bucket: "required", position: 2 },
+        { courseId: "nest", courseTitle: "Nest", bucket: "required", position: 0 },
+        { courseId: "extra", courseTitle: "Extra", bucket: "recommended", position: 3 },
+        { courseId: "graphql", courseTitle: "GraphQL", bucket: "required", position: 1 },
+        { courseId: "git", courseTitle: "Git", bucket: "anytime", position: 4 },
       ],
     });
 
     expect(model.edges).toEqual([
-      { fromCourseId: "a", toCourseId: "b" },
-      { fromCourseId: "b", toCourseId: "c" },
+      { fromCourseId: "nest", toCourseId: "graphql" },
+      { fromCourseId: "graphql", toCourseId: "micro" },
+      { fromCourseId: "micro", toCourseId: "extra" },
+      { fromCourseId: "micro", toCourseId: "git" },
     ]);
   });
 

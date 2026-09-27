@@ -158,15 +158,28 @@ function chainEdges(items: UserPathItem[]) {
 }
 
 function defaultPathEdges(items: UserPathItem[]) {
-  const required = items.filter((item) => item.bucket === "required").sort(byItemPosition);
-  if (required.length >= 2) return chainEdges(required);
-  const ordered = items.filter((item) => item.bucket !== "anytime").sort(byItemPosition);
-  const start = ordered[0];
+  const ordered = [...items].sort(byItemPosition);
+  const required = ordered.filter((item) => item.bucket === "required");
+  if (required.length >= 2) {
+    const tail = required[required.length - 1];
+    return [
+      ...chainEdges(required),
+      ...ordered
+        .filter((item) => !required.some((course) => course.courseId === item.courseId))
+        .map((item) => ({
+          from_course_id: tail.courseId,
+          to_course_id: item.courseId,
+        })),
+    ];
+  }
+  const start = ordered.find((item) => item.bucket !== "anytime") ?? ordered[0];
   if (!start) return [];
-  return ordered.slice(1).map((item) => ({
-    from_course_id: start.courseId,
-    to_course_id: item.courseId,
-  }));
+  return ordered
+    .filter((item) => item.courseId !== start.courseId)
+    .map((item) => ({
+      from_course_id: start.courseId,
+      to_course_id: item.courseId,
+    }));
 }
 
 export function modelFromUserPath(detail: {

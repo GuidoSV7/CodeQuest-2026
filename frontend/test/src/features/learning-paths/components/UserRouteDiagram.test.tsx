@@ -52,6 +52,7 @@ describe("UserRouteDiagram", () => {
     await act(async () => {
       await Promise.resolve();
     });
+    expect(container.querySelector("h1")?.textContent).toBe("Backend con Nest");
     expect(container.textContent).toContain("Nest desde cero");
     expect(container.textContent).toContain("Completado");
     act(() => root.unmount());

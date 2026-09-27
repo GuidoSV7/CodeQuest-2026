@@ -26,11 +26,10 @@ export const landingFixture: Readonly<{
   title: "descubre tu ruta de aprendizaje ideal",
   subtitle: "Tu próximo nivel técnico no es casualidad. Es una misión calculada.",
   description:
-    "Algoritmo de diagnóstico RIASEC adaptado a la industria tech. Mapea tu perfil cognitivo, experiencia y metas contra el catálogo oficial de DevTalles para proyectar tu ruta de vuelo sin rodeos ni dispersión.",
+    "Armá tu ruta con los cursos oficiales de DevTalles. Ves por dónde empezar, qué curso sigue y podés generarla desde el configurador o desde tu editor con MCP.",
   ctaLabel: "Descubre tu ruta",
   ctaHref: "/configurador-de-ruta",
   telemetry: [
-    ["MOTOR", "RIASEC.DEV v2.4"],
     ["TAXONOMÍA", "38 RUTAS ACTIVAS"],
     ["CERTIFICACIÓN", "100% PRODUCCIÓN"],
   ],

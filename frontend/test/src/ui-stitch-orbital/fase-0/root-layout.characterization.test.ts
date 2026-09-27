@@ -24,7 +24,6 @@ describe("existing root and home landmarks", () => {
 
     expect(page).toContain('from "next/link"');
     expect(page).toContain("landingFixture");
-    expect(page).toContain("<HomeAuthStatus />");
     expect(page).toContain("<main");
   });
 });

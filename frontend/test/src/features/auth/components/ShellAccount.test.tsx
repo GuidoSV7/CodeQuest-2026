@@ -12,6 +12,10 @@ vi.mock("next/link", () => ({
   default: ({ children, href }: { children: React.ReactNode; href: string }) => <a href={href}>{children}</a>,
 }));
 
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/",
+}));
+
 vi.mock("@/features/auth/api/auth.service", () => ({
   authEntryPath: (intent: "login" | "register") => (intent === "register" ? "/registro" : "/login"),
   logoutSession: vi.fn().mockResolvedValue(undefined),

@@ -18,8 +18,13 @@ vi.mock("next/link", () => ({
   ),
 }));
 
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/",
+}));
+
 import { MissionShell } from "@/features/orbital/components/MissionShell";
 import { MissionShellMobileNav } from "@/features/orbital/components/MissionShellMobileNav";
+import { useAuthStore } from "@/stores/auth-session";
 
 declare global {
   var IS_REACT_ACT_ENVIRONMENT: boolean | undefined;
@@ -114,6 +119,7 @@ describe("MissionShell mobile nav a11y", () => {
   });
 
   it("ui.shell.menu_not_second_fixed_bar: product shell keeps a single fixed header", () => {
+    useAuthStore.setState({ user: null, hydrated: true });
     const css = readFrontendFile(
       "src/features/orbital/components/MissionShell.module.css",
     );

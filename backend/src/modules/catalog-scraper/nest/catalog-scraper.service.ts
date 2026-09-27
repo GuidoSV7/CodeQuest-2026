@@ -3,6 +3,7 @@ import type { SyncSummary } from '../domain/catalog'
 import type { ScraperConfig } from '../domain/config'
 import { resolveCatalogCronConfig } from '../domain/cron-config'
 import { toCourseCard } from '../application/course-card'
+import { radarTechnologies } from '../application/radar-technologies'
 import { syncCatalog } from '../application/sync-catalog'
 import { manualSyncCatalog } from '../application/manual-sync'
 import {
@@ -63,6 +64,12 @@ export class CatalogScraperService {
       sync: this.runSync,
       logger: this.jobLogger,
     })
+  }
+
+  async getRadarTechnologies(): Promise<string[]> {
+    const snapshot = await this.repo.getCurrent()
+    if (!snapshot) return []
+    return radarTechnologies(snapshot)
   }
 
   async getCourseCard(courseId: string) {

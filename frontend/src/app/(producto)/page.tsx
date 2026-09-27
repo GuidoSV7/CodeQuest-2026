@@ -2,7 +2,6 @@ import Link from "next/link";
 import { landingFixture } from "@/features/orbital/fixtures";
 import styles from "./page.module.css";
 import { MissionRadarLive } from "@/features/orbital/components/MissionRadarLive";
-import { HomeAuthStatus } from "@/features/auth/components/HomeAuthStatus";
 
 const developers = [
   {
@@ -109,7 +108,6 @@ export default function HomePage() {
                 </div>
               ))}
             </div>
-            <HomeAuthStatus />
           </div>
           <MissionRadarLive />
         </section>
@@ -210,16 +208,10 @@ export default function HomePage() {
                   <span>{person.role}</span>
                   <div className={styles.socials}>
                     {person.links.map((link) => (
-                      <a
-                        key={link.href}
-                        className={styles.social}
-                        href={link.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
+                      <span key={link.label} className={styles.social} aria-disabled="true">
                         <SocialIcon kind={link.kind} />
                         {link.label}
-                      </a>
+                      </span>
                     ))}
                   </div>
                 </div>

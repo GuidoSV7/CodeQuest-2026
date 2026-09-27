@@ -10,6 +10,11 @@ export class CatalogScraperController {
     private readonly config: ConfigService,
   ) {}
 
+  @Get('radar')
+  async radar() {
+    return { technologies: await this.service.getRadarTechnologies() }
+  }
+
   @Get('courses/:courseId')
   async course(@Param('courseId') courseId: string) {
     if (!/^\d{1,12}$/.test(courseId)) {

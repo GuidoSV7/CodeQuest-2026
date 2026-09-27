@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { authEntryPath, logoutSession } from "@/features/auth/api/auth.service";
 import { markSignedOut } from "@/features/auth/lib/demo-session";
 import { useAuthStore } from "@/stores/auth-session";
@@ -12,7 +13,17 @@ export function ShellAccount() {
   const hydrated = useAuthStore((state) => state.hydrated);
   const clear = useAuthStore((state) => state.clear);
   const [open, setOpen] = useState(false);
+  const [shown, setShown] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    setShown(true);
+  }, []);
+
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
 
   useEffect(() => {
     if (!open) return;
@@ -39,7 +50,11 @@ export function ShellAccount() {
     }
   }
 
-  if (!hydrated || !user) {
+  if (!shown || !hydrated) {
+    return <span className={styles.accountSlot} aria-hidden="true" />;
+  }
+
+  if (!user) {
     return (
       <div className={styles.authActions}>
         <Link className={styles.authButton} href={authEntryPath("login")}>

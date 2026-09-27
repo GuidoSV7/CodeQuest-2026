@@ -10,11 +10,12 @@
   text-align: left;
   cursor: grab;
   box-sizing: border-box;
-  transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+  transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease, transform 160ms ease;
 }
 
 .card:hover {
-  background: rgba(42, 36, 64, 0.96);
+  transform: translateY(-3px);
+  cursor: pointer;
 }
 
 .card[data-bucket="required"] {
@@ -34,7 +35,8 @@
 
 .card[data-bucket="required"]:hover {
   border-color: #c8dd0b;
-  box-shadow: 0 0 0 1px rgba(200, 221, 11, 0.35), 0 8px 20px rgba(8, 6, 16, 0.45);
+  background: rgba(200, 221, 11, 0.22);
+  box-shadow: 0 0 0 2px rgba(200, 221, 11, 0.7);
 }
 
 .card[data-bucket="optional"] {
@@ -53,7 +55,8 @@
 
 .card[data-bucket="optional"]:hover {
   border-color: #8eb6ff;
-  box-shadow: 0 0 0 1px rgba(142, 182, 255, 0.35), 0 8px 20px rgba(8, 6, 16, 0.45);
+  background: rgba(142, 182, 255, 0.22);
+  box-shadow: 0 0 0 2px rgba(142, 182, 255, 0.75);
 }
 
 .card[data-bucket="recommended"] {
@@ -63,6 +66,12 @@
 
 .card[data-bucket="recommended"] .bucket {
   color: #c0b9fc;
+}
+
+.card[data-bucket="recommended"]:hover {
+  border-color: #c0b9fc;
+  background: rgba(192, 185, 252, 0.24);
+  box-shadow: 0 0 0 2px rgba(192, 185, 252, 0.8);
 }
 
 .card[data-bucket="recommended"] .step {
@@ -77,6 +86,12 @@
 
 .card[data-bucket="anytime"] .bucket {
   color: #e7c27a;
+}
+
+.card[data-bucket="anytime"]:hover {
+  border-color: #e7c27a;
+  background: rgba(231, 194, 122, 0.24);
+  box-shadow: 0 0 0 2px rgba(231, 194, 122, 0.8);
 }
 
 .card[data-bucket="anytime"] .step {
