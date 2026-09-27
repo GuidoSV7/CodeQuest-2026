@@ -1,10 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { modelFromUserPath, PathDiagram } from "path-diagram";
 import { useEffect, useRef, useState } from "react";
-import { createOfficialRoute, loadMyRoutes, type MyRouteSummary } from "../lib/load-my-routes";
-import { subscribeLearningPathEvents } from "../lib/subscribe-learning-paths";
+import { loadCourseCard } from "@/lib/load-course-card";
 import { getPublicApiUrl } from "@/lib/api-url";
+import { createOfficialRoute, loadMyRoutes, type MyRouteSummary } from "../lib/load-my-routes";
+import { previewOfficialPath, type OfficialPathPreviewItem } from "../lib/preview-official-path";
+import { subscribeLearningPathEvents } from "../lib/subscribe-learning-paths";
+import "@xyflow/react/dist/style.css";
 import styles from "./MyRouteStatus.module.css";
 
 type LoadState =
@@ -33,21 +37,31 @@ function routeTitle(catalogPathId: string): string {
   return `Ruta ${choice.label}`;
 }
 
+type RoutePreview = {
+  catalogPathId: string;
+  title: string;
+  items: OfficialPathPreviewItem[];
+};
+
 export function MyRouteStatus({
   loadRoutes = loadMyRoutes,
   subscribe = subscribeLearningPathEvents,
   createOfficial = createOfficialRoute,
+  previewOfficial = previewOfficialPath,
 }: {
   loadRoutes?: () => Promise<MyRouteSummary[]>;
   subscribe?: (onCreated: (route: MyRouteSummary) => void) => () => void;
   createOfficial?: (input: { catalogPathId: string; title: string }) => Promise<MyRouteSummary>;
+  previewOfficial?: (catalogPathId: string) => Promise<{ items: OfficialPathPreviewItem[] }>;
 }) {
   const [state, setState] = useState<LoadState>({ status: "loading" });
   const [panel, setPanel] = useState<"none" | "form" | "mcp">("none");
   const [catalogPathId, setCatalogPathId] = useState<string>(PATH_CHOICES[0].id);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [previewing, setPreviewing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState("");
+  const [preview, setPreview] = useState<RoutePreview | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -154,9 +168,31 @@ export function MyRouteStatus({
             <p className={styles.generated}>La ruta se va a llamar {routeTitle(catalogPathId)}</p>
           </div>
           {formError ? <p role="alert">{formError}</p> : null}
-          <button className={styles.submit} type="submit" disabled={saving}>
-            {saving ? "Creando…" : "Crear ruta"}
+          <button className={styles.submit} type="submit" disabled={previewing || saving}>
+            {previewing ? "Armando…" : "Ver ruta"}
           </button>
+          {preview ? (
+            <div className={styles.preview}>
+              <h2 className={styles.previewTitle}>{preview.title}</h2>
+              <p className={styles.previewNote}>Esta vista no se guarda hasta que toques Guardar ruta.</p>
+              <PathDiagram
+                model={{
+                  ...modelFromUserPath({
+                    id: preview.catalogPathId,
+                    title: preview.title,
+                    items: preview.items,
+                  }),
+                  pathId: null,
+                  allowProgress: false,
+                }}
+                mode="web"
+                loadCourse={loadCourseCard}
+              />
+              <button className={styles.submit} type="button" disabled={saving} onClick={() => void savePreview()}>
+                {saving ? "Guardando…" : "Guardar ruta"}
+              </button>
+            </div>
+          ) : null}
         </form>
       ) : null}
       {panel === "mcp" ? <McpStartDialog onClose={() => setPanel("none")} /> : null}
@@ -164,14 +200,38 @@ export function MyRouteStatus({
   );
 
   async function submitForm() {
+    setPreviewing(true);
+    setFormError("");
+    try {
+      const next = await previewOfficial(catalogPathId);
+      if (next.items.length === 0) {
+        setPreview(null);
+        setFormError("Esa ruta no tiene cursos publicados");
+        return;
+      }
+      setPreview({ catalogPathId, title: routeTitle(catalogPathId), items: next.items });
+      setMenuOpen(false);
+    } catch {
+      setFormError("No pudimos mostrar la ruta");
+    } finally {
+      setPreviewing(false);
+    }
+  }
+
+  async function savePreview() {
+    if (!preview) return;
     setSaving(true);
     setFormError("");
     try {
-      const created = await createOfficial({ catalogPathId, title: routeTitle(catalogPathId) });
+      const created = await createOfficial({
+        catalogPathId: preview.catalogPathId,
+        title: preview.title,
+      });
       setState((current) => ({
         status: "ready",
         routes: mergeRoutes(current.status === "ready" ? current.routes : [], [created]),
       }));
+      setPreview(null);
       setPanel("none");
       setMenuOpen(false);
     } catch {

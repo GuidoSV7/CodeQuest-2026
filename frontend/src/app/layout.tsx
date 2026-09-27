@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Outfit, Raleway, Space_Mono } from "next/font/google";
 import ProveedorNotificaciones from "./_componentes/ProveedorNotificaciones";
+import RouteCreatedHost from "./_componentes/RouteCreatedHost";
 import ProveedoresApp from "./providers";
 import "./globals.css";
 import { siteName, siteUrl } from "@/config/site";
@@ -51,7 +52,10 @@ export default function RootLayout({
     >
       <body suppressHydrationWarning>
         <ProveedoresApp>
-          <ProveedorNotificaciones>{children}</ProveedorNotificaciones>
+          <ProveedorNotificaciones>
+            <RouteCreatedHost />
+            {children}
+          </ProveedorNotificaciones>
         </ProveedoresApp>
       </body>
     </html>

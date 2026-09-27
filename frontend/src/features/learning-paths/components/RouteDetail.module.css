@@ -489,6 +489,13 @@
   background: var(--orbital-surface-container-high);
   color: var(--orbital-tertiary);
   cursor: pointer;
+  transition: background 160ms ease, color 160ms ease;
+}
+
+.subsection > button:hover,
+.subsection > button:focus-visible {
+  background: var(--orbital-lime);
+  color: #130c25;
 }
 
 .skeleton {

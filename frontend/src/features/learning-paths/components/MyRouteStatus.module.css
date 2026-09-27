@@ -66,6 +66,24 @@
   color: var(--orbital-lime);
   padding: 0.55rem 0.9rem;
   cursor: pointer;
+  transition:
+    background 160ms ease,
+    color 160ms ease,
+    border-color 160ms ease,
+    transform 160ms ease;
+}
+
+.choice:hover,
+.choice:focus-visible,
+.form .submit:hover,
+.form .submit:focus-visible,
+.dialog > button:hover,
+.dialog > button:focus-visible,
+.dialog .copyIcon:hover,
+.dialog .copyIcon:focus-visible {
+  background: var(--orbital-lime);
+  color: #130c25;
+  transform: translateY(-1px);
 }
 
 .field {
@@ -111,6 +129,13 @@
   border-radius: 8px;
 }
 
+.form .pickerButton:hover,
+.form .pickerButton:focus-visible {
+  border-color: var(--orbital-lime);
+}
+
+.form .menu button:hover,
+.form .menu button:focus-visible,
 .form .menu button[aria-selected="true"] {
   background: rgb(200 221 11 / 16%);
   color: var(--orbital-lime);
@@ -240,4 +265,20 @@
   font: inherit;
   font-size: 0.9rem;
   line-height: 1.45;
+}
+
+.preview {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.previewTitle {
+  margin: 0;
+  font-family: var(--orbital-font-display);
+  font-size: 1.6rem;
+}
+
+.previewNote {
+  margin: 0;
+  color: var(--orbital-ink-muted);
 }

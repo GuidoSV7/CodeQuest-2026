@@ -41,3 +41,28 @@ function parseMessage(raw: unknown): { id: string; title: string } | null {
     return null;
   }
 }
+
+export function subscribeLiveRouteEvents(
+  onEvent: (message: { event?: string; data?: Record<string, unknown> }) => void,
+): () => void {
+  if (typeof EventSource === "undefined") return () => undefined;
+  const source = new EventSource(`${getPublicApiUrl()}/api/me/learning-paths/events`, {
+    withCredentials: true,
+  });
+  const receive = (event: Event) => {
+    const message = event as MessageEvent;
+    onEvent({ event: message.type, data: parseLiveData(message.data) });
+  };
+  source.addEventListener("path.generated", receive);
+  return () => source.close();
+}
+
+function parseLiveData(raw: unknown): Record<string, unknown> | undefined {
+  try {
+    const data = JSON.parse(String(raw)) as unknown;
+    if (data && typeof data === "object") return data as Record<string, unknown>;
+    return undefined;
+  } catch {
+    return undefined;
+  }
+}

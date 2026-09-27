@@ -7,6 +7,14 @@ import { MyRouteStatus } from "@/features/learning-paths/components/MyRouteStatu
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
+class ResizeObserverMock {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+
+globalThis.ResizeObserver = ResizeObserverMock as typeof ResizeObserver;
+
 function mount(element: React.ReactNode) {
   const container = document.createElement("div");
   document.body.appendChild(container);
@@ -70,11 +78,21 @@ describe("MyRouteStatus", () => {
     act(() => root.unmount());
   });
 
-  it("creates an official route from the form answers", async () => {
+  it("shows the official route before saving it", async () => {
     const created = { id: "path-new", title: "Ruta React", itemCount: 4, completedCount: 0, progressRatio: 0 };
     const createOfficial = vi.fn(async () => created);
+    const previewOfficial = vi.fn(async () => ({
+      catalogPathId: "programas-react",
+      items: [
+        { courseId: "10", courseTitle: "React desde cero", bucket: "required" as const, position: 0 },
+      ],
+    }));
     const { container, root } = mount(
-      <MyRouteStatus loadRoutes={async () => []} createOfficial={createOfficial} />,
+      <MyRouteStatus
+        loadRoutes={async () => []}
+        createOfficial={createOfficial}
+        previewOfficial={previewOfficial}
+      />,
     );
     await act(async () => {
       await Promise.resolve();
@@ -102,6 +120,17 @@ describe("MyRouteStatus", () => {
       await Promise.resolve();
     });
 
+    expect(previewOfficial).toHaveBeenCalledWith("programas-react");
+    expect(createOfficial).not.toHaveBeenCalled();
+    expect(container.textContent).toContain("React desde cero");
+    expect(container.textContent).toContain("Por el momento no hay ruta");
+    const save = Array.from(container.querySelectorAll("button")).find((button) =>
+      button.textContent === "Guardar ruta",
+    );
+    await act(async () => {
+      save?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      await Promise.resolve();
+    });
     expect(createOfficial).toHaveBeenCalledWith({ catalogPathId: "programas-react", title: "Ruta React" });
     expect(container.textContent).toContain("Ruta React");
     expect(container.querySelector("select")).toBeNull();
