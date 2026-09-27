@@ -133,15 +133,17 @@ describe("MyRouteStatus", () => {
     expect(container.querySelector("[role='dialog']")?.getAttribute("data-motion")).toBe("open");
     vi.useRealTimers();
     expect(dialog?.textContent).toContain("El video va acá");
-    expect(dialog?.textContent).toContain("Copia y pega esto a tu IA para conectarte");
+    expect(dialog?.textContent).toContain("Para conectar el MCP hay que usar esta guía");
     expect(dialog?.textContent).toContain("get_documentation");
-    expect(dialog?.textContent).toContain("/docs/mcp");
+    expect(dialog?.textContent).toContain("codequest-catalogo");
+    expect(dialog?.textContent).toContain("codequest-cuenta");
+    expect(dialog?.textContent).toContain("/mcp/user");
     const copy = dialog?.querySelector("button[aria-label='Copiar']");
     await act(async () => {
       copy?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
       await Promise.resolve();
     });
-    expect(writeText).toHaveBeenCalledWith(expect.stringContaining("get_documentation"));
+    expect(writeText).toHaveBeenCalledWith(expect.stringContaining("Guiame paso a paso"));
     act(() => root.unmount());
     vi.unstubAllGlobals();
   });

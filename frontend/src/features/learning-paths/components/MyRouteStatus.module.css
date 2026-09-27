@@ -234,7 +234,10 @@
   height: 1rem;
 }
 
-.docsLink {
+.prompt {
   margin: 0;
-  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+  font: inherit;
+  font-size: 0.9rem;
+  line-height: 1.45;
 }

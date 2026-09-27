@@ -253,4 +253,15 @@
   font: inherit;
   font-size: 0.85rem;
   text-decoration: none;
+  cursor: pointer;
+  transition: background 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+.dialog button:hover,
+.dialog a:hover,
+.dialog button:focus-visible,
+.dialog a:focus-visible {
+  background: #c8dd0b;
+  color: #130c25;
+  transform: translateY(-1px);
 }

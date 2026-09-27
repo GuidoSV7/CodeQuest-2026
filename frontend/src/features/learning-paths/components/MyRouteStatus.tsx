@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { createOfficialRoute, loadMyRoutes, type MyRouteSummary } from "../lib/load-my-routes";
 import { subscribeLearningPathEvents } from "../lib/subscribe-learning-paths";
+import { getPublicApiUrl } from "@/lib/api-url";
 import styles from "./MyRouteStatus.module.css";
 
 type LoadState =
@@ -182,8 +183,17 @@ export function MyRouteStatus({
 }
 
 function McpStartDialog({ onClose }: { onClose: () => void }) {
-  const docsUrl = `${window.location.origin}/docs/mcp`;
-  const prompt = `Llamá a get_documentation en el servidor codequest-cuenta y seguí esa guía. Después usá generate_learning_path para armar la ruta. La guía pública está en ${docsUrl}.`;
+  const api = getPublicApiUrl();
+  const prompt = [
+    "Para conectar el MCP hay que usar esta guía.",
+    "",
+    "Guiame paso a paso. Una instrucción por mensaje y esperá a que yo confirme antes de seguir.",
+    "",
+    `1. Conectá el servidor público codequest-catalogo en ${api}/mcp. No pide sesión.`,
+    "2. En ese servidor llamá a get_documentation y leé la documentación. No inventes pasos que no estén ahí.",
+    `3. Conectá el servidor de mi cuenta codequest-cuenta en ${api}/mcp/user. La primera vez abre Discord: decime qué tengo que tocar.`,
+    "4. Cuando ya esté conectado, usá generate_learning_path en codequest-cuenta para armar mi ruta. El modal se abre en la página de CodeQuest donde esté.",
+  ].join("\n");
   const [copied, setCopied] = useState(false);
   const [motion, setMotion] = useState<"closed" | "open">("closed");
   const closing = useRef(false);
@@ -219,7 +229,7 @@ function McpStartDialog({ onClose }: { onClose: () => void }) {
         <div className={styles.videoSlot}>El video va acá</div>
         <div className={styles.copyBox}>
           <div className={styles.copyHead}>
-            <p className={styles.copySubtitle}>Copia y pega esto a tu IA para conectarte</p>
+            <p className={styles.copySubtitle}>Para conectar el MCP hay que usar esta guía</p>
             <button
               type="button"
               className={styles.copyIcon}
@@ -239,12 +249,7 @@ function McpStartDialog({ onClose }: { onClose: () => void }) {
               </svg>
             </button>
           </div>
-          <p>
-            Primero pedile a tu IA que llame a get_documentation en codequest-cuenta.
-            Esa tool le lee la guía. Después usá generate_learning_path para armar la ruta.
-            Se abre en un modal sobre esta página.
-          </p>
-          <p className={styles.docsLink}>{docsUrl}</p>
+          <pre className={styles.prompt}>{prompt}</pre>
         </div>
         <button type="button" onClick={requestClose}>
           Cerrar
