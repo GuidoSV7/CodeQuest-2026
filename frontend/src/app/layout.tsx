@@ -38,6 +38,7 @@ export const metadata: Metadata = {
     locale: "es_LA",
     siteName,
   },
+  manifest: "/manifest.webmanifest",
 };
 
 export default function RootLayout({

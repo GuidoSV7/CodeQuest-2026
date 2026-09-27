@@ -19,14 +19,17 @@ import styles from "./path-diagram.module.css";
 type CardData = {
   item: DiagramItem;
   step?: number;
+  vertical?: boolean;
   onOpen: (item: DiagramItem) => void;
 };
 
 function CardNode({ data }: NodeProps<Node<CardData>>) {
   const item = data.item;
+  const incoming = data.vertical ? Position.Top : Position.Left;
+  const outgoing = data.vertical ? Position.Bottom : Position.Right;
   return (
     <>
-      <Handle type="target" position={Position.Left} isConnectable={false} />
+      <Handle type="target" position={incoming} isConnectable={false} />
       <PathCard
         title={item.title}
         bucketLabel={bucketLabel(item.bucket)}
@@ -37,20 +40,21 @@ function CardNode({ data }: NodeProps<Node<CardData>>) {
         step={data.step}
         onOpen={() => data.onOpen(item)}
       />
-      <Handle type="source" position={Position.Right} isConnectable={false} />
+      <Handle type="source" position={outgoing} isConnectable={false} />
     </>
   );
 }
 
 const nodeTypes = { card: CardNode, header: HeaderNode, group: GroupNode };
 
-function FitWhenMeasured({ fitKey }: { fitKey: string }) {
+function FitWhenMeasured({ fitKey, readable }: { fitKey: string; readable: boolean }) {
   const flow = useReactFlow();
   const flowRef = useRef(flow);
   flowRef.current = flow;
   useEffect(() => {
+    const minZoom = readable ? 1 : 0.2;
     const fit = () => {
-      void flowRef.current.fitView({ padding: 0.18, minZoom: 0.2, maxZoom: 1 });
+      void flowRef.current.fitView({ padding: 0.18, minZoom, maxZoom: 1 });
     };
     const frame = requestAnimationFrame(fit);
     const timer = window.setTimeout(fit, 60);
@@ -58,14 +62,15 @@ function FitWhenMeasured({ fitKey }: { fitKey: string }) {
       cancelAnimationFrame(frame);
       window.clearTimeout(timer);
     };
-  }, [fitKey]);
+  }, [fitKey, readable]);
   useEffect(() => {
     const onResize = () => {
-      void flowRef.current.fitView({ padding: 0.18, minZoom: 0.2, maxZoom: 1 });
+      const minZoom = readable ? 1 : 0.2;
+      void flowRef.current.fitView({ padding: 0.18, minZoom, maxZoom: 1 });
     };
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
-  }, []);
+  }, [readable]);
   return null;
 }
 
@@ -327,7 +332,9 @@ export function PathDiagram({
       parentId: node.parentId,
       draggable: node.type === "card",
       selectable: node.type === "card",
-      data: node.type === "card" && item ? { item, step: node.data.step, onOpen: setSelected } : { label: node.data.label },
+      data: node.type === "card" && item
+        ? { item, step: node.data.step, vertical: node.data.vertical, onOpen: setSelected }
+        : { label: node.data.label },
       width: node.width,
       height: node.height,
       style: { width: node.width, height: node.height },
@@ -348,10 +355,10 @@ export function PathDiagram({
   };
 
   const fitKey = graph.nodes.map((node) => `${node.id}:${node.position.x}:${node.position.y}`).join("|");
-  const canvasHeight = Math.min(
-    1100,
-    Math.max(480, ...graph.nodes.map((node) => node.position.y + node.height), 0) + 72,
-  );
+  const readable = width < 720;
+  const contentHeight = Math.max(480, ...graph.nodes.map((node) => node.position.y + node.height), 0) + 72;
+  const canvasHeight = readable ? contentHeight : Math.min(1100, contentHeight);
+  const zoomFloor = readable ? 1 : 0.2;
   const openCourse = selected
     ? withCard(items.find((item) => item.courseId === selected.courseId) ?? selected, loadedCard)
     : null;
@@ -394,8 +401,8 @@ export function PathDiagram({
             }))}
             nodeTypes={nodeTypes}
             fitView
-            fitViewOptions={{ padding: 0.18, minZoom: 0.2, maxZoom: 1 }}
-            minZoom={0.2}
+            fitViewOptions={{ padding: 0.18, minZoom: zoomFloor, maxZoom: 1 }}
+            minZoom={zoomFloor}
             maxZoom={1}
             panOnDrag={false}
             panOnScroll={false}
@@ -409,7 +416,7 @@ export function PathDiagram({
             nodesConnectable={false}
             proOptions={{ hideAttribution: true }}
           >
-            <FitWhenMeasured fitKey={fitKey} />
+            <FitWhenMeasured fitKey={fitKey} readable={readable} />
             <Background />
           </ReactFlow>
         </div>

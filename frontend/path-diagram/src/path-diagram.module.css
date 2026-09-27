@@ -23,6 +23,8 @@
 @media (max-width: 40rem) {
   .canvas {
     min-height: 320px;
+    height: auto;
+    overflow: visible;
   }
 }
 

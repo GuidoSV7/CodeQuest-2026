@@ -55,4 +55,30 @@ describe("RouteCreatedNotice", () => {
     expect(onNotify).toHaveBeenNthCalledWith(2, "Se armó la ruta Ruta Nest.");
     act(() => root.unmount());
   });
+
+  it("also raises a system notice, and skips it when the event is a replay", () => {
+    const onNotify = vi.fn();
+    const showSystem = vi.fn();
+    let live: ((message: { event?: string; data?: Record<string, unknown> }) => void) | undefined;
+    const { root } = mount(
+      <RouteCreatedNotice
+        onNotify={onNotify}
+        showSystem={showSystem}
+        subscribeCreated={() => () => undefined}
+        subscribeLive={(callback) => {
+          live = callback;
+          return () => undefined;
+        }}
+      />,
+    );
+
+    act(() => {
+      live?.({ event: "path.generated", data: { title: "Ruta React" } });
+      live?.({ event: "path.generated", data: { title: "Ruta vieja", replayed: true } });
+    });
+
+    expect(showSystem).toHaveBeenCalledTimes(1);
+    expect(showSystem).toHaveBeenCalledWith("Se armó la ruta Ruta React.");
+    act(() => root.unmount());
+  });
 });

@@ -16,7 +16,7 @@ export type LayoutNode = {
   type: "header" | "card" | "group";
   position: { x: number; y: number };
   parentId?: string;
-  data: { label: string; courseId?: string; step?: number };
+  data: { label: string; courseId?: string; step?: number; vertical?: boolean };
   width: number;
   height: number;
 };
@@ -198,6 +198,37 @@ function flowLayout(items: LayoutItem[], edges: LayoutEdgeIn[]): {
   return { nodes, edges: kept };
 }
 
+const PHONE_GAP_Y = 36;
+
+function phoneCardWidth(viewport: number): number {
+  return Math.max(280, Math.min(viewport - 32, 420));
+}
+
+function flowLayoutVertical(items: LayoutItem[], edges: LayoutEdgeIn[], width: number): {
+  nodes: LayoutNode[];
+  edges: LayoutEdgeOut[];
+} {
+  const kept = keepEdges(items, edges);
+  const rows = flowRanks(items, kept);
+  const cardW = phoneCardWidth(width);
+  const nodes: LayoutNode[] = [];
+  let y = PAD;
+  rows.forEach((row, rank) => {
+    for (const item of row) {
+      nodes.push({
+        id: item.courseId,
+        type: "card",
+        position: { x: PAD, y },
+        data: { label: item.courseId, courseId: item.courseId, step: rank + 1, vertical: true },
+        width: cardW,
+        height: FLOW_CARD_H,
+      });
+      y += FLOW_CARD_H + PHONE_GAP_Y;
+    }
+  });
+  return { nodes, edges: kept };
+}
+
 const SEARCH_GAP = 24;
 
 function searchLayout(items: LayoutItem[], width: number): LayoutNode[] {
@@ -258,7 +289,11 @@ export function layoutPath(items: LayoutItem[], edges: LayoutEdgeIn[], width: nu
   if (items.some((item) => item.bucket === null)) {
     return { nodes: searchLayout(items, width), edges: [] };
   }
-  if (isConnectedFlow(items, edges)) return flowLayout(items, edges);
+  if (isConnectedFlow(items, edges)) {
+    return width < COLUMN_MIN
+      ? flowLayoutVertical(items, edges, width)
+      : flowLayout(items, edges);
+  }
   const nodes = width < COLUMN_MIN ? verticalLayout(items) : columnLayout(items);
   return { nodes, edges: keepEdges(items, edges) };
 }

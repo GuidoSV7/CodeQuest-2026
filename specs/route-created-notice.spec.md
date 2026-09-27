@@ -1,14 +1,17 @@
 # Aviso cuando se arma una ruta
 
 | Método | ODD + TDD + RDD |
-| Fuera | No se abre un aviso del sistema del celular. No cambia el modal de la ruta en vivo. |
+| Fuera | No hay servidor de push: si la página está cerrada, no llega el evento. No cambia el modal de la ruta en vivo. |
 
 ## Observado
 
-`ProveedorNotificaciones` ya dibuja un cartel arriba a la derecha, y hoy nadie lo usa para las rutas. Crear una ruta oficial publica `path_created` por el WebSocket, pero solo lo escucha `MyRouteStatus` en el configurador. `generate_learning_path` publica `path.generated` por SSE y `LivePathModal` lo recibe en cualquier página del shell, también en el celular, pero no muestra un aviso. Un evento con `replayed: true` es el último estado al reconectar, no una acción nueva.
+`RouteCreatedNotice` llama a `mostrarNotificacion`. Eso dibuja el cartel de arriba a la derecha. No hay `Notification`, service worker ni manifest. En el celular, con la página en segundo plano, ese cartel no aparece como un aviso de app.
+
+El navegador sí puede mostrar avisos del sistema con `Notification` y `registration.showNotification`, si la persona los permitió. En iPhone hace falta agregar el sitio a la pantalla de inicio.
 
 ## Contrato
 
-- `path.generated` y `path_created` muestran `Se armó la ruta {título}.` en el cartel.
-- El mismo id no se anuncia dos veces en esa página.
-- `replayed: true`, el progreso y `path.saved` no anuncian. `path.saved` también sale al abrir una ruta que ya existía.
+- El cartel sigue saliendo.
+- Además se pide permiso una sola vez y se muestra un aviso del sistema con título `CodeQuest` y el mismo texto `Se armó la ruta {título}.`
+- Si el permiso está denegado o el navegador no tiene `Notification`, solo queda el cartel.
+- `replayed: true` no anuncia en ninguno de los dos.
