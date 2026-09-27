@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { modelFromUserPath } from "path-diagram";
 import {
   appearanceDelay,
   reduceLiveEvent,
@@ -76,6 +77,32 @@ describe("live path screen", () => {
       { courseId: "11", title: ".NET Backend", name: "Ana López" },
     ]);
     expect(screen.relatedPaths).toEqual([{ pathId: "programas-nest", title: "NestJS" }]);
+  });
+
+  it("lays out a live route with the same start and fork as a saved route", () => {
+    const items = [
+      { course_id: "csharp", title: "C#: Empieza tu camino en el lenguaje", bucket: "recommended", position: 0 },
+      { course_id: "dotnet", title: ".NET Backend: .NET Core, SQL Server y seguridad JWT", bucket: "recommended", position: 1 },
+      { course_id: "blazor", title: "Blazor: Desde cero con arquitectura limpia", bucket: "recommended", position: 2 },
+    ];
+    const saved = modelFromUserPath({
+      id: "ruta-c",
+      title: "Ruta .NET / C#",
+      items: items.map((item) => ({
+        courseId: item.course_id,
+        courseTitle: item.title,
+        bucket: "recommended",
+        position: item.position,
+      })),
+    });
+    const screen = reduceLiveEvent(
+      { kind: "esperando", connection: "conectado" },
+      { event: "path.generated", data: { title: "Ruta .NET / C#", source_path_id: "ruta-c", items, edges: [] } },
+    );
+    expect(screen.kind).toBe("ruta");
+    if (screen.kind !== "ruta") return;
+    expect(screen.model.edges).toEqual(saved.edges);
+    expect(screen.model.items.map((item) => item.title)).toEqual(saved.items.map((item) => item.title));
   });
 
   it("updates only the matching course on progress", () => {

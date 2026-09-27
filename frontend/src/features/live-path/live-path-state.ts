@@ -1,4 +1,4 @@
-import type { DiagramModel } from "path-diagram";
+import { modelFromUserPath, type DiagramModel } from "path-diagram";
 
 export type LiveConnection = "conectado" | "reconectando";
 
@@ -111,32 +111,21 @@ function relatedFrom(data: Record<string, unknown>) {
 }
 
 function modelFromLive(data: Record<string, unknown>): DiagramModel {
-  const items = Array.isArray(data.items) ? data.items : [];
-  return {
+  const rawItems = Array.isArray(data.items) ? data.items : [];
+  const model = modelFromUserPath({
+    id: String(data.path_id ?? data.source_path_id ?? "generated"),
     title: String(data.title ?? data.source_path_id ?? "Tu ruta"),
-    pathId: String(data.path_id ?? data.source_path_id ?? "generated"),
-    allowProgress: false,
-    edges: Array.isArray(data.edges)
-      ? data.edges.map((edge) => {
-          const row = edge as { from_course_id?: string; to_course_id?: string };
-          return { fromCourseId: String(row.from_course_id ?? ""), toCourseId: String(row.to_course_id ?? "") };
-        })
-      : [],
-    items: items.map((raw) => {
+    items: rawItems.map((raw) => {
       const item = raw as Record<string, unknown>;
+      const completed = item.progress === "completed" || item.status === "completed";
       return {
         courseId: String(item.course_id ?? item.courseId ?? ""),
-        title: String(item.title ?? item.courseTitle ?? ""),
-        url: String(item.url ?? ""),
+        courseTitle: String(item.title ?? item.courseTitle ?? ""),
         bucket: (item.bucket ?? null) as DiagramModel["items"][number]["bucket"],
         position: Number(item.position ?? 0),
-        alreadyKnown: Boolean(item.already_known),
-        partial: Boolean(item.partial),
-        completed: item.progress === "completed" || item.status === "completed",
-        category: null,
-        lessonCount: null,
-        videoHours: null,
+        progress: completed ? { status: "completed" as const } : undefined,
       };
     }),
-  };
+  });
+  return { ...model, allowProgress: false };
 }

@@ -18,6 +18,24 @@ type LearningPathListResponse = {
   }>;
 };
 
+export async function createOfficialRoute(input: {
+  catalogPathId: string;
+  title: string;
+}): Promise<MyRouteSummary> {
+  const response = await api.post<MyRouteSummary>("/api/me/learning-paths", {
+    kind: "official",
+    catalogPathId: input.catalogPathId,
+    title: input.title,
+  });
+  return {
+    id: response.data.id,
+    title: response.data.title,
+    itemCount: response.data.itemCount ?? 0,
+    completedCount: response.data.completedCount ?? 0,
+    progressRatio: response.data.progressRatio ?? 0,
+  };
+}
+
 export async function loadMyRoutes(): Promise<MyRouteSummary[]> {
   const response = await api.get<LearningPathListResponse>("/api/me/learning-paths");
   return response.data.items.map((item) => ({

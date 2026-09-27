@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { loadMyRoutes, type MyRouteSummary } from "../lib/load-my-routes";
+import { createOfficialRoute, loadMyRoutes, type MyRouteSummary } from "../lib/load-my-routes";
 import { subscribeLearningPathEvents } from "../lib/subscribe-learning-paths";
 import styles from "./MyRouteStatus.module.css";
 
@@ -11,14 +11,37 @@ type LoadState =
   | { status: "ready"; routes: MyRouteSummary[] }
   | { status: "error" };
 
+const PATH_CHOICES = [
+  { id: "programas-fundamentos", label: "Fundamentos" },
+  { id: "programas-react", label: "React" },
+  { id: "programas-vue", label: "Vue" },
+  { id: "programas-angular", label: "Angular" },
+  { id: "programas-node", label: "Node" },
+  { id: "programas-nest", label: "NestJS" },
+  { id: "ruta-dart", label: "Dart y Flutter" },
+  { id: "ruta-python", label: "Python" },
+  { id: "ruta-java", label: "Java" },
+  { id: "ruta-c", label: "C# y .NET" },
+  { id: "ruta-ia", label: "Inteligencia artificial" },
+  { id: "ruta-php", label: "PHP" },
+  { id: "ruta-go", label: "Go" },
+] as const;
+
 export function MyRouteStatus({
   loadRoutes = loadMyRoutes,
   subscribe = subscribeLearningPathEvents,
+  createOfficial = createOfficialRoute,
 }: {
   loadRoutes?: () => Promise<MyRouteSummary[]>;
   subscribe?: (onCreated: (route: MyRouteSummary) => void) => () => void;
+  createOfficial?: (input: { catalogPathId: string; title: string }) => Promise<MyRouteSummary>;
 }) {
   const [state, setState] = useState<LoadState>({ status: "loading" });
+  const [panel, setPanel] = useState<"none" | "form" | "mcp">("none");
+  const [catalogPathId, setCatalogPathId] = useState<string>(PATH_CHOICES[5].id);
+  const [title, setTitle] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [formError, setFormError] = useState("");
 
   useEffect(() => {
     let active = true;
@@ -73,7 +96,107 @@ export function MyRouteStatus({
           ))}
         </ul>
       ) : null}
+      <div className={styles.choices}>
+        <button type="button" className={styles.choice} onClick={() => setPanel("form")}>
+          Quiero hacerlo por un formulario
+        </button>
+        <button type="button" className={styles.choice} onClick={() => setPanel("mcp")}>
+          Quiero hacerlo por MCP
+        </button>
+      </div>
+      {panel === "form" ? (
+        <form
+          className={styles.form}
+          onSubmit={(event) => {
+            event.preventDefault();
+            void submitForm();
+          }}
+        >
+          <label>
+            Qué querés aprender
+            <select value={catalogPathId} onChange={(event) => setCatalogPathId(event.target.value)}>
+              {PATH_CHOICES.map((choice) => (
+                <option key={choice.id} value={choice.id}>
+                  {choice.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Nombre de la ruta
+            <input value={title} onChange={(event) => setTitle(event.target.value)} />
+          </label>
+          {formError ? <p role="alert">{formError}</p> : null}
+          <button type="submit" disabled={saving}>
+            {saving ? "Creando…" : "Crear ruta"}
+          </button>
+        </form>
+      ) : null}
+      {panel === "mcp" ? <McpStartDialog onClose={() => setPanel("none")} /> : null}
     </section>
+  );
+
+  async function submitForm() {
+    const trimmed = title.trim();
+    if (!trimmed) {
+      setFormError("Poné un nombre para la ruta");
+      return;
+    }
+    setSaving(true);
+    setFormError("");
+    try {
+      const created = await createOfficial({ catalogPathId, title: trimmed });
+      setState((current) => ({
+        status: "ready",
+        routes: mergeRoutes(current.status === "ready" ? current.routes : [], [created]),
+      }));
+      setPanel("none");
+      setTitle("");
+    } catch {
+      setFormError("No se pudo crear la ruta");
+    } finally {
+      setSaving(false);
+    }
+  }
+}
+
+function McpStartDialog({ onClose }: { onClose: () => void }) {
+  const docsUrl = `${window.location.origin}/docs/mcp`;
+  const prompt = `Leé ${docsUrl} y seguí esa guía. Usá el servidor codequest-cuenta y generate_learning_path para armar la ruta.`;
+  const [copied, setCopied] = useState(false);
+
+  return (
+    <div className={styles.backdrop} onClick={onClose}>
+      <div
+        className={styles.dialog}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Crear la ruta con MCP"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <h2>Quiero hacerlo por MCP</h2>
+        <p>
+          Conectá CodeQuest a Cursor o Claude. Tu IA lee la guía y llama a
+          generate_learning_path. La ruta se abre en un modal sobre esta página.
+        </p>
+        <div className={styles.videoSlot}>El video va acá</div>
+        <p className={styles.docsLink}>{docsUrl}</p>
+        <button
+          type="button"
+          onClick={() => {
+            void navigator.clipboard.writeText(prompt).then(
+              () => setCopied(true),
+              () => setCopied(false),
+            );
+          }}
+        >
+          {copied ? "Copiado" : "Copiar para tu IA"}
+        </button>
+        <button type="button" onClick={onClose}>
+          Cerrar
+        </button>
+      </div>
+    </div>
   );
 }
 
