@@ -16,16 +16,24 @@ export function liveNotice(choice = false): string {
   return `La ruta se muestra en tu página: ${LIVE_PAGE_URL}`
 }
 
-export function attachLive<T extends {
+type TextBlock = { type: 'text'; text: string }
+
+export type LiveToolResult = {
   isError?: boolean
-  content?: Array<{ type: 'text'; text: string }>
+  content: TextBlock[]
   structuredContent?: Record<string, unknown>
-}>(result: T, choice = false): T {
+}
+
+export function attachLive(result: {
+  isError?: boolean
+  content?: TextBlock[]
+  structuredContent?: Record<string, unknown>
+}, choice = false): LiveToolResult {
   const content = result.content ?? []
   if (result.isError) return { ...result, content }
   return {
     ...result,
-    content: [...content, { type: 'text' as const, text: liveNotice(choice) }],
+    content: [...content, { type: 'text', text: liveNotice(choice) }],
     structuredContent: { ...(result.structuredContent ?? {}), live_url: LIVE_PAGE_URL },
   }
 }
