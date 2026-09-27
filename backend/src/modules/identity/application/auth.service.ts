@@ -3,6 +3,7 @@ import type { DiscordOAuthClient } from '../infrastructure/discord-oauth.client'
 import type { SessionJwt } from '../infrastructure/session-jwt'
 import type { OAuthStateStore } from '../ports/oauth-state-store.port'
 import type { UserRecord, UserRepository } from '../ports/user-repository.port'
+import { sessionHandoffUrl } from './session-handoff'
 
 export type AuthCallbackReason =
   | 'access_denied'
@@ -40,12 +41,22 @@ export type CallbackFailure = {
 
 export type CallbackResult = CallbackSuccess | CallbackFailure
 
+const LOCAL_DEV_HOSTS = new Set(['localhost', '127.0.0.1'])
+
 /** Relative path whitelist for post-login redirect; rejects open redirects. */
 export function sanitizeReturnTo(raw: string | undefined | null): string {
   if (!raw) return '/'
-  if (!raw.startsWith('/') || raw.startsWith('//')) return '/'
-  if (raw.includes('://') || raw.includes('\\')) return '/'
-  return raw
+  if (raw.startsWith('/') && !raw.startsWith('//') && !raw.includes('://') && !raw.includes('\\')) {
+    return raw
+  }
+  try {
+    const url = new URL(raw)
+    if (url.username || url.password || url.protocol !== 'http:' || url.port !== '3000') return '/'
+    if (!LOCAL_DEV_HOSTS.has(url.hostname)) return '/'
+    return `${url.origin}${url.pathname}${url.search}`
+  } catch {
+    return '/'
+  }
 }
 
 function errorRedirect(frontendUrl: string, reason: AuthCallbackReason): string {
@@ -170,7 +181,10 @@ export function createAuthService(deps: AuthServiceDeps) {
         }
       }
 
-      const redirectUrl = new URL(statePayload.returnTo, frontendUrl).toString()
+      const redirectUrl = sessionHandoffUrl(
+        new URL(statePayload.returnTo, frontendUrl).toString(),
+        token,
+      )
       return { ok: true, token, redirectUrl, user }
     },
 

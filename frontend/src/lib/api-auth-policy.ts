@@ -1,13 +1,24 @@
 import type { InternalAxiosRequestConfig } from "axios";
+import { captureLocalSessionFromLocation, readLocalSessionToken } from "@/features/auth/lib/local-session";
 
 /**
- * Cookie session (`cq_session`) is sent via `withCredentials`.
- * Keep this hook for future Authorization headers if needed.
+ * Cookie session stays on production. Localhost sends the same JWT as Bearer
+ * because the browser does not attach the API cookie across sites.
  */
 export function applyRequestAuthPolicy(
-  _config: InternalAxiosRequestConfig,
+  config: InternalAxiosRequestConfig,
+  token = currentLocalSessionToken(),
 ): void {
-  // no-op: backend auth is httpOnly cookie based
+  if (!token) return;
+  config.headers.set("Authorization", `Bearer ${token}`);
+}
+
+function currentLocalSessionToken(): string | null {
+  if (typeof window === "undefined" || typeof sessionStorage === "undefined") return null;
+  captureLocalSessionFromLocation(window.location, sessionStorage, (url) => {
+    window.history.replaceState(null, "", url);
+  });
+  return readLocalSessionToken(sessionStorage);
 }
 
 export function mapApiResponseError(error: unknown): Error {

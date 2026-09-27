@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { fetchMe } from "@/features/auth/api/auth.service";
+import { captureLocalSessionFromLocation } from "@/features/auth/lib/local-session";
 import {
   clearSignedOut,
   readSignedOut,
@@ -15,6 +16,9 @@ export function AuthSessionHydrator() {
   const setHydrated = useAuthStore((s) => s.setHydrated);
 
   useEffect(() => {
+    captureLocalSessionFromLocation(window.location, sessionStorage, (url) => {
+      window.history.replaceState(null, "", url);
+    });
     let cancelled = false;
     void (async () => {
       const environment = {

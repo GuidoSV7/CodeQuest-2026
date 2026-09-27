@@ -30,8 +30,12 @@ export class SessionAuthGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest<AuthenticatedRequest>()
-    const token = req.cookies?.[this.cookie.name]
-    if (!token || typeof token !== 'string') {
+    const cookieToken = req.cookies?.[this.cookie.name]
+    const token =
+      typeof cookieToken === 'string' && cookieToken
+        ? cookieToken
+        : readSessionBearer(req.headers.authorization)
+    if (!token) {
       throw new UnauthorizedException('Missing session')
     }
     try {
@@ -46,4 +50,12 @@ export class SessionAuthGuard implements CanActivate {
       throw new UnauthorizedException('Invalid session')
     }
   }
+}
+
+function readSessionBearer(header: string | string[] | undefined): string | null {
+  const value = Array.isArray(header) ? header[0] : header
+  if (!value) return null
+  const [scheme, token] = value.split(' ')
+  if (scheme?.toLowerCase() !== 'bearer' || !token) return null
+  return token
 }

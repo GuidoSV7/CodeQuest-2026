@@ -20,6 +20,19 @@ describe('sanitizeReturnTo', () => {
     expect(sanitizeReturnTo('https://evil.com')).toBe('/')
     expect(sanitizeReturnTo('//evil.com')).toBe('/')
   })
+
+  it('allows only the local dev origin as an absolute return', () => {
+    expect(sanitizeReturnTo('http://localhost:3000/configurador-de-ruta')).toBe(
+      'http://localhost:3000/configurador-de-ruta',
+    )
+    expect(sanitizeReturnTo('http://127.0.0.1:3000/mis-rutas?x=1')).toBe(
+      'http://127.0.0.1:3000/mis-rutas?x=1',
+    )
+    expect(sanitizeReturnTo('http://localhost:3001/')).toBe('/')
+    expect(sanitizeReturnTo('https://localhost:3000/')).toBe('/')
+    expect(sanitizeReturnTo('http://user@localhost:3000/')).toBe('/')
+    expect(sanitizeReturnTo('http://localhost:3000.evil.com/')).toBe('/')
+  })
 })
 
 describe('AuthService', () => {

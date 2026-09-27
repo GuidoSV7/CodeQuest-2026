@@ -1,5 +1,6 @@
 import api from "@/lib/axios";
 import { getPublicApiUrl } from "@/lib/api-url";
+import { clearLocalSessionToken, loginReturnTarget } from "@/features/auth/lib/local-session";
 import type { SessionUser } from "@/features/auth/types/auth.types";
 
 /** GET /api/auth/me — cookie session. */
@@ -14,14 +15,16 @@ export async function fetchMe(): Promise<SessionUser | null> {
 
 /** POST /api/auth/logout — clears cq_session cookie on API origin. */
 export async function logoutSession(): Promise<void> {
+  clearLocalSessionToken(typeof sessionStorage === "undefined" ? undefined : sessionStorage);
   await api.post("/api/auth/logout");
 }
 
 /** Browser redirect entry for Discord OAuth (absolute API origin). */
-export function discordStartUrl(returnTo?: string): string {
+export function discordStartUrl(returnTo?: string, origin = typeof window === "undefined" ? "" : window.location.origin): string {
   const base = `${getPublicApiUrl()}/api/auth/discord/start`;
-  if (!returnTo) return base;
-  const q = new URLSearchParams({ returnTo });
+  const target = returnTo ? loginReturnTarget(origin, returnTo) : undefined;
+  if (!target) return base;
+  const q = new URLSearchParams({ returnTo: target });
   return `${base}?${q.toString()}`;
 }
 
