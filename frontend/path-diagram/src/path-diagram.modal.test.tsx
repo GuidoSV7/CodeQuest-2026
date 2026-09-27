@@ -126,4 +126,35 @@ describe("PathDiagram course modal", () => {
     expect(dialog?.textContent).toContain("C#: Empieza tu camino");
     act(() => root.unmount());
   });
+
+  it("shows only a short preview of a long course description", () => {
+    const long =
+      "¡Te damos la bienvenida al inicio de una emocionante aventura en el mundo del desarrollo con C#! Este curso ha sido diseñado especialmente para acompañarte paso a paso desde cero hasta escribir tus primeros programas.";
+    const verbose = {
+      ...model,
+      items: [
+        {
+          ...model.items[0],
+          detail: { ...model.items[0].detail!, description: long },
+        },
+      ],
+    };
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    const root = createRoot(container);
+    act(() => {
+      root.render(<PathDiagram model={verbose} mode="web" width={429} />);
+    });
+    const card = Array.from(container.querySelectorAll("button")).find((button) =>
+      button.textContent?.includes("C#:"),
+    );
+    act(() => {
+      card?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    });
+    const preview = container.querySelector("[data-course-description]");
+    expect(preview?.textContent?.startsWith("¡Te damos la bienvenida")).toBe(true);
+    expect(preview?.textContent?.endsWith("…")).toBe(true);
+    expect(preview?.textContent).not.toContain("primeros programas");
+    act(() => root.unmount());
+  });
 });

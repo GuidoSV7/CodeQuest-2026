@@ -52,11 +52,6 @@ const baseEnvSchema = z.object({
     .optional()
     .transform((v) => (v === undefined ? undefined : v === 'true')),
   SESSION_COOKIE_SAMESITE: z.enum(['lax', 'none']).default('lax'),
-
-  CLOUDINARY_NAME: z.string().default(''),
-  CLOUDINARY_API_KEY: z.string().default(''),
-  CLOUDINARY_API_SECRET: z.string().default(''),
-  CLOUDINARY_BASE_FOLDER: z.string().default('CodeQuest'),
 })
 
 export const envSchema = baseEnvSchema

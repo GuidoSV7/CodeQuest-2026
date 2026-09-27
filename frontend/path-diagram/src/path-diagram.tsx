@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Background,
   Handle,
@@ -8,6 +8,7 @@ import {
   ReactFlowProvider,
   useReactFlow,
   type Node,
+  type NodeChange,
   type NodeProps,
 } from "@xyflow/react";
 import { layoutPath } from "./layout-path";
@@ -25,17 +26,18 @@ function CardNode({ data }: NodeProps<Node<CardData>>) {
   const item = data.item;
   return (
     <>
-      <Handle type="target" position={Position.Top} isConnectable={false} />
+      <Handle type="target" position={Position.Left} isConnectable={false} />
       <PathCard
         title={item.title}
         bucketLabel={bucketLabel(item.bucket)}
+        bucket={item.bucket}
         alreadyKnown={item.alreadyKnown}
         partial={item.partial}
         completed={item.completed}
         step={data.step}
         onOpen={() => data.onOpen(item)}
       />
-      <Handle type="source" position={Position.Bottom} isConnectable={false} />
+      <Handle type="source" position={Position.Right} isConnectable={false} />
     </>
   );
 }
@@ -83,6 +85,17 @@ function withCard(item: DiagramItem, card: CourseCard | null | undefined): Diagr
   };
 }
 
+const DESCRIPTION_LIMIT = 140;
+
+function previewDescription(text: string): string {
+  const clean = text.replace(/\s+/g, " ").trim();
+  if (clean.length <= DESCRIPTION_LIMIT) return clean;
+  const cut = clean.slice(0, DESCRIPTION_LIMIT + 1);
+  const wordBreak = cut.lastIndexOf(" ");
+  const shortened = wordBreak > 80 ? cut.slice(0, wordBreak) : clean.slice(0, DESCRIPTION_LIMIT);
+  return `${shortened.trim()}…`;
+}
+
 function CourseModal({
   item,
   mode,
@@ -103,6 +116,7 @@ function CourseModal({
   const video = introVideoSrc(item.detail?.previewYoutubeId);
   const sections = item.detail?.sections ?? [];
   const tags = item.detail?.tags ?? [];
+  const description = item.detail?.description ? previewDescription(item.detail.description) : "";
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClose();
@@ -120,10 +134,25 @@ function CourseModal({
         aria-label={item.title}
         onClick={(event) => event.stopPropagation()}
       >
-        <h2>{item.title}</h2>
-        <p>{bucketLabel(item.bucket)}</p>
-        {item.detail?.instructor ? <p>{item.detail.instructor}</p> : null}
-        {item.detail?.description ? <p>{item.detail.description}</p> : null}
+        <header className={styles.summary}>
+          <p className={styles.kicker}>{bucketLabel(item.bucket)}</p>
+          <h2>{item.title}</h2>
+          {item.detail?.instructor ? <p className={styles.instructor}>{item.detail.instructor}</p> : null}
+          <ul className={styles.facts}>
+            {item.lessonCount === null ? null : <li>{item.lessonCount} lecciones</li>}
+            {item.videoHours === null ? null : <li>{item.videoHours} horas</li>}
+            {item.detail?.price ? (
+              <li>
+                {item.detail.price.amount} {item.detail.price.currency}
+              </li>
+            ) : null}
+          </ul>
+        </header>
+        {description ? (
+          <p className={styles.description} data-course-description>
+            {description}
+          </p>
+        ) : null}
         {tags.length > 0 ? (
           <ul className={styles.tags}>
             {tags.map((tag) => (
@@ -131,66 +160,71 @@ function CourseModal({
             ))}
           </ul>
         ) : null}
-        <h3>Video de introducción</h3>
-        {video ? (
-          <iframe className={styles.video} title="Video de introducción" src={video} allowFullScreen />
-        ) : (
-          <p>Este curso no tiene video de introducción</p>
-        )}
-        <h3>Temas</h3>
-        {sections.length === 0 ? <p>Sin temario publicado</p> : null}
-        {sections.map((section) => (
-          <section key={section.title}>
-            <h4>{section.title}</h4>
-            <ul>
-              {section.lessons.map((lesson) => (
-                <li key={lesson}>{lesson}</li>
-              ))}
-            </ul>
-          </section>
-        ))}
-        {item.detail?.price ? <p>{item.detail.price.amount} {item.detail.price.currency}</p> : null}
-        {item.detail?.related?.length ? (
-          <>
-            <h3>Cursos relacionados</h3>
-            <ul>
-              {item.detail.related.map((related) => (
-                <li key={related.url}>{related.title}</li>
-              ))}
-            </ul>
-          </>
-        ) : null}
+        <section className={styles.block}>
+          <h3>Video de introducción</h3>
+          {video ? (
+            <iframe className={styles.video} title="Video de introducción" src={video} allowFullScreen />
+          ) : (
+            <p>Este curso no tiene video de introducción</p>
+          )}
+        </section>
+        <section className={styles.block}>
+          <h3>Temas</h3>
+          {sections.length === 0 ? <p>Sin temario publicado</p> : null}
+          <div className={styles.syllabus}>
+            {sections.map((section) => (
+              <section key={section.title}>
+                <h4>{section.title}</h4>
+                <ul>
+                  {section.lessons.map((lesson) => (
+                    <li key={lesson}>{lesson}</li>
+                  ))}
+                </ul>
+              </section>
+            ))}
+          </div>
+        </section>
         {item.detail?.prerequisites.length ? (
-          <>
+          <section className={styles.block}>
             <h3>Requisitos</h3>
             <ul>
               {item.detail.prerequisites.map((line) => (
                 <li key={line}>{line}</li>
               ))}
             </ul>
-          </>
+          </section>
         ) : null}
-        <p>{item.lessonCount === null ? "No disponible" : `${item.lessonCount} lecciones`}</p>
-        <p>{item.videoHours === null ? "No disponible" : `${item.videoHours} horas`}</p>
-        {item.url && mode === "web" ? (
-          <a href={item.url} target="_blank" rel="noopener noreferrer">
-            Abrir curso
-          </a>
+        {item.detail?.related?.length ? (
+          <section className={styles.block}>
+            <h3>Cursos relacionados</h3>
+            <ul>
+              {item.detail.related.map((related) => (
+                <li key={related.url}>{related.title}</li>
+              ))}
+            </ul>
+          </section>
         ) : null}
-        {item.url && mode === "mcp" ? (
-          <button type="button" onClick={() => openUrl?.(item.url)}>
-            Abrir curso
+        <div className={styles.actions}>
+          {item.url && mode === "web" ? (
+            <a href={item.url} target="_blank" rel="noopener noreferrer">
+              Abrir curso
+            </a>
+          ) : null}
+          {item.url && mode === "mcp" ? (
+            <button type="button" onClick={() => openUrl?.(item.url)}>
+              Abrir curso
+            </button>
+          ) : null}
+          {allowProgress ? (
+            <button type="button" onClick={() => onToggle(item)}>
+              {item.completed ? "Marcar sin empezar" : "Marcar completado"}
+            </button>
+          ) : null}
+          <button type="button" onClick={onClose}>
+            Cerrar
           </button>
-        ) : null}
-        {allowProgress ? (
-          <button type="button" onClick={() => onToggle(item)}>
-            {item.completed ? "Marcar sin empezar" : "Marcar completado"}
-          </button>
-        ) : null}
+        </div>
         {progressError ? <p role="alert">{progressError}</p> : null}
-        <button type="button" onClick={onClose}>
-          Cerrar
-        </button>
       </div>
     </div>
   );
@@ -252,15 +286,27 @@ export function PathDiagram({
     () => layoutPath(items, model.edges, width),
     [items, model.edges, width],
   );
+  const [dragged, setDragged] = useState<Record<string, { x: number; y: number }>>({});
+  const onNodesChange = useCallback((changes: NodeChange[]) => {
+    setDragged((current) => {
+      let next = current;
+      for (const change of changes) {
+        if (change.type !== "position" || !change.position) continue;
+        if (next === current) next = { ...current };
+        next[change.id] = { x: change.position.x, y: change.position.y };
+      }
+      return next;
+    });
+  }, []);
 
   const nodes = graph.nodes.map((node) => {
     const item = items.find((candidate) => candidate.courseId === node.id);
     return {
       id: node.id,
       type: node.type,
-      position: node.position,
+      position: dragged[node.id] ?? node.position,
       parentId: node.parentId,
-      draggable: false,
+      draggable: node.type === "card",
       selectable: node.type === "card",
       data: node.type === "card" && item ? { item, step: node.data.step, onOpen: setSelected } : { label: node.data.label },
       width: node.width,
@@ -302,7 +348,9 @@ export function PathDiagram({
             zoomOnPinch={false}
             zoomOnDoubleClick={false}
             preventScrolling={false}
-            nodesDraggable={false}
+            nodesDraggable
+            autoPanOnNodeDrag={false}
+            onNodesChange={onNodesChange}
             nodesConnectable={false}
             proOptions={{ hideAttribution: true }}
           >

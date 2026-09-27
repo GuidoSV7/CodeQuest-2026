@@ -27,6 +27,11 @@ const PATH_CHOICES = [
   { id: "ruta-go", label: "Go" },
 ] as const;
 
+function routeTitle(catalogPathId: string): string {
+  const choice = PATH_CHOICES.find((item) => item.id === catalogPathId) ?? PATH_CHOICES[0];
+  return `Ruta ${choice.label}`;
+}
+
 export function MyRouteStatus({
   loadRoutes = loadMyRoutes,
   subscribe = subscribeLearningPathEvents,
@@ -38,8 +43,8 @@ export function MyRouteStatus({
 }) {
   const [state, setState] = useState<LoadState>({ status: "loading" });
   const [panel, setPanel] = useState<"none" | "form" | "mcp">("none");
-  const [catalogPathId, setCatalogPathId] = useState<string>(PATH_CHOICES[5].id);
-  const [title, setTitle] = useState("");
+  const [catalogPathId, setCatalogPathId] = useState<string>(PATH_CHOICES[0].id);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState("");
 
@@ -112,22 +117,43 @@ export function MyRouteStatus({
             void submitForm();
           }}
         >
-          <label>
-            Qué querés aprender
-            <select value={catalogPathId} onChange={(event) => setCatalogPathId(event.target.value)}>
-              {PATH_CHOICES.map((choice) => (
-                <option key={choice.id} value={choice.id}>
-                  {choice.label}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Nombre de la ruta
-            <input value={title} onChange={(event) => setTitle(event.target.value)} />
-          </label>
+          <div className={styles.field}>
+            <span id="path-choice-label">Qué querés aprender</span>
+            <div className={styles.picker}>
+              <button
+                type="button"
+                className={styles.pickerButton}
+                aria-haspopup="listbox"
+                aria-expanded={menuOpen}
+                aria-labelledby="path-choice-label"
+                onClick={() => setMenuOpen((open) => !open)}
+              >
+                {PATH_CHOICES.find((choice) => choice.id === catalogPathId)?.label}
+              </button>
+              {menuOpen ? (
+                <ul className={styles.menu} role="listbox" aria-labelledby="path-choice-label">
+                  {PATH_CHOICES.map((choice) => (
+                    <li key={choice.id}>
+                      <button
+                        type="button"
+                        role="option"
+                        aria-selected={choice.id === catalogPathId}
+                        onClick={() => {
+                          setCatalogPathId(choice.id);
+                          setMenuOpen(false);
+                        }}
+                      >
+                        {choice.label}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+            </div>
+            <p className={styles.generated}>La ruta se va a llamar {routeTitle(catalogPathId)}</p>
+          </div>
           {formError ? <p role="alert">{formError}</p> : null}
-          <button type="submit" disabled={saving}>
+          <button className={styles.submit} type="submit" disabled={saving}>
             {saving ? "Creando…" : "Crear ruta"}
           </button>
         </form>
@@ -137,21 +163,16 @@ export function MyRouteStatus({
   );
 
   async function submitForm() {
-    const trimmed = title.trim();
-    if (!trimmed) {
-      setFormError("Poné un nombre para la ruta");
-      return;
-    }
     setSaving(true);
     setFormError("");
     try {
-      const created = await createOfficial({ catalogPathId, title: trimmed });
+      const created = await createOfficial({ catalogPathId, title: routeTitle(catalogPathId) });
       setState((current) => ({
         status: "ready",
         routes: mergeRoutes(current.status === "ready" ? current.routes : [], [created]),
       }));
       setPanel("none");
-      setTitle("");
+      setMenuOpen(false);
     } catch {
       setFormError("No se pudo crear la ruta");
     } finally {

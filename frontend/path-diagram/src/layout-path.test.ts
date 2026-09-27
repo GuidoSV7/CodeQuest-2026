@@ -168,9 +168,10 @@ describe("layoutPath", () => {
     expect(csharp?.data.step).toBe(1);
     expect(dotnet?.data.step).toBe(2);
     expect(blazor?.data.step).toBe(2);
-    expect(csharp && dotnet && blazor && csharp.position.y < dotnet.position.y).toBe(true);
-    expect(dotnet?.position.y).toBe(blazor?.position.y);
-    expect(dotnet && blazor && dotnet.position.x < blazor.position.x).toBe(true);
+    expect(csharp && dotnet && csharp.position.x < dotnet.position.x).toBe(true);
+    expect(csharp && blazor && csharp.position.x < blazor.position.x).toBe(true);
+    expect(dotnet?.position.x).toBe(blazor?.position.x);
+    expect(dotnet && blazor && dotnet.position.y < blazor.position.y).toBe(true);
     expect(edges.map((edge) => edge.id).sort()).toEqual(["csharp->blazor", "csharp->dotnet"]);
   });
 

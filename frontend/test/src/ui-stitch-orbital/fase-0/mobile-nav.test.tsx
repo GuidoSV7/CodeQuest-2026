@@ -31,7 +31,7 @@ const frontendRoot = resolve(import.meta.dirname, "../../../..");
 const PRODUCT_LINKS = [
   { href: "/mis-rutas", label: "Mis rutas" },
   { href: "/configurador-de-ruta", label: "Descubre tu ruta" },
-  { href: "/ajustes/tokens", label: "Ajustes" },
+  { href: "/docs/mcp", label: "MCP" },
 ];
 
 function readFrontendFile(relativePath: string): string {
@@ -87,7 +87,7 @@ describe("MissionShell mobile nav a11y", () => {
     expect(container.querySelector("[hidden]")).toBeNull();
     expect(container.querySelector("a[href='/mis-rutas']")).not.toBeNull();
     expect(container.querySelector("a[href='/configurador-de-ruta']")).not.toBeNull();
-    expect(container.querySelector("a[href='/ajustes/tokens']")).not.toBeNull();
+    expect(container.querySelector("a[href='/docs/mcp']")).not.toBeNull();
 
     act(() => root.unmount());
   });

@@ -20,17 +20,14 @@ import {
 import { OAUTH_STATE_STORE } from './ports/oauth-state-store.port'
 import { USER_REPOSITORY } from './ports/user-repository.port'
 import { AuthController } from './presentation/auth.controller'
-import { AvatarController } from './presentation/avatar.controller'
 import { SessionAuthGuard } from './presentation/session-auth.guard'
-import { UploadImageModule } from '../upload-image/upload-image.module'
 
 @Module({
   imports: [
     ConfigModule,
-    UploadImageModule,
     TypeOrmModule.forFeature([UserOrmEntity, AuthAccountOrmEntity]),
   ],
-  controllers: [AuthController, AvatarController],
+  controllers: [AuthController],
   providers: [
     {
       provide: USER_REPOSITORY,

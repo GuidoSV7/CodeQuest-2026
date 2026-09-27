@@ -175,19 +175,19 @@ function flowLayout(items: LayoutItem[], edges: LayoutEdgeIn[]): {
 } {
   const kept = keepEdges(items, edges);
   const rows = flowRanks(items, kept);
-  const widest = Math.max(...rows.map((row) => row.length), 1);
-  const span = widest * CARD_W + Math.max(0, widest - 1) * FLOW_GAP_X;
+  const tallest = Math.max(...rows.map((row) => row.length), 1);
+  const span = tallest * FLOW_CARD_H + Math.max(0, tallest - 1) * FLOW_GAP_Y;
   const nodes: LayoutNode[] = [];
   rows.forEach((row, rank) => {
-    const rowWidth = row.length * CARD_W + Math.max(0, row.length - 1) * FLOW_GAP_X;
-    const originX = PAD + (span - rowWidth) / 2;
+    const columnHeight = row.length * FLOW_CARD_H + Math.max(0, row.length - 1) * FLOW_GAP_Y;
+    const originY = PAD + (span - columnHeight) / 2;
     row.forEach((item, index) => {
       nodes.push({
         id: item.courseId,
         type: "card",
         position: {
-          x: originX + index * (CARD_W + FLOW_GAP_X),
-          y: PAD + rank * (FLOW_CARD_H + FLOW_GAP_Y),
+          x: PAD + rank * (CARD_W + FLOW_GAP_X),
+          y: originY + index * (FLOW_CARD_H + FLOW_GAP_Y),
         },
         data: { label: item.courseId, courseId: item.courseId, step: rank + 1 },
         width: CARD_W,

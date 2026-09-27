@@ -8,8 +8,80 @@
   background: rgba(28, 24, 41, 0.85);
   color: #f0eeff;
   text-align: left;
-  cursor: pointer;
+  cursor: grab;
   box-sizing: border-box;
+  transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+}
+
+.card:hover {
+  background: rgba(42, 36, 64, 0.96);
+}
+
+.card[data-bucket="required"] {
+  border-color: rgba(200, 221, 11, 0.55);
+  background: rgba(200, 221, 11, 0.08);
+}
+
+.card[data-bucket="required"] .bucket,
+.card[data-bucket="required"] .step {
+  color: #c8dd0b;
+}
+
+.card[data-bucket="required"] .step {
+  background: #c8dd0b;
+  color: #130c25;
+}
+
+.card[data-bucket="required"]:hover {
+  border-color: #c8dd0b;
+  box-shadow: 0 0 0 1px rgba(200, 221, 11, 0.35), 0 8px 20px rgba(8, 6, 16, 0.45);
+}
+
+.card[data-bucket="optional"] {
+  border-color: rgba(142, 182, 255, 0.55);
+  background: rgba(142, 182, 255, 0.08);
+}
+
+.card[data-bucket="optional"] .bucket {
+  color: #8eb6ff;
+}
+
+.card[data-bucket="optional"] .step {
+  background: #8eb6ff;
+  color: #130c25;
+}
+
+.card[data-bucket="optional"]:hover {
+  border-color: #8eb6ff;
+  box-shadow: 0 0 0 1px rgba(142, 182, 255, 0.35), 0 8px 20px rgba(8, 6, 16, 0.45);
+}
+
+.card[data-bucket="recommended"] {
+  border-color: rgba(192, 185, 252, 0.55);
+  background: rgba(192, 185, 252, 0.08);
+}
+
+.card[data-bucket="recommended"] .bucket {
+  color: #c0b9fc;
+}
+
+.card[data-bucket="recommended"] .step {
+  background: #c0b9fc;
+  color: #130c25;
+}
+
+.card[data-bucket="anytime"] {
+  border-color: rgba(231, 194, 122, 0.55);
+  background: rgba(231, 194, 122, 0.08);
+}
+
+.card[data-bucket="anytime"] .bucket {
+  color: #e7c27a;
+}
+
+.card[data-bucket="anytime"] .step {
+  background: #e7c27a;
+  color: #130c25;
 }
 
 .card:focus-visible {

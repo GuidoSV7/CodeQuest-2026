@@ -68,7 +68,8 @@ describe("Orbital DOM foundation", () => {
     expect(container.querySelector("main#screen-content")).not.toBeNull();
     expect(container.querySelector("a[href='/mis-rutas']")).not.toBeNull();
     expect(container.querySelector("a[href='/configurador-de-ruta']")).not.toBeNull();
-    expect(container.querySelector("a[href='/ajustes/tokens']")).not.toBeNull();
+    expect(container.querySelector("a[href='/docs/mcp']")).not.toBeNull();
+    expect(container.querySelector("a[href='/ajustes/tokens']")).toBeNull();
     expect(container.querySelector("a[href='/login']")?.textContent).toBe("Login");
     expect(container.querySelector("a[href='/registro']")?.textContent).toBe("Register");
     expect(container.querySelector("footer")).not.toBeNull();

@@ -65,9 +65,26 @@ describe("Orbital public landing", () => {
     ).map((item) => item.textContent);
     expect(container.querySelector("#crew-title")?.textContent).toBe("desarrolladores");
     expect(crew).toEqual([
-      "Guido Salazar VargasFront/Back",
-      "Jose Alejandro Sahonero SalasFront",
-      "Marco David Toledo CannaFront/Back",
+      "Guido Salazar VargasFront/BackGitHubLinkedIn",
+      "Jose Alejandro Sahonero SalasFrontGitHub",
+      "Marco David Toledo CannaFront/BackGitHubLinkedInPortafolio",
+    ]);
+    expect(container.querySelector("a[href='https://github.com/GuidoSalazarV7']")?.getAttribute("target")).toBe(
+      "_blank",
+    );
+    expect(container.querySelector("a[href='https://www.linkedin.com/in/guidosalazar']")).not.toBeNull();
+    expect(container.querySelector("a[href='https://github.com/Coraxbay78452415']")).not.toBeNull();
+    expect(
+      container.querySelector("a[href='https://www.linkedin.com/in/marco-david-toledo-canna-813bb2165']"),
+    ).not.toBeNull();
+    expect(container.querySelector("a[href='https://portafolio-orcin-iota.vercel.app/']")).not.toBeNull();
+    const portraits = Array.from(
+      container.querySelectorAll("[aria-labelledby='crew-title'] img"),
+    );
+    expect(portraits.map((photo) => photo.getAttribute("alt"))).toEqual([
+      "Vista previa de Guido Salazar Vargas",
+      "Vista previa de Jose Alejandro Sahonero Salas",
+      "Vista previa de Marco David Toledo Canna",
     ]);
 
     act(() => root.unmount());

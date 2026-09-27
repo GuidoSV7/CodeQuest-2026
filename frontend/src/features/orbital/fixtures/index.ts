@@ -18,7 +18,5 @@ export { replanningFixture } from "./replanning.fixture";
 export type { ReplanningFixture } from "./replanning.fixture";
 export { githubPreviewFixture } from "./github.fixture";
 export type { GithubPreviewFixture } from "./github.fixture";
-export { tokenPreviewFixture } from "./tokens.fixture";
-export type { TokenPreviewFixture } from "./tokens.fixture";
 export { ORBITAL_MODES } from "./modes";
 export type { OrbitalFixtureMode } from "./modes";

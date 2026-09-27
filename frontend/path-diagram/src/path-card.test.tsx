@@ -36,7 +36,13 @@ describe("PathCard", () => {
     const { container, root } = mount(<PathCard {...base} onOpen={() => undefined} />);
     expect(container.textContent).toContain("React desde cero");
     expect(container.textContent).toContain("Requerido");
-    expect(container.querySelector("[role='img']")).toBeNull();
+    expect(container.querySelector("button")?.getAttribute("data-bucket")).toBeNull();
+    const optional = mount(<PathCard {...base} bucket="optional" bucketLabel="Opcional" onOpen={() => undefined} />);
+    expect(optional.container.querySelector("button")?.getAttribute("data-bucket")).toBe("optional");
+    const required = mount(<PathCard {...base} bucket="required" onOpen={() => undefined} />);
+    expect(required.container.querySelector("button")?.getAttribute("data-bucket")).toBe("required");
+    act(() => optional.root.unmount());
+    act(() => required.root.unmount());
     act(() => root.unmount());
   });
 

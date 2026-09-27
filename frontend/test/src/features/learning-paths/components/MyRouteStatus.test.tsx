@@ -71,7 +71,7 @@ describe("MyRouteStatus", () => {
   });
 
   it("creates an official route from the form answers", async () => {
-    const created = { id: "path-new", title: "Mi Nest", itemCount: 4, completedCount: 0, progressRatio: 0 };
+    const created = { id: "path-new", title: "Ruta React", itemCount: 4, completedCount: 0, progressRatio: 0 };
     const createOfficial = vi.fn(async () => created);
     const { container, root } = mount(
       <MyRouteStatus loadRoutes={async () => []} createOfficial={createOfficial} />,
@@ -86,26 +86,26 @@ describe("MyRouteStatus", () => {
     act(() => {
       formButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     });
-    const select = container.querySelector("select");
-    const title = container.querySelector("input");
-    const setValue = (element: HTMLInputElement | HTMLSelectElement, value: string) => {
-      const prototype = element instanceof HTMLSelectElement ? HTMLSelectElement.prototype : HTMLInputElement.prototype;
-      const setter = Object.getOwnPropertyDescriptor(prototype, "value")?.set;
-      setter?.call(element, value);
-      element.dispatchEvent(new Event(element instanceof HTMLSelectElement ? "change" : "input", { bubbles: true }));
-    };
-    act(() => {
-      if (select) setValue(select, "programas-nest");
-      if (title instanceof HTMLInputElement) setValue(title, "Mi Nest");
-    });
     const form = container.querySelector("form");
+    const opener = form?.querySelector("button[aria-haspopup='listbox']");
+    act(() => {
+      opener?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    });
+    const react = Array.from(form?.querySelectorAll("[role='option']") ?? []).find((button) =>
+      button.textContent === "React",
+    );
+    act(() => {
+      react?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    });
     await act(async () => {
       form?.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
       await Promise.resolve();
     });
 
-    expect(createOfficial).toHaveBeenCalledWith({ catalogPathId: "programas-nest", title: "Mi Nest" });
-    expect(container.textContent).toContain("Mi Nest");
+    expect(createOfficial).toHaveBeenCalledWith({ catalogPathId: "programas-react", title: "Ruta React" });
+    expect(container.textContent).toContain("Ruta React");
+    expect(container.querySelector("select")).toBeNull();
+    expect(container.textContent).not.toContain("Nombre de la ruta");
     act(() => root.unmount());
   });
 

@@ -11,9 +11,14 @@ const initial: LiveModalState = {
   open: false,
 };
 
+const EXIT_MS = 280;
+
 export function LivePathModal() {
   const [state, setState] = useState<LiveModalState>(initial);
   const [reduced, setReduced] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [entered, setEntered] = useState(false);
+  const shown = state.open && (state.screen.kind === "ruta" || state.screen.kind === "eleccion");
 
   useEffect(() => {
     if (typeof window.matchMedia !== "function") return;
@@ -23,6 +28,32 @@ export function LivePathModal() {
     media.addEventListener("change", apply);
     return () => media.removeEventListener("change", apply);
   }, []);
+
+  useEffect(() => {
+    if (!shown) return;
+    setMounted(true);
+  }, [shown]);
+
+  useEffect(() => {
+    if (!mounted || !shown) return;
+    if (reduced) {
+      setEntered(true);
+      return;
+    }
+    const frame = requestAnimationFrame(() => setEntered(true));
+    return () => cancelAnimationFrame(frame);
+  }, [mounted, shown, reduced]);
+
+  useEffect(() => {
+    if (shown || !mounted) return;
+    setEntered(false);
+    if (reduced) {
+      setMounted(false);
+      return;
+    }
+    const timer = window.setTimeout(() => setMounted(false), EXIT_MS);
+    return () => window.clearTimeout(timer);
+  }, [shown, mounted, reduced]);
 
   useEffect(() => {
     if (typeof EventSource === "undefined") return;
@@ -60,12 +91,12 @@ export function LivePathModal() {
     return () => window.removeEventListener("keydown", onKey);
   }, [state.open]);
 
-  if (!state.open || (state.screen.kind !== "ruta" && state.screen.kind !== "eleccion")) return null;
+  if (!mounted || (state.screen.kind !== "ruta" && state.screen.kind !== "eleccion")) return null;
 
   return (
-    <div className={styles.backdrop}>
+    <div className={entered ? `${styles.backdrop} ${styles.backdropOpen}` : styles.backdrop}>
       <div
-        className={styles.dialog}
+        className={entered ? `${styles.dialog} ${styles.dialogOpen}` : styles.dialog}
         role="dialog"
         aria-modal="true"
         aria-labelledby="live-path-modal-title"

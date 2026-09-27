@@ -116,6 +116,12 @@
   place-items: center;
   padding: 24px 16px;
   background: rgba(8, 5, 18, 0.72);
+  opacity: 0;
+  transition: opacity 280ms ease;
+}
+
+.backdropOpen {
+  opacity: 1;
 }
 
 .dialog {
@@ -123,16 +129,50 @@
   width: min(1100px, 100%);
   max-height: min(860px, calc(100vh - 48px));
   overflow: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   padding: 28px 20px 36px;
   border: 1px solid rgba(192, 185, 252, 0.12);
   border-radius: 20px;
   background: #130c25;
   color: #f0eeff;
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 280ms ease, transform 280ms ease;
+}
+
+.dialogOpen {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .backdrop,
+  .dialog {
+    transition: none;
+  }
 }
 
 .dialog .canvas {
   height: min(560px, 60vh);
+}
+
+@media (max-width: 40rem) {
+  .backdrop {
+    align-items: stretch;
+    padding: 12px;
+  }
+
+  .dialog {
+    max-height: calc(100vh - 24px);
+    max-height: calc(100dvh - 24px);
+  }
+
+  .dialog .canvas,
+  .canvas {
+    height: min(320px, 46vh);
+  }
 }
 
 .close {
