@@ -3,5 +3,5 @@ export type { LayoutItem, LayoutNode, LayoutEdgeIn, LayoutEdgeOut } from "./layo
 export { PathCard } from "./path-card";
 export { PathDiagram } from "./path-diagram";
 export type { ProgressResult } from "./path-diagram";
-export { bucketLabel, iconLabel, modelFromToolResult, modelFromUserPath } from "./model";
-export type { DiagramItem, DiagramModel, DiagramBucket, DiagramCategory } from "./model";
+export { bucketLabel, iconLabel, introVideoSrc, modelFromToolResult, modelFromUserPath } from "./model";
+export type { CourseCard, DiagramItem, DiagramModel, DiagramBucket, DiagramCategory } from "./model";

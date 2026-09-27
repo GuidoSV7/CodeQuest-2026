@@ -34,7 +34,9 @@ describe("MyRouteStatus", () => {
   it("lists the route titles when the account has routes", async () => {
     const { container, root } = mount(
       <MyRouteStatus
-        loadRoutes={async () => [{ id: "path-1", title: "Ruta de Nest" }]}
+        loadRoutes={async () => [
+          { id: "path-1", title: "Ruta de Nest", itemCount: 2, completedCount: 0, progressRatio: 0 },
+        ]}
       />,
     );
     await act(async () => {
@@ -46,7 +48,7 @@ describe("MyRouteStatus", () => {
   });
 
   it("adds a route when the live channel reports one", async () => {
-    let notify: ((route: { id: string; title: string }) => void) | undefined;
+    let notify: ((route: { id: string; title: string; itemCount: number; completedCount: number; progressRatio: number }) => void) | undefined;
     const { container, root } = mount(
       <MyRouteStatus
         loadRoutes={async () => []}
@@ -61,7 +63,7 @@ describe("MyRouteStatus", () => {
     });
     expect(container.textContent).toContain("Por el momento no hay ruta");
     await act(async () => {
-      notify?.({ id: "path-live", title: "Ruta desde Claude" });
+      notify?.({ id: "path-live", title: "Ruta desde Claude", itemCount: 0, completedCount: 0, progressRatio: 0 });
     });
     expect(container.textContent).toContain("Ruta desde Claude");
     expect(container.textContent).not.toContain("Por el momento no hay ruta");

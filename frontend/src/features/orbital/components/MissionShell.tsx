@@ -13,7 +13,6 @@ const PRODUCT_LINKS = [
   { href: "/mis-rutas", label: "Mis rutas" },
   { href: "/configurador-de-ruta", label: "Descubre tu ruta" },
   { href: "/docs/mcp", label: "MCP" },
-  { href: "/en-vivo", label: "En vivo" },
   { href: "/ajustes/tokens", label: "Ajustes" },
 ] as const;
 

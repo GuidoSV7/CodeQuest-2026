@@ -6,6 +6,7 @@ import { escapeMermaidLabel } from '../mcp-public/mermaid'
 import { registerMcpTools } from '../mcp-public/tools/register-mcp-tools'
 import { logMcpSwallowed, runMcpTool } from '../mcp-public/mcp-tool-log'
 import { attachLive, livePathPublisher } from '../live-path/live-path.copy'
+import { livePathAnnotation } from '../mcp-public/live-path-context'
 import type { LivePathEventName } from '../live-path/live-path.types'
 import type { LearningPathsService } from '../learning-paths/learning-paths.service'
 import type { ProgressService } from '../learning-paths/progress.service'
@@ -160,7 +161,20 @@ async function getPath(userId: string, id: string) {
       const state = item.progress.status === 'completed' ? 'Completed' : item.progress.status === 'in_progress' ? 'InProgress' : 'NotStarted'
       lines.push(`  c${item.courseId}["${escapeMermaidLabel(item.courseTitle)}"]:::${bucket}${state}`)
     }
-    return { ...detail, edges: requiredEdges(detail.items), ui: { allow_progress: true }, diagram: { mermaid: lines.join('\n') } }
+    const catalog = await mcpUserDeps.catalog?.getCurrent().catch(() => null)
+    const related = catalog
+      ? livePathAnnotation(catalog, {
+          sourcePathId: detail.sourceCatalogPathId,
+          courseIds: detail.items.map((item) => item.courseId),
+        }).related_paths
+      : []
+    return {
+      ...detail,
+      related_paths: related,
+      edges: requiredEdges(detail.items),
+      ui: { allow_progress: true },
+      diagram: { mermaid: lines.join('\n') },
+    }
   } catch (error) {
     logMcpSwallowed({ surface: 'user', tool: 'get_my_path', userId }, error)
     return fail('not_found')

@@ -44,6 +44,26 @@
   min-width: 0;
 }
 
+.step {
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 999px;
+  background: #c8dd0b;
+  color: #130c25;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.start {
+  color: #c8dd0b;
+  font-size: 0.688rem;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+}
+
 .bucket,
 .status {
   color: #f0eeff;

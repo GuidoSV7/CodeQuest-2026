@@ -1,7 +1,7 @@
 import type { LivePathDraft } from './live-path.types'
 
 export const LIVE_PAGE_URL =
-  'https://codequest-frontend-oiueyi-4bb3e7-31-97-78-167.sslip.io/en-vivo'
+  'https://codequest-frontend-oiueyi-4bb3e7-31-97-78-167.sslip.io'
 
 export const livePathPublisher: {
   publish: (userId: string, draft: LivePathDraft) => Promise<void>
@@ -11,9 +11,9 @@ export const livePathPublisher: {
 
 export function liveNotice(choice = false): string {
   if (choice) {
-    return `Decile a Claude cuál preferís. Las opciones están en tu página: ${LIVE_PAGE_URL}`
+    return `Decile a Claude cuál preferís. Las opciones se abren en un modal sobre la página de CodeQuest en la que estés: ${LIVE_PAGE_URL}`
   }
-  return `La ruta se muestra en tu página: ${LIVE_PAGE_URL}`
+  return `La ruta se abre en un modal sobre la página de CodeQuest en la que estés: ${LIVE_PAGE_URL}`
 }
 
 type TextBlock = { type: 'text'; text: string }

@@ -27,6 +27,12 @@
   margin: 0 0 50px;
 }
 
+.topActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .connection {
   margin: 0;
   padding: 2px 10px;
@@ -62,6 +68,36 @@
 
 .empty {
   text-align: center;
+}
+
+.notes {
+  max-width: 1200px;
+  margin: 16px auto 0;
+  display: grid;
+  gap: 8px;
+}
+
+.notes h2 {
+  margin: 0;
+  font-size: 0.75rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #c8dd0b;
+}
+
+.notes ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.notes li {
+  padding: 10px 14px;
+  border: 1px solid rgba(192, 185, 252, 0.12);
+  border-radius: 16px;
+  background: rgba(28, 24, 41, 0.85);
 }
 
 .canvas {
@@ -100,17 +136,23 @@
 }
 
 .close {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  z-index: 1;
-  border: 1px solid rgba(192, 185, 252, 0.28);
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 1px solid rgb(200 221 11 / 70%);
   border-radius: 999px;
-  background: transparent;
-  color: #f0eeff;
-  padding: 6px 14px;
-  font: inherit;
+  background: #1c1829;
+  color: #c8dd0b;
+  font-size: 1.25rem;
+  line-height: 1;
   cursor: pointer;
+}
+
+.close:hover {
+  background: #c8dd0b;
+  color: #130c25;
 }
 
 .sr {

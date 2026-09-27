@@ -13,10 +13,7 @@ export default function LearningPathsPage() {
       <div className={styles.content}>
         <header className={styles.heading}>
           <h1>mis rutas</h1>
-          <p>
-            Registros de trayectoria de vuelo técnico y módulos de instrucción
-            programados en estación orbital.
-          </p>
+          <p>Las rutas que guardaste, con el avance de cada curso.</p>
         </header>
         <LearningPathsDashboard />
       </div>

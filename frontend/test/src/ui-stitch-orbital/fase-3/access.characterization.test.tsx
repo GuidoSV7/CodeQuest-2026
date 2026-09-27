@@ -17,7 +17,7 @@ describe("learning paths access boundary", () => {
       "src/features/learning-paths/components/RouteDetail.tsx",
     );
 
-    expect(dashboard).toContain('getLearningPaths("authenticated")');
+    expect(dashboard).toContain("loadMyRoutes");
     expect(dashboard).not.toContain("if (!user)");
     expect(dashboard).not.toContain("Iniciá sesión para ver tus rutas");
     expect(dashboard).not.toContain("Cargando el estado de tu misión");

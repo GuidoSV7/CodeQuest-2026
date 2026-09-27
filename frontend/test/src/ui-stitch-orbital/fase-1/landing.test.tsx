@@ -60,6 +60,15 @@ describe("Orbital public landing", () => {
     expect(container.querySelectorAll("article")).toHaveLength(4);
     expect(container.querySelectorAll("svg circle")).toHaveLength(13);
     expect(container.querySelector("a[href='/configurador-de-ruta']")).not.toBeNull();
+    const crew = Array.from(
+      container.querySelectorAll("[aria-labelledby='crew-title'] li"),
+    ).map((item) => item.textContent);
+    expect(container.querySelector("#crew-title")?.textContent).toBe("desarrolladores");
+    expect(crew).toEqual([
+      "Guido Salazar VargasFront/Back",
+      "Jose Alejandro Sahonero SalasFront",
+      "Marco David Toledo CannaFront/Back",
+    ]);
 
     act(() => root.unmount());
   });

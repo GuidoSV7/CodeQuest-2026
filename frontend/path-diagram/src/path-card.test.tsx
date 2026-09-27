@@ -74,6 +74,18 @@ describe("PathCard", () => {
     act(() => root.unmount());
   });
 
+  it("shows the step and marks the first one as the start", () => {
+    const start = mount(<PathCard {...base} step={1} onOpen={() => undefined} />);
+    expect(start.container.textContent).toContain("1");
+    expect(start.container.textContent).toContain("Empieza aquí");
+    act(() => start.root.unmount());
+
+    const next = mount(<PathCard {...base} step={2} onOpen={() => undefined} />);
+    expect(next.container.textContent).toContain("2");
+    expect(next.container.textContent).not.toContain("Empieza aquí");
+    act(() => next.root.unmount());
+  });
+
   it("wraps the title on two lines", () => {
     const css = readFileSync(path.resolve("src/path-card.module.css"), "utf8");
     expect(css).toMatch(/-webkit-line-clamp:\s*2/);

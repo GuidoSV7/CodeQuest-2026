@@ -2,6 +2,18 @@ export type DiagramBucket = "required" | "recommended" | "optional" | "anytime";
 
 export type DiagramCategory = "free" | "mini" | "exclusive" | "legacy" | "wip" | null;
 
+export type CourseCard = {
+  description: string | null;
+  instructor: string | null;
+  lessonCount: number | null;
+  videoHours: number | null;
+  previewYoutubeId: string | null;
+  prerequisites: string[];
+  tags: string[];
+  sections: Array<{ title: string; lessons: string[] }>;
+  url: string;
+};
+
 export type DiagramItem = {
   courseId: string;
   title: string;
@@ -14,6 +26,7 @@ export type DiagramItem = {
   category: DiagramCategory;
   lessonCount: number | null;
   videoHours: number | null;
+  detail?: CourseCard | null;
 };
 
 export type DiagramModel = {
@@ -30,6 +43,13 @@ const BUCKET_LABEL: Record<DiagramBucket, string> = {
   optional: "Opcional",
   anytime: "En cualquier momento",
 };
+
+const YOUTUBE_ID = /^[A-Za-z0-9_-]{6,}$/;
+
+export function introVideoSrc(id: string | null | undefined): string | null {
+  if (!id || !YOUTUBE_ID.test(id)) return null;
+  return `https://www.youtube-nocookie.com/embed/${id}`;
+}
 
 export function bucketLabel(bucket: DiagramBucket | null): string {
   if (!bucket) return "";
@@ -71,6 +91,7 @@ export function modelFromToolResult(payload: {
     bucket: DiagramBucket | null;
     position: number;
     progress?: { status?: string };
+    detail?: CourseCard | null;
   }>;
 }): DiagramModel {
   const courses = payload.path?.courses ?? payload.items ?? [];
@@ -86,19 +107,21 @@ export function modelFromToolResult(payload: {
     category: course.category ?? null,
     lessonCount: course.lesson_count ?? null,
     videoHours: course.video_hours ?? null,
+    detail: null,
   }));
   const userItems = (payload.userItems ?? []).map((item) => ({
     courseId: item.courseId,
     title: item.courseTitle,
-    url: "",
+    url: item.detail?.url ?? "",
     bucket: item.bucket,
     position: item.position,
     alreadyKnown: false,
     partial: false,
     completed: item.progress?.status === "completed",
     category: null,
-    lessonCount: null,
-    videoHours: null,
+    lessonCount: item.detail?.lessonCount ?? null,
+    videoHours: item.detail?.videoHours ?? null,
+    detail: item.detail ?? null,
   }));
   return {
     title: payload.path?.title ?? payload.title ?? "Ruta",
@@ -112,25 +135,45 @@ export function modelFromToolResult(payload: {
   };
 }
 
+type UserPathItem = {
+  courseId: string;
+  courseTitle: string;
+  bucket: DiagramBucket | null;
+  position: number;
+  progress?: { status?: string };
+  detail?: CourseCard | null;
+};
+
+function byItemPosition(left: UserPathItem, right: UserPathItem): number {
+  return left.position - right.position || left.courseId.localeCompare(right.courseId);
+}
+
+function chainEdges(items: UserPathItem[]) {
+  return items.slice(0, -1).map((item, index) => ({
+    from_course_id: item.courseId,
+    to_course_id: items[index + 1]?.courseId ?? "",
+  })).filter((edge) => edge.to_course_id);
+}
+
+function defaultPathEdges(items: UserPathItem[]) {
+  const required = items.filter((item) => item.bucket === "required").sort(byItemPosition);
+  if (required.length >= 2) return chainEdges(required);
+  const ordered = items.filter((item) => item.bucket !== "anytime").sort(byItemPosition);
+  const start = ordered[0];
+  if (!start) return [];
+  return ordered.slice(1).map((item) => ({
+    from_course_id: start.courseId,
+    to_course_id: item.courseId,
+  }));
+}
+
 export function modelFromUserPath(detail: {
   id: string;
   title: string;
-  items: Array<{
-    courseId: string;
-    courseTitle: string;
-    bucket: DiagramBucket | null;
-    position: number;
-    progress?: { status?: string };
-  }>;
+  items: UserPathItem[];
   edges?: Array<{ from_course_id: string; to_course_id: string }>;
 }): DiagramModel {
-  const required = detail.items
-    .filter((item) => item.bucket === "required")
-    .sort((left, right) => left.position - right.position || left.courseId.localeCompare(right.courseId));
-  const edges = detail.edges ?? required.slice(0, -1).map((item, index) => ({
-    from_course_id: item.courseId,
-    to_course_id: required[index + 1]?.courseId ?? "",
-  })).filter((edge) => edge.to_course_id);
+  const edges = detail.edges ?? defaultPathEdges(detail.items);
   return modelFromToolResult({
     title: detail.title,
     id: detail.id,

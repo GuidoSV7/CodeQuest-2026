@@ -16,6 +16,7 @@ export function LivePathModal() {
   const [reduced, setReduced] = useState(false);
 
   useEffect(() => {
+    if (typeof window.matchMedia !== "function") return;
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
     const apply = () => setReduced(media.matches);
     apply();
@@ -24,6 +25,7 @@ export function LivePathModal() {
   }, []);
 
   useEffect(() => {
+    if (typeof EventSource === "undefined") return;
     const source = new EventSource(`${getPublicApiUrl()}/api/me/learning-paths/events`, {
       withCredentials: true,
     });
@@ -68,14 +70,11 @@ export function LivePathModal() {
         aria-modal="true"
         aria-labelledby="live-path-modal-title"
       >
-        <button
-          type="button"
-          className={styles.close}
-          onClick={() => setState((current) => reduceLiveModal(current, { event: "dismiss" }))}
-        >
-          Cerrar
-        </button>
-        <LivePathView screen={state.screen} reduced={reduced} />
+        <LivePathView
+          screen={state.screen}
+          reduced={reduced}
+          onClose={() => setState((current) => reduceLiveModal(current, { event: "dismiss" }))}
+        />
       </div>
     </div>
   );

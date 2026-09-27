@@ -138,10 +138,10 @@ Cuando la tool termine, repetí la frase que te devolvió, incluida la página.`
       <section className={styles.section} aria-labelledby="live-path">
         <h2 id="live-path">5. Ver la ruta mientras hablás</h2>
         <p>
-          La página <a href="/en-vivo">/en-vivo</a> dibuja la ruta en el momento.
-          Tiene que estar abierta con la misma cuenta de Discord del conector, y el
-          indicador tiene que decir <strong>En vivo</strong>. Si dice Sin sesión, el
-          navegador no tiene la cookie y no va a aparecer nada.
+          La ruta se abre en un modal sobre la página de CodeQuest en la que estés,
+          con la misma cuenta de Discord del conector. El indicador del modal tiene
+          que decir <strong>En vivo</strong>. Si dice Sin sesión, el navegador no
+          tiene la cookie y no va a aparecer nada.
         </p>
         <p>
           Solo el servidor <strong>codequest-cuenta</strong> actualiza esa página.

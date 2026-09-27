@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Background,
+  MarkerType,
   ReactFlow,
   ReactFlowProvider,
   useReactFlow,
@@ -8,12 +9,13 @@ import {
   type NodeProps,
 } from "@xyflow/react";
 import { layoutPath } from "./layout-path";
-import { bucketLabel, iconLabel, type DiagramItem, type DiagramModel } from "./model";
+import { bucketLabel, iconLabel, introVideoSrc, type DiagramItem, type DiagramModel } from "./model";
 import { PathCard } from "./path-card";
 import styles from "./path-diagram.module.css";
 
 type CardData = {
   item: DiagramItem;
+  step?: number;
   onOpen: (item: DiagramItem) => void;
 };
 
@@ -27,6 +29,7 @@ function CardNode({ data }: NodeProps<Node<CardData>>) {
       alreadyKnown={item.alreadyKnown}
       partial={item.partial}
       completed={item.completed}
+      step={data.step}
       onOpen={() => data.onOpen(item)}
     />
   );
@@ -36,19 +39,21 @@ const nodeTypes = { card: CardNode, header: HeaderNode, group: GroupNode };
 
 function FitWhenMeasured({ nodeCount }: { nodeCount: number }) {
   const flow = useReactFlow();
+  const flowRef = useRef(flow);
+  flowRef.current = flow;
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
-      void flow.fitView({ padding: 0.12 });
+      void flowRef.current.fitView({ padding: 0.12 });
     });
     return () => cancelAnimationFrame(frame);
-  }, [flow, nodeCount]);
+  }, [nodeCount]);
   useEffect(() => {
     const onResize = () => {
-      void flow.fitView({ padding: 0.12 });
+      void flowRef.current.fitView({ padding: 0.12 });
     };
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
-  }, [flow]);
+  }, []);
   return null;
 }
 
@@ -61,6 +66,108 @@ function GroupNode({ data }: NodeProps<Node<{ label: string }>>) {
 }
 
 export type ProgressResult = { ok: boolean; message?: string };
+
+function CourseModal({
+  item,
+  mode,
+  allowProgress,
+  progressError,
+  openUrl,
+  onToggle,
+  onClose,
+}: {
+  item: DiagramItem;
+  mode: "web" | "mcp";
+  allowProgress: boolean;
+  progressError: string;
+  openUrl?: (url: string) => void;
+  onToggle: (item: DiagramItem) => void;
+  onClose: () => void;
+}) {
+  const video = introVideoSrc(item.detail?.previewYoutubeId);
+  const sections = item.detail?.sections ?? [];
+  const tags = item.detail?.tags ?? [];
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  return (
+    <div className={styles.backdrop} onClick={onClose}>
+      <div
+        className={styles.dialog}
+        role="dialog"
+        aria-modal="true"
+        aria-label={item.title}
+        onClick={(event) => event.stopPropagation()}
+      >
+        <h2>{item.title}</h2>
+        <p>{bucketLabel(item.bucket)}</p>
+        {item.detail?.instructor ? <p>{item.detail.instructor}</p> : null}
+        {item.detail?.description ? <p>{item.detail.description}</p> : null}
+        {tags.length > 0 ? (
+          <ul className={styles.tags}>
+            {tags.map((tag) => (
+              <li key={tag}>{tag}</li>
+            ))}
+          </ul>
+        ) : null}
+        <h3>Video de introducción</h3>
+        {video ? (
+          <iframe className={styles.video} title="Video de introducción" src={video} allowFullScreen />
+        ) : (
+          <p>Este curso no tiene video de introducción</p>
+        )}
+        <h3>Temas</h3>
+        {sections.length === 0 ? <p>Sin temario publicado</p> : null}
+        {sections.map((section) => (
+          <section key={section.title}>
+            <h4>{section.title}</h4>
+            <ul>
+              {section.lessons.map((lesson) => (
+                <li key={lesson}>{lesson}</li>
+              ))}
+            </ul>
+          </section>
+        ))}
+        {item.detail?.prerequisites.length ? (
+          <>
+            <h3>Requisitos</h3>
+            <ul>
+              {item.detail.prerequisites.map((line) => (
+                <li key={line}>{line}</li>
+              ))}
+            </ul>
+          </>
+        ) : null}
+        <p>{item.lessonCount === null ? "No disponible" : `${item.lessonCount} lecciones`}</p>
+        <p>{item.videoHours === null ? "No disponible" : `${item.videoHours} horas`}</p>
+        {item.url && mode === "web" ? (
+          <a href={item.url} target="_blank" rel="noopener noreferrer">
+            Abrir curso
+          </a>
+        ) : null}
+        {item.url && mode === "mcp" ? (
+          <button type="button" onClick={() => openUrl?.(item.url)}>
+            Abrir curso
+          </button>
+        ) : null}
+        {allowProgress ? (
+          <button type="button" onClick={() => onToggle(item)}>
+            {item.completed ? "Marcar sin empezar" : "Marcar completado"}
+          </button>
+        ) : null}
+        {progressError ? <p role="alert">{progressError}</p> : null}
+        <button type="button" onClick={onClose}>
+          Cerrar
+        </button>
+      </div>
+    </div>
+  );
+}
 
 export function PathDiagram({
   model,
@@ -112,7 +219,7 @@ export function PathDiagram({
       parentId: node.parentId,
       draggable: false,
       selectable: node.type === "card",
-      data: node.type === "card" && item ? { item, onOpen: setSelected } : { label: node.data.label },
+      data: node.type === "card" && item ? { item, step: node.data.step, onOpen: setSelected } : { label: node.data.label },
       style: { width: node.width, height: node.height },
     };
   });
@@ -136,7 +243,11 @@ export function PathDiagram({
         <div className={styles.canvas} ref={canvasRef}>
           <ReactFlow
             nodes={nodes}
-            edges={graph.edges.map((edge) => ({ ...edge, type: "smoothstep" }))}
+            edges={graph.edges.map((edge) => ({
+              ...edge,
+              type: "smoothstep",
+              markerEnd: { type: MarkerType.ArrowClosed, color: "#dcd8ff", width: 18, height: 18 },
+            }))}
             nodeTypes={nodeTypes}
             fitView
             fitViewOptions={{ padding: 0.12 }}
@@ -152,33 +263,15 @@ export function PathDiagram({
         </div>
       </ReactFlowProvider>
       {selected ? (
-        <div className={styles.dialog} role="dialog" aria-label={selected.title}>
-          <h2>{selected.title}</h2>
-          <p>{bucketLabel(selected.bucket)}</p>
-          <p>{selected.lessonCount === null ? "No disponible" : `${selected.lessonCount} lecciones`}</p>
-          <p>{selected.videoHours === null ? "No disponible" : `${selected.videoHours} horas`}</p>
-          {selected.url && mode === "web" ? (
-            <a href={selected.url} target="_blank" rel="noopener noreferrer">
-              Abrir curso
-            </a>
-          ) : null}
-          {selected.url && mode === "mcp" ? (
-            <button type="button" onClick={() => openUrl?.(selected.url)}>
-              Abrir curso
-            </button>
-          ) : null}
-          {model.allowProgress ? (
-            <button type="button" onClick={() => void toggle(items.find((item) => item.courseId === selected.courseId) ?? selected)}>
-              {items.find((item) => item.courseId === selected.courseId)?.completed
-                ? "Marcar sin empezar"
-                : "Marcar completado"}
-            </button>
-          ) : null}
-          {progressError ? <p role="alert">{progressError}</p> : null}
-          <button type="button" onClick={() => setSelected(null)}>
-            Cerrar
-          </button>
-        </div>
+        <CourseModal
+          item={items.find((item) => item.courseId === selected.courseId) ?? selected}
+          mode={mode}
+          allowProgress={model.allowProgress}
+          progressError={progressError}
+          openUrl={openUrl}
+          onToggle={(item) => void toggle(item)}
+          onClose={() => setSelected(null)}
+        />
       ) : null}
     </div>
   );

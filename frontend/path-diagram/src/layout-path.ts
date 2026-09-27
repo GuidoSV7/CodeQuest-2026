@@ -16,7 +16,7 @@ export type LayoutNode = {
   type: "header" | "card" | "group";
   position: { x: number; y: number };
   parentId?: string;
-  data: { label: string; courseId?: string };
+  data: { label: string; courseId?: string; step?: number };
   width: number;
   height: number;
 };
@@ -124,6 +124,80 @@ function columnLayout(items: LayoutItem[]): LayoutNode[] {
   return nodes;
 }
 
+const FLOW_GAP_X = 48;
+const FLOW_GAP_Y = 80;
+const FLOW_CARD_H = 156;
+
+function isConnectedFlow(items: LayoutItem[], edges: LayoutEdgeIn[]): boolean {
+  if (items.length < 2) return false;
+  const ids = new Set<string>();
+  for (const edge of keepEdges(items, edges)) {
+    ids.add(edge.source);
+    ids.add(edge.target);
+  }
+  return items.every((item) => ids.has(item.courseId));
+}
+
+function flowRanks(items: LayoutItem[], edges: LayoutEdgeOut[]): LayoutItem[][] {
+  const incoming = new Map(items.map((item) => [item.courseId, 0]));
+  const outgoing = new Map(items.map((item) => [item.courseId, [] as string[]]));
+  for (const edge of edges) {
+    outgoing.get(edge.source)?.push(edge.target);
+    incoming.set(edge.target, (incoming.get(edge.target) ?? 0) + 1);
+  }
+  const rankOf = new Map<string, number>();
+  const ready = items.filter((item) => incoming.get(item.courseId) === 0).map((item) => item.courseId);
+  for (const id of ready) rankOf.set(id, 0);
+  const pending = new Map(incoming);
+  while (ready.length > 0) {
+    const id = ready.shift();
+    if (!id) break;
+    const rank = rankOf.get(id) ?? 0;
+    for (const next of outgoing.get(id) ?? []) {
+      rankOf.set(next, Math.max(rankOf.get(next) ?? 0, rank + 1));
+      pending.set(next, (pending.get(next) ?? 1) - 1);
+      if (pending.get(next) === 0) ready.push(next);
+    }
+  }
+  const rows: LayoutItem[][] = [];
+  for (const item of [...items].sort(byPosition)) {
+    const rank = rankOf.get(item.courseId) ?? 0;
+    const row = rows[rank] ?? [];
+    row.push(item);
+    rows[rank] = row;
+  }
+  return rows;
+}
+
+function flowLayout(items: LayoutItem[], edges: LayoutEdgeIn[]): {
+  nodes: LayoutNode[];
+  edges: LayoutEdgeOut[];
+} {
+  const kept = keepEdges(items, edges);
+  const rows = flowRanks(items, kept);
+  const widest = Math.max(...rows.map((row) => row.length), 1);
+  const span = widest * CARD_W + Math.max(0, widest - 1) * FLOW_GAP_X;
+  const nodes: LayoutNode[] = [];
+  rows.forEach((row, rank) => {
+    const rowWidth = row.length * CARD_W + Math.max(0, row.length - 1) * FLOW_GAP_X;
+    const originX = PAD + (span - rowWidth) / 2;
+    row.forEach((item, index) => {
+      nodes.push({
+        id: item.courseId,
+        type: "card",
+        position: {
+          x: originX + index * (CARD_W + FLOW_GAP_X),
+          y: PAD + rank * (FLOW_CARD_H + FLOW_GAP_Y),
+        },
+        data: { label: item.courseId, courseId: item.courseId, step: rank + 1 },
+        width: CARD_W,
+        height: FLOW_CARD_H,
+      });
+    });
+  });
+  return { nodes, edges: kept };
+}
+
 const SEARCH_GAP = 24;
 
 function searchLayout(items: LayoutItem[], width: number): LayoutNode[] {
@@ -184,6 +258,7 @@ export function layoutPath(items: LayoutItem[], edges: LayoutEdgeIn[], width: nu
   if (items.some((item) => item.bucket === null)) {
     return { nodes: searchLayout(items, width), edges: [] };
   }
+  if (isConnectedFlow(items, edges)) return flowLayout(items, edges);
   const nodes = width < COLUMN_MIN ? verticalLayout(items) : columnLayout(items);
   return { nodes, edges: keepEdges(items, edges) };
 }

@@ -1,14 +1,45 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { getLearningPaths } from "../lib/learning-paths-data";
+import { useEffect, useState } from "react";
+import { loadMyRoutes, type MyRouteSummary } from "../lib/load-my-routes";
 import { LearningPathsEmptyState } from "./LearningPathsEmptyState";
 import styles from "./LearningPathsDashboard.module.css";
 
-export function LearningPathsDashboard() {
+type LoadState =
+  | { status: "loading" }
+  | { status: "ready"; routes: MyRouteSummary[] }
+  | { status: "error" };
+
+export function LearningPathsDashboard({
+  load = loadMyRoutes,
+}: {
+  load?: () => Promise<MyRouteSummary[]>;
+}) {
+  const [attempt, setAttempt] = useState(0);
   const [retrying, setRetrying] = useState(false);
-  const result = getLearningPaths("authenticated");
+  const [result, setResult] = useState<LoadState>({ status: "loading" });
+
+  useEffect(() => {
+    let active = true;
+    load()
+      .then((routes) => {
+        if (active) setResult({ status: "ready", routes });
+      })
+      .catch(() => {
+        if (active) setResult({ status: "error" });
+      })
+      .finally(() => {
+        if (active) setRetrying(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [attempt, load]);
+
+  if (result.status === "loading") {
+    return <p className={styles.state}>Cargando tus rutas…</p>;
+  }
 
   if (result.status === "error") {
     return (
@@ -20,7 +51,8 @@ export function LearningPathsDashboard() {
           disabled={retrying}
           onClick={() => {
             setRetrying(true);
-            setRetrying(false);
+            setResult({ status: "loading" });
+            setAttempt((current) => current + 1);
           }}
         >
           {retrying ? "Reintentando…" : "Reintentar"}
@@ -29,96 +61,45 @@ export function LearningPathsDashboard() {
     );
   }
 
-  if (result.status === "empty" || result.data === null) {
+  if (result.routes.length === 0) {
     return <LearningPathsEmptyState />;
   }
 
-  const routes = result.data.routes;
+  const routes = result.routes;
   return (
     <section className={styles.dashboard} aria-label="Rutas activas">
       <div className={styles.routeGrid}>
         {routes.map((route) => {
-          const isIdle = route.progressPercent === 0;
+          const percent = Math.round(route.progressRatio * 100);
+          const isIdle = percent === 0;
+          const status = percent >= 100 ? "Completada" : isIdle ? "Sin empezar" : "En progreso";
           return (
             <article
               className={isIdle ? styles.routeCardIdle : styles.routeCard}
-              key={route.routeId}
+              key={route.id}
             >
               <div className={styles.cardBody}>
                 <div className={styles.cardStatus}>
-                  <span>{route.statusLabel ?? "Trayectoria"}</span>
-                  <span
-                    className={
-                      isIdle ? styles.stageBadgeIdle : styles.stageBadge
-                    }
-                  >
+                  <span>{status}</span>
+                  <span className={isIdle ? styles.stageBadgeIdle : styles.stageBadge}>
                     <i aria-hidden="true" />
-                    {route.stageLabel ??
-                      (isIdle ? "Sin empezar" : "Etapa 02")}
+                    {route.completedCount} de {route.itemCount} cursos
                   </span>
                 </div>
                 <div className={styles.cardTitleRow}>
                   <div>
-                    {isIdle ? (
-                      <>
-                        <h2>{route.title}</h2>
-                        <span className={styles.routeContext}>
-                          {route.summary ?? "Ecosistema cliente"}
-                        </span>
-                      </>
-                    ) : (
-                      <>
-                        <span className={styles.routeLabel}>
-                          TRAYECTORIA PRINCIPAL
-                        </span>
-                        <h2>{route.title}</h2>
-                      </>
-                    )}
+                    <h2>{route.title}</h2>
                   </div>
-                  <RouteGauge
-                    label={route.title}
-                    progress={route.progressPercent}
-                    showOrbit={!isIdle}
-                  />
+                  <RouteGauge label={route.title} progress={percent} />
                 </div>
-                {!isIdle && route.nextActionLabel ? (
-                  <div className={styles.nextAction}>
-                    <div className={styles.nextActionHeader}>
-                      <span>Siguiente maniobra</span>
-                      <span>✦ Listo</span>
-                    </div>
-                    <p>{route.nextActionLabel}</p>
-                  </div>
-                ) : null}
               </div>
-              <div
-                className={
-                  isIdle ? styles.cardFooterIdle : styles.cardFooter
-                }
-              >
-                {!isIdle ? (
-                  <div className={styles.telemetry}>
-                    <span>
-                      {route.hoursTelemetry ?? "HORAS: no disponible"}
-                    </span>
-                    <span aria-hidden="true">✦</span>
-                    <span>
-                      {route.blocksTelemetry ?? "BLOQUES: no disponible"}
-                    </span>
-                  </div>
-                ) : null}
-                {route.nextActionLabel ? (
-                  <Link
-                    className={styles.primaryAction}
-                    href={`/mis-rutas/${route.routeId}`}
-                  >
+              <div className={isIdle ? styles.cardFooterIdle : styles.cardFooter}>
+                {percent < 100 ? (
+                  <Link className={styles.primaryAction} href={`/mis-rutas/${route.id}`}>
                     Continuar donde quedé
                   </Link>
                 ) : (
-                  <Link
-                    className={styles.secondaryAction}
-                    href={`/mis-rutas/${route.routeId}`}
-                  >
+                  <Link className={styles.secondaryAction} href={`/mis-rutas/${route.id}`}>
                     Ver ruta
                   </Link>
                 )}
@@ -134,11 +115,9 @@ export function LearningPathsDashboard() {
 function RouteGauge({
   label,
   progress,
-  showOrbit,
 }: {
   label: string;
   progress: number | null;
-  showOrbit: boolean;
 }) {
   const value = progress ?? 0;
   const circumference = 251.32;
@@ -166,9 +145,6 @@ function RouteGauge({
       </svg>
       <div className={styles.gaugeLabel}>
         <span>{progress === null ? "—" : `${progress}%`}</span>
-        {showOrbit && progress !== null ? (
-          <span className={styles.gaugeOrbit}>ORBIT</span>
-        ) : null}
       </div>
     </div>
   );

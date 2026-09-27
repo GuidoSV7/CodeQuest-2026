@@ -4,6 +4,12 @@ import styles from "./page.module.css";
 import { MissionRadarLive } from "@/features/orbital/components/MissionRadarLive";
 import { HomeAuthStatus } from "@/features/auth/components/HomeAuthStatus";
 
+const developers = [
+  { name: "Guido Salazar Vargas", role: "Front/Back" },
+  { name: "Jose Alejandro Sahonero Salas", role: "Front" },
+  { name: "Marco David Toledo Canna", role: "Front/Back" },
+] as const;
+
 export default function HomePage() {
   return (
     <main className={styles.main}>
@@ -122,6 +128,28 @@ export default function HomePage() {
               </span>
             ))}
           </div>
+        </section>
+
+        <section className={styles.crew} aria-labelledby="crew-title">
+          <div className={styles.sectionHeading}>
+            <div>
+              <p className={styles.sectionEyebrow}>
+                <span aria-hidden="true">✦</span>
+                EQUIPO
+              </p>
+              <h2 className={styles.sectionTitle} id="crew-title">
+                desarrolladores
+              </h2>
+            </div>
+          </div>
+          <ul className={styles.crewList}>
+            {developers.map((person) => (
+              <li key={person.name}>
+                <p>{person.name}</p>
+                <span>{person.role}</span>
+              </li>
+            ))}
+          </ul>
         </section>
       </div>
     </main>

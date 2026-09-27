@@ -44,6 +44,18 @@ export type CourseProgressDto = {
   updatedAt: string
 }
 
+export type LearningPathCourseCardDto = {
+  description: string | null
+  instructor: string | null
+  lessonCount: number | null
+  videoHours: number | null
+  previewYoutubeId: string | null
+  prerequisites: string[]
+  tags: string[]
+  sections: Array<{ title: string; lessons: string[] }>
+  url: string
+}
+
 export type LearningPathItemDto = {
   id: string
   courseId: string
@@ -53,6 +65,38 @@ export type LearningPathItemDto = {
   bucket: PathItemBucket | null
   unavailable: boolean
   progress: CourseProgressDto
+  detail: LearningPathCourseCardDto | null
+}
+
+function courseCard(
+  catalog: CatalogSnapshot | 'degraded',
+  courseId: string,
+): LearningPathCourseCardDto | null {
+  if (catalog === 'degraded') return null
+  const course = catalog.courses.find((item) => String(item.id) === courseId)
+  if (!course) return null
+  const numericId = Number(courseId)
+  const tags = new Set<string>()
+  for (const path of catalog.paths) {
+    for (const entry of path.entries) {
+      if (entry.courseId !== numericId) continue
+      for (const tag of entry.tags) tags.add(tag)
+    }
+  }
+  return {
+    description: course.description,
+    instructor: course.instructor,
+    lessonCount: course.lessonCount,
+    videoHours: course.videoHours,
+    previewYoutubeId: course.previewYoutubeId,
+    prerequisites: course.prerequisites,
+    tags: [...tags].sort((left, right) => left.localeCompare(right)),
+    sections: course.sections.map((section) => ({
+      title: section.title,
+      lessons: section.lessons.map((lesson) => lesson.title),
+    })),
+    url: course.sourceUrl,
+  }
 }
 
 export type LearningPathSummaryDto = {
@@ -450,15 +494,10 @@ export class LearningPathsService {
       userId,
       record.items.map((i) => i.courseId),
     )
-    const availableIds =
-      catalog === 'degraded'
-        ? null
-        : new Set(catalog.courses.map((c) => String(c.id)))
-
     const items = record.items
       .slice()
       .sort((a, b) => a.position - b.position)
-      .map((item) => this.toItemDto(item, progressMap, availableIds))
+      .map((item) => this.toItemDto(item, progressMap, catalog))
 
     const summary = this.toSummary(record, progressMap)
     return {
@@ -494,9 +533,13 @@ export class LearningPathsService {
   private toItemDto(
     item: LearningPathItemRecord,
     progressMap: Map<string, UserCourseProgressRecord>,
-    availableIds: Set<string> | null,
+    catalog: CatalogSnapshot | 'degraded',
   ): LearningPathItemDto {
     const progress = progressMap.get(item.courseId)
+    const availableIds =
+      catalog === 'degraded'
+        ? null
+        : new Set(catalog.courses.map((course) => String(course.id)))
     return {
       id: item.id,
       courseId: item.courseId,
@@ -507,6 +550,7 @@ export class LearningPathsService {
       unavailable:
         availableIds === null ? false : !availableIds.has(item.courseId),
       progress: toProgressDto(item.courseId, progress),
+      detail: courseCard(catalog, item.courseId),
     }
   }
 

@@ -40,7 +40,7 @@ export async function startLivePathSse(input: {
   response.setHeader('X-Accel-Buffering', 'no')
   response.write('retry: 5000\n\n')
   const last = await input.state.read(userId)
-  if (last) response.write(formatSse(last))
+  if (last) response.write(formatSse({ ...last, data: { ...last.data, replayed: true } }))
   const stop = input.bus.subscribe(userId, (event) => {
     response.write(formatSse(event))
   })

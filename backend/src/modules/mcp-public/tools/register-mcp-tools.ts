@@ -12,6 +12,7 @@ import type { LearningPathGenerator } from '../learning-path-generator'
 import { runMcpTool } from '../mcp-tool-log'
 import { tiedOfficialPaths } from '../resolve-alias'
 import { attachLive, livePathPublisher } from '../../live-path/live-path.copy'
+import { livePathAnnotation } from '../live-path-context'
 
 const annotations = { readOnlyHint: true as const, openWorldHint: false as const }
 
@@ -134,14 +135,26 @@ export function registerMcpTools(
           includeOptional: args.include_optional ?? false,
           fromSeed: loaded.fromSeed,
         })
+        const note = livePathAnnotation(loaded.snapshot, {
+          sourcePathId: payload.source_path_id,
+          courseIds: payload.items.map((item) => item.course_id),
+        })
+        const enriched = {
+          ...payload,
+          items: payload.items.map((item) => ({
+            ...item,
+            instructor: note.instructors[item.course_id] ?? null,
+          })),
+          related_paths: note.related_paths,
+        }
         if (deps.liveUserId) {
           await livePathPublisher.publish(deps.liveUserId, {
             event: 'path.generated',
-            data: { type: 'path.generated', ...payload },
+            data: { type: 'path.generated', ...enriched },
           })
-          return attachLive(ok(payload))
+          return attachLive(ok(enriched))
         }
-        return ok(payload)
+        return ok(enriched)
       })
     },
   )

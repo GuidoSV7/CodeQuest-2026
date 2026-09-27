@@ -1,5 +1,5 @@
 import api from "@/lib/axios";
-import type { DiagramBucket } from "path-diagram";
+import type { CourseCard, DiagramBucket } from "path-diagram";
 
 export type PathDetailResponse = {
   id: string;
@@ -10,6 +10,7 @@ export type PathDetailResponse = {
     bucket: DiagramBucket | null;
     position: number;
     progress?: { status?: string };
+    detail?: CourseCard | null;
   }>;
 };
 

@@ -249,6 +249,57 @@ describe('LearningPathsService', () => {
     )
   })
 
+  it('get detail includes topics, tags and the intro video from the catalog', async () => {
+    const course = minimalCourse(100, 'csharp', 'C#: Empieza tu camino en el lenguaje')
+    course.previewYoutubeId = 'abc123XYZ'
+    course.description = 'Primeros pasos en C#'
+    course.instructor = 'Fernando Herrera'
+    course.sections = [
+      {
+        index: 0,
+        title: 'Fundamentos',
+        lessons: [{ index: 0, title: 'Variables', isFreePreview: true }],
+      },
+    ]
+    catalogSnapshot = buildCatalog({
+      courses: [course],
+      paths: [
+        {
+          ...buildCatalog().paths[0]!,
+          entries: [
+            {
+              bucket: 'RECOMMENDED',
+              courseSlug: 'csharp',
+              courseUrl: course.sourceUrl,
+              label: course.title,
+              tags: ['backend', 'bases'],
+              position: 0,
+              courseId: 100,
+            },
+          ],
+        },
+      ],
+    })
+
+    const created = await service.create(USER_A, {
+      kind: 'custom',
+      title: 'C#',
+      items: [{ courseId: '100', bucket: 'recommended' }],
+    })
+    const detail = await service.getById(USER_A, created.id)
+    expect(detail.items[0]?.detail).toEqual({
+      description: 'Primeros pasos en C#',
+      instructor: 'Fernando Herrera',
+      lessonCount: 1,
+      videoHours: 1,
+      previewYoutubeId: 'abc123XYZ',
+      prerequisites: [],
+      tags: ['backend', 'bases'],
+      sections: [{ title: 'Fundamentos', lessons: ['Variables'] }],
+      url: course.sourceUrl,
+    })
+  })
+
   it('get detail of another user path throws NotFoundException', async () => {
     const created = await service.create(USER_A, {
       kind: 'custom',

@@ -95,7 +95,7 @@ describe("Orbital DOM foundation", () => {
     act(() => root.unmount());
   });
 
-  it("renders two route cards, accessible gauges and no request/storage side effects", () => {
+  it("renders two route cards, accessible gauges and no request/storage side effects", async () => {
     useAuthStore.setState({
       user: orbitalDemoSessionFixture,
       hydrated: true,
@@ -104,7 +104,17 @@ describe("Orbital DOM foundation", () => {
     vi.stubGlobal("fetch", fetchSpy);
     const storageSpy = vi.spyOn(Storage.prototype, "setItem");
 
-    const { container, root } = mount(<LearningPathsDashboard />);
+    const { container, root } = mount(
+      <LearningPathsDashboard
+        load={async () => [
+          { id: "nest", title: "Backend con Nest", itemCount: 10, completedCount: 3, progressRatio: 0.34 },
+          { id: "react", title: "Frontend con React", itemCount: 4, completedCount: 0, progressRatio: 0 },
+        ]}
+      />,
+    );
+    await act(async () => {
+      await Promise.resolve();
+    });
 
     expect(container.querySelectorAll("article")).toHaveLength(2);
     expect(container.textContent).toContain("Backend con Nest");
@@ -112,7 +122,7 @@ describe("Orbital DOM foundation", () => {
     expect(container.querySelectorAll("svg[role='img']")).toHaveLength(2);
     expect(container.querySelector("[aria-label='Progreso de Backend con Nest: 34%']")).not.toBeNull();
     expect(container.querySelector("[aria-label='Progreso de Frontend con React: 0%']")).not.toBeNull();
-    expect(container.textContent).toContain("Siguiente maniobra");
+    expect(container.textContent).not.toContain("Siguiente maniobra");
     expect(fetchSpy).not.toHaveBeenCalled();
     expect(storageSpy).not.toHaveBeenCalled();
 

@@ -8,6 +8,7 @@ export type PathCardProps = {
   alreadyKnown: boolean;
   partial: boolean;
   completed: boolean;
+  step?: number;
   onOpen: () => void;
 };
 
@@ -18,6 +19,7 @@ export function PathCard({
   alreadyKnown,
   partial,
   completed,
+  step,
   onOpen,
 }: PathCardProps) {
   const openFromKey = (event: KeyboardEvent<HTMLButtonElement>) => {
@@ -36,6 +38,8 @@ export function PathCard({
         </svg>
       </span>
       <span className={styles.copy}>
+        {step ? <span className={styles.step}>{step}</span> : null}
+        {step === 1 ? <span className={styles.start}>Empieza aquí</span> : null}
         <span className={styles.bucket}>{bucketLabel}</span>
         <span className={styles.title}>{title}</span>
         {status ? <span className={styles.status}>{status}</span> : null}

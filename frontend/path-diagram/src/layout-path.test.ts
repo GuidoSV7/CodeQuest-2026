@@ -148,6 +148,32 @@ describe("layoutPath", () => {
     });
   });
 
+  it("numbers the start and places the fork beside it even on a narrow canvas", () => {
+    const { nodes, edges } = layoutPath(
+      [
+        item("blazor", "recommended", 2),
+        item("csharp", "recommended", 0),
+        item("dotnet", "recommended", 1),
+      ],
+      [
+        { fromCourseId: "csharp", toCourseId: "dotnet" },
+        { fromCourseId: "csharp", toCourseId: "blazor" },
+      ],
+      429,
+    );
+    const csharp = nodes.find((node) => node.id === "csharp");
+    const dotnet = nodes.find((node) => node.id === "dotnet");
+    const blazor = nodes.find((node) => node.id === "blazor");
+    expect(nodes.some((node) => node.type === "header")).toBe(false);
+    expect(csharp?.data.step).toBe(1);
+    expect(dotnet?.data.step).toBe(2);
+    expect(blazor?.data.step).toBe(2);
+    expect(csharp && dotnet && blazor && csharp.position.y < dotnet.position.y).toBe(true);
+    expect(dotnet?.position.y).toBe(blazor?.position.y);
+    expect(dotnet && blazor && dotnet.position.x < blazor.position.x).toBe(true);
+    expect(edges.map((edge) => edge.id).sort()).toEqual(["csharp->blazor", "csharp->dotnet"]);
+  });
+
   it("lays out an empty path with column headers and no edges", () => {
     const { nodes, edges } = layoutPath([], [], 960);
     expect(edges).toEqual([]);

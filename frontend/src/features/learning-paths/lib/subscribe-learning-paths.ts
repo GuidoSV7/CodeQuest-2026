@@ -21,7 +21,13 @@ export function subscribeLearningPathEvents(
   socket.addEventListener("message", (event) => {
     const data = parseMessage(event.data);
     if (!data) return;
-    onCreated({ id: data.id, title: data.title });
+    onCreated({
+      id: data.id,
+      title: data.title,
+      itemCount: 0,
+      completedCount: 0,
+      progressRatio: 0,
+    });
   });
   return () => socket.close();
 }

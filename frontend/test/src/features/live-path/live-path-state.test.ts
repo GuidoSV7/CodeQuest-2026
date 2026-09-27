@@ -52,6 +52,32 @@ describe("live path screen", () => {
     expect(next.replay).toBe(true);
   });
 
+  it("keeps each instructor and the related official paths", () => {
+    const screen = reduceLiveEvent(
+      { kind: "esperando", connection: "conectado" },
+      {
+        event: "path.generated",
+        data: {
+          ...generated,
+          source_path_id: "ruta-c",
+          title: "Ruta .NET / C#",
+          items: [
+            { ...generated.items[0], course_id: "10", title: "C#: Empieza tu camino", instructor: "Fernando Herrera" },
+            { ...generated.items[0], course_id: "11", title: ".NET Backend", instructor: "Ana López" },
+          ],
+          related_paths: [{ path_id: "programas-nest", title: "NestJS" }],
+        },
+      },
+    );
+    expect(screen.kind).toBe("ruta");
+    if (screen.kind !== "ruta") return;
+    expect(screen.instructors).toEqual([
+      { courseId: "10", title: "C#: Empieza tu camino", name: "Fernando Herrera" },
+      { courseId: "11", title: ".NET Backend", name: "Ana López" },
+    ]);
+    expect(screen.relatedPaths).toEqual([{ pathId: "programas-nest", title: "NestJS" }]);
+  });
+
   it("updates only the matching course on progress", () => {
     const drawn = reduceLiveEvent(
       { kind: "esperando", connection: "conectado" },
@@ -149,6 +175,18 @@ describe("live path modal", () => {
       data: { ...generated, source_path_id: "ruta-dart" },
     });
     expect(again.open).toBe(true);
+  });
+
+  it("keeps a replayed route closed until the MCP sends a new action", () => {
+    const replayed = reduceLiveModal(waiting, {
+      event: "path.generated",
+      data: { ...generated, replayed: true },
+    });
+    expect(replayed.open).toBe(false);
+    expect(replayed.screen.kind).toBe("ruta");
+
+    const live = reduceLiveModal(replayed, { event: "path.saved", data: { ...generated, path_id: "path-1" } });
+    expect(live.open).toBe(true);
   });
 });
 

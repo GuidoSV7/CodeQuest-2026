@@ -43,22 +43,31 @@ afterEach(() => {
 });
 
 describe("literal learning-path routes", () => {
-  it("renders the two source dashboard cards and telemetry without side effects", () => {
+  it("renders the two source dashboard cards and telemetry without side effects", async () => {
     const fetchSpy = vi.fn();
     const storageSpy = vi.spyOn(Storage.prototype, "setItem");
     vi.stubGlobal("fetch", fetchSpy);
-    const { container, root } = mount(<LearningPathsDashboard />);
+    const { container, root } = mount(
+      <LearningPathsDashboard
+        load={async () => [
+          { id: "nest", title: "Backend con Nest", itemCount: 10, completedCount: 3, progressRatio: 0.34 },
+          { id: "react", title: "Frontend con React", itemCount: 4, completedCount: 0, progressRatio: 0 },
+        ]}
+      />,
+    );
+    await act(async () => {
+      await Promise.resolve();
+    });
 
     expect(container.querySelectorAll("article")).toHaveLength(2);
     expect(container.textContent).toContain("Backend con Nest");
     expect(container.textContent).toContain("34%");
-    expect(container.textContent).toContain("ORBIT");
+    expect(container.textContent).toContain("3 de 10 cursos");
     expect(container.textContent).toContain("Frontend con React");
-    expect(container.textContent).toContain("Ecosistema cliente");
-    expect(container.textContent).toContain("HORAS: 14/42");
-    expect(container.textContent).toContain("BLOQUES: 08/24");
+    expect(container.textContent).toContain("0 de 4 cursos");
     expect(container.textContent).toContain("Continuar donde quedé");
-    expect(container.textContent).toContain("Ver ruta");
+    expect(container.textContent).not.toContain("Etapa 02");
+    expect(container.textContent).not.toContain("HORAS:");
     expect(fetchSpy).not.toHaveBeenCalled();
     expect(storageSpy).not.toHaveBeenCalled();
 

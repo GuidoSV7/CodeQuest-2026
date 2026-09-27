@@ -8,7 +8,14 @@ export type LiveScreen =
   | { kind: "sin_sesion"; connection: LiveConnection }
   | { kind: "esperando"; connection: LiveConnection }
   | { kind: "eleccion"; connection: LiveConnection; prompt: string; options: LiveChoice[] }
-  | { kind: "ruta"; connection: LiveConnection; model: DiagramModel; replay: boolean };
+  | {
+      kind: "ruta";
+      connection: LiveConnection;
+      model: DiagramModel;
+      replay: boolean;
+      instructors: Array<{ courseId: string; title: string; name: string }>;
+      relatedPaths: Array<{ pathId: string; title: string }>;
+    };
 
 type LiveRecord = { event?: string; data?: Record<string, unknown> };
 
@@ -29,12 +36,15 @@ export function reduceLiveEvent(screen: LiveScreen, message: LiveRecord): LiveSc
   }
   if (message.event === "path.generated" || message.event === "path.saved") {
     const previousId = screen.kind === "ruta" ? screen.model.pathId : null;
-    const model = modelFromLive(message.data ?? {});
+    const data = message.data ?? {};
+    const model = modelFromLive(data);
     return {
       kind: "ruta",
       connection: screen.connection,
       model,
       replay: previousId !== model.pathId,
+      instructors: instructorsFrom(data),
+      relatedPaths: relatedFrom(data),
     };
   }
   if (message.event === "progress.updated" && screen.kind === "ruta") {
@@ -67,13 +77,37 @@ export function reduceLiveModal(
 ): LiveModalState {
   if (message.event === "dismiss") return { ...state, open: false };
   const screen = reduceLiveEvent(state.screen, message);
-  const announced = MODAL_EVENTS.has(message.event ?? "");
+  const announced = MODAL_EVENTS.has(message.event ?? "") && message.data?.replayed !== true;
   return { screen, open: announced || (state.open && screen.kind !== "sin_sesion") };
 }
 
 export function appearanceDelay(index: number, reducedMotion: boolean): number {
   if (reducedMotion) return 0;
   return index * 90;
+}
+
+function instructorsFrom(data: Record<string, unknown>) {
+  const items = Array.isArray(data.items) ? data.items : [];
+  return items.flatMap((raw) => {
+    const item = raw as Record<string, unknown>;
+    const detail = item.detail as { instructor?: unknown } | undefined;
+    const name = typeof item.instructor === "string" ? item.instructor : detail?.instructor;
+    if (typeof name !== "string" || name.length === 0) return [];
+    return [{
+      courseId: String(item.course_id ?? item.courseId ?? ""),
+      title: String(item.title ?? item.courseTitle ?? ""),
+      name,
+    }];
+  });
+}
+
+function relatedFrom(data: Record<string, unknown>) {
+  const rows = Array.isArray(data.related_paths) ? data.related_paths : [];
+  return rows.flatMap((raw) => {
+    const row = raw as { path_id?: unknown; title?: unknown };
+    if (typeof row.path_id !== "string" || typeof row.title !== "string") return [];
+    return [{ pathId: row.path_id, title: row.title }];
+  });
 }
 
 function modelFromLive(data: Record<string, unknown>): DiagramModel {
