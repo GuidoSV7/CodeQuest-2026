@@ -183,7 +183,7 @@ export function MyRouteStatus({
 
 function McpStartDialog({ onClose }: { onClose: () => void }) {
   const docsUrl = `${window.location.origin}/docs/mcp`;
-  const prompt = `Leé ${docsUrl} y seguí esa guía. Usá el servidor codequest-cuenta y generate_learning_path para armar la ruta.`;
+  const prompt = `Llamá a get_documentation en el servidor codequest-cuenta y seguí esa guía. Después usá generate_learning_path para armar la ruta. La guía pública está en ${docsUrl}.`;
   const [copied, setCopied] = useState(false);
 
   return (

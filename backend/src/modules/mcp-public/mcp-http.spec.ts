@@ -105,6 +105,7 @@ function catalog(): CatalogSnapshot {
 }
 
 const TOOL_NAMES = [
+  'get_documentation',
   'search_courses',
   'get_course',
   'list_official_paths',
@@ -184,7 +185,7 @@ describe('public MCP endpoint', () => {
     await client.connect(new StreamableHTTPClientTransport(new URL(`${baseUrl}/mcp`)))
   }
 
-  it('lists five read-only tools after initialize', async () => {
+  it('lists the read-only tools after initialize', async () => {
     await connectClient()
     const listed = await client.listTools()
     expect(listed.tools.map((tool) => tool.name).sort()).toEqual([...TOOL_NAMES].sort())
@@ -204,6 +205,10 @@ describe('public MCP endpoint', () => {
 
   it('calls every tool with valid input and rejects invalid input without a stack', async () => {
     await connectClient()
+    const documentation = JSON.parse(await toolText(client, 'get_documentation', {}))
+    expect(documentation.markdown).toContain('generate_learning_path')
+    expect(documentation.public_tools).toContain('get_documentation')
+
     const search = JSON.parse(await toolText(client, 'search_courses', { query: 'servidores http' }))
     expect(search.courses[0]?.id).toBe('1000')
 
