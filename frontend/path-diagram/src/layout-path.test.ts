@@ -174,7 +174,8 @@ describe("layoutPath", () => {
     expect(dotnet && blazor && dotnet.position.y < blazor.position.y).toBe(true);
     expect(csharp?.width).toBeGreaterThanOrEqual(360);
     expect(csharp?.data.vertical).toBe(true);
-    expect(edges.map((edge) => edge.id).sort()).toEqual(["csharp->blazor", "csharp->dotnet"]);
+    expect(edges.map((edge) => edge.id)).toEqual(["csharp->dotnet", "dotnet->blazor"]);
+    expect(edges.every((edge) => edge.type === "straight")).toBe(true);
   });
 
   it("lays out an empty path with column headers and no edges", () => {

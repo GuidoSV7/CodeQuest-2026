@@ -25,7 +25,7 @@ export type LayoutEdgeOut = {
   id: string;
   source: string;
   target: string;
-  type: "smoothstep";
+  type: "smoothstep" | "straight";
 };
 
 const PAD = 24;
@@ -198,7 +198,7 @@ function flowLayout(items: LayoutItem[], edges: LayoutEdgeIn[]): {
   return { nodes, edges: kept };
 }
 
-const PHONE_GAP_Y = 36;
+const PHONE_GAP_Y = 64;
 
 function phoneCardWidth(viewport: number): number {
   return Math.max(280, Math.min(viewport - 32, 420));
@@ -226,7 +226,24 @@ function flowLayoutVertical(items: LayoutItem[], edges: LayoutEdgeIn[], width: n
       y += FLOW_CARD_H + PHONE_GAP_Y;
     }
   });
-  return { nodes, edges: kept };
+  return { nodes, edges: chainStackedCards(nodes) };
+}
+
+function chainStackedCards(nodes: LayoutNode[]): LayoutEdgeOut[] {
+  const cards = nodes.filter((node) => node.type === "card");
+  const edges: LayoutEdgeOut[] = [];
+  for (let index = 0; index < cards.length - 1; index += 1) {
+    const from = cards[index];
+    const to = cards[index + 1];
+    if (!from || !to) continue;
+    edges.push({
+      id: `${from.id}->${to.id}`,
+      source: from.id,
+      target: to.id,
+      type: "straight",
+    });
+  }
+  return edges;
 }
 
 const SEARCH_GAP = 24;

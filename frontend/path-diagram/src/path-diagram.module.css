@@ -28,6 +28,14 @@
   }
 }
 
+.canvas :global(.react-flow__edges) {
+  z-index: 0 !important;
+}
+
+.canvas :global(.react-flow__nodes) {
+  z-index: 1 !important;
+}
+
 .canvas :global(.react-flow__edge-path) {
   stroke: #dcd8ff;
   stroke-width: 2;

@@ -396,7 +396,6 @@ export function PathDiagram({
             nodes={nodes}
             edges={graph.edges.map((edge) => ({
               ...edge,
-              type: "smoothstep",
               markerEnd: { type: MarkerType.ArrowClosed, color: "#dcd8ff", width: 18, height: 18 },
             }))}
             nodeTypes={nodeTypes}
