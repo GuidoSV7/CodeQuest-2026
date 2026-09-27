@@ -4,8 +4,9 @@ import { createCatalogCache } from '../mcp-public/catalog-cache'
 import { createLearningPathGenerator } from '../mcp-public/learning-path-generator'
 import { escapeMermaidLabel } from '../mcp-public/mermaid'
 import { registerMcpTools } from '../mcp-public/tools/register-mcp-tools'
-import { pathDiagramMeta, registerPathDiagram } from '../mcp-public/path-diagram-resource'
 import { logMcpSwallowed, runMcpTool } from '../mcp-public/mcp-tool-log'
+import { attachLive, livePathPublisher } from '../live-path/live-path.copy'
+import type { LivePathEventName } from '../live-path/live-path.types'
 import type { LearningPathsService } from '../learning-paths/learning-paths.service'
 import type { ProgressService } from '../learning-paths/progress.service'
 import { UnprocessableEntityException } from '@nestjs/common'
@@ -22,11 +23,11 @@ export type McpUserDeps = {
 export const mcpUserDeps: McpUserDeps = {}
 
 export function registerUserMcpServer(server: McpServer, userId: string): void {
-  registerPathDiagram(server)
   if (mcpUserDeps.catalog) {
     registerMcpTools(server, {
       cache: createCatalogCache({ repository: mcpUserDeps.catalog }),
       generator: createLearningPathGenerator(),
+      liveUserId: userId,
     })
   }
   const annotations = { readOnlyHint: false, openWorldHint: false }
@@ -54,11 +55,14 @@ export function registerUserMcpServer(server: McpServer, userId: string): void {
       description: 'Detalle de una ruta del usuario del token.',
       inputSchema: { id: z.string().uuid() },
       annotations: { ...annotations, readOnlyHint: true },
-      _meta: pathDiagramMeta,
     },
     async (args) =>
-      runMcpTool({ surface: 'user', tool: 'get_my_path', userId }, async () =>
-        ok(await getPath(userId, args.id)),
+      finishLive(
+        userId,
+        'path.saved',
+        await runMcpTool({ surface: 'user', tool: 'get_my_path', userId }, async () =>
+          ok(await getPath(userId, args.id)),
+        ),
       ),
   )
   server.registerTool(
@@ -74,8 +78,12 @@ export function registerUserMcpServer(server: McpServer, userId: string): void {
       annotations,
     },
     async (args) =>
-      runMcpTool({ surface: 'user', tool: 'save_learning_path', userId }, async () =>
-        ok(await savePath(userId, args)),
+      finishLive(
+        userId,
+        'path.saved',
+        await runMcpTool({ surface: 'user', tool: 'save_learning_path', userId }, async () =>
+          ok(await savePath(userId, args)),
+        ),
       ),
   )
   server.registerTool(
@@ -90,8 +98,13 @@ export function registerUserMcpServer(server: McpServer, userId: string): void {
       annotations,
     },
     async (args) =>
-      runMcpTool({ surface: 'user', tool: 'update_course_progress', userId }, async () =>
-        ok(await updateProgress(userId, args.path_id, args.course_id, args.status)),
+      finishLive(
+        userId,
+        'progress.updated',
+        await runMcpTool({ surface: 'user', tool: 'update_course_progress', userId }, async () =>
+          ok(await updateProgress(userId, args.path_id, args.course_id, args.status)),
+        ),
+        { path_id: args.path_id, course_id: args.course_id, status: args.status },
       ),
   )
 }
@@ -185,6 +198,25 @@ async function updateProgress(
   if (!detail || !detail.items.some((item) => item.courseId === courseId)) return fail('not_found')
   const row = await mcpUserDeps.progress?.upsert(userId, courseId, status)
   return { course_id: courseId, status: row?.status ?? status }
+}
+
+async function finishLive(
+  userId: string,
+  event: LivePathEventName,
+  result: {
+    isError?: boolean
+    content?: Array<{ type: 'text'; text: string }>
+    structuredContent?: Record<string, unknown>
+  },
+  data?: Record<string, unknown>,
+) {
+  if (!result.isError) {
+    await livePathPublisher.publish(userId, {
+      event,
+      data: { type: event, ...(data ?? result.structuredContent ?? {}) },
+    })
+  }
+  return attachLive(result)
 }
 
 function ok(payload: unknown) {

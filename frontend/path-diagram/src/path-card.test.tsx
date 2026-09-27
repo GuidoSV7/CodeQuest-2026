@@ -1,5 +1,7 @@
 // @vitest-environment jsdom
 
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { act } from "react";
 import { createRoot } from "react-dom/client";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -70,5 +72,11 @@ describe("PathCard", () => {
     });
     expect(onOpen).toHaveBeenCalledTimes(3);
     act(() => root.unmount());
+  });
+
+  it("wraps the title on two lines", () => {
+    const css = readFileSync(path.resolve("src/path-card.module.css"), "utf8");
+    expect(css).toMatch(/-webkit-line-clamp:\s*2/);
+    expect(css).not.toMatch(/white-space:\s*nowrap/);
   });
 });

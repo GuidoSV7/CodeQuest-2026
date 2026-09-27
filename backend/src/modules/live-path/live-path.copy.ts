@@ -1,0 +1,30 @@
+import type { LivePathDraft } from './live-path.types'
+
+export const LIVE_PAGE_URL =
+  'https://codequest-frontend-oiueyi-4bb3e7-31-97-78-167.sslip.io/en-vivo'
+
+export const livePathPublisher: {
+  publish: (userId: string, draft: LivePathDraft) => Promise<void>
+} = {
+  async publish() {},
+}
+
+export function liveNotice(choice = false): string {
+  if (choice) {
+    return `Decile a Claude cuál preferís. Las opciones están en tu página: ${LIVE_PAGE_URL}`
+  }
+  return `La ruta se muestra en tu página: ${LIVE_PAGE_URL}`
+}
+
+export function attachLive<T extends {
+  isError?: boolean
+  content?: Array<{ type: 'text'; text: string }>
+  structuredContent?: Record<string, unknown>
+}>(result: T, choice = false): T {
+  if (result.isError) return result
+  return {
+    ...result,
+    content: [...(result.content ?? []), { type: 'text' as const, text: liveNotice(choice) }],
+    structuredContent: { ...(result.structuredContent ?? {}), live_url: LIVE_PAGE_URL },
+  }
+}

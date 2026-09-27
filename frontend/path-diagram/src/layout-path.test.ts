@@ -29,7 +29,6 @@ describe("layoutPath", () => {
         item("req-early", "required", 1),
         item("rec", "recommended", 0),
         item("opt", "optional", 0),
-        item("none", null, 0),
       ],
       [],
       960,
@@ -38,8 +37,49 @@ describe("layoutPath", () => {
     expect(at("req-early")?.position).toEqual({ x: 40, y: 64 });
     expect(at("req-late")?.position).toEqual({ x: 40, y: 184 });
     expect(at("rec")?.position).toEqual({ x: 368, y: 64 });
-    expect(at("opt")?.position).toEqual({ x: 696, y: 184 });
-    expect(at("none")?.position).toEqual({ x: 696, y: 64 });
+    expect(at("opt")?.position).toEqual({ x: 696, y: 64 });
+  });
+
+  it("aligns headers and the first card of every column", () => {
+    const nodes = layoutPath(
+      [
+        item("req-a", "required", 0),
+        item("req-b", "required", 1),
+        item("rec", "recommended", 0),
+        item("opt", "optional", 0),
+      ],
+      [],
+      960,
+    ).nodes;
+    const headers = nodes.filter((node) => node.type === "header");
+    expect(headers.map((node) => node.position.y)).toEqual([24, 24, 24]);
+    expect(nodes.find((node) => node.id === "req-a")?.position.y).toBe(64);
+    expect(nodes.find((node) => node.id === "rec")?.position.y).toBe(64);
+    expect(nodes.find((node) => node.id === "opt")?.position.y).toBe(64);
+  });
+
+  it("draws a search grid without columns or edges when a bucket is null", () => {
+    const { nodes, edges } = layoutPath(
+      [item("search-a", null, 1), item("search-b", null, 0)],
+      [{ fromCourseId: "search-b", toCourseId: "search-a" }],
+      960,
+    );
+    expect(edges).toEqual([]);
+    expect(nodes.some((node) => node.type === "header" || node.type === "group")).toBe(false);
+    expect(nodes.map((node) => node.data.label).join(" ")).not.toMatch(/sin bucket/i);
+    expect(nodes.find((node) => node.id === "search-b")?.position).toEqual({ x: 24, y: 24 });
+    expect(nodes.find((node) => node.id === "search-a")?.position.x).toBe(24 + 248 + 24);
+  });
+
+  it("stacks a search grid in one column below 720px", () => {
+    const { nodes, edges } = layoutPath(
+      [item("search-a", null, 0), item("search-b", null, 1)],
+      [{ fromCourseId: "search-a", toCourseId: "search-b" }],
+      380,
+    );
+    expect(edges).toEqual([]);
+    expect(nodes.filter((node) => node.type === "header")).toEqual([]);
+    expect(nodes.map((node) => node.position.x)).toEqual([24, 24]);
   });
 
   it("puts anytime courses inside a group below the columns", () => {

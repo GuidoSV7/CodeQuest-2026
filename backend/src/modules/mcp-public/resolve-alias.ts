@@ -31,11 +31,11 @@ function wordMatch(goal: string, alias: string): boolean {
   return new RegExp(`(^| )${alias}($| )`).test(goal)
 }
 
-export function matchOfficialPath(
+function collectMatches(
   goal: string,
   availablePathIds?: ReadonlySet<string>,
   entries?: AliasFile['entries'],
-): { pathId: string; alias: string } | null {
+): Array<{ pathId: string; alias: string }> {
   const normalizedGoal = normalizeText(goal)
   const file = entries
     ? { version: 0, entries }
@@ -53,7 +53,36 @@ export function matchOfficialPath(
     if (b.alias.length !== a.alias.length) return b.alias.length - a.alias.length
     return a.pathId < b.pathId ? -1 : a.pathId > b.pathId ? 1 : 0
   })
-  return matches[0] ?? null
+  return matches
+}
+
+export function matchOfficialPath(
+  goal: string,
+  availablePathIds?: ReadonlySet<string>,
+  entries?: AliasFile['entries'],
+): { pathId: string; alias: string } | null {
+  return collectMatches(goal, availablePathIds, entries)[0] ?? null
+}
+
+export function tiedOfficialPaths(
+  goal: string,
+  availablePathIds: ReadonlySet<string>,
+  titles: ReadonlyMap<string, string>,
+  entries?: AliasFile['entries'],
+): Array<{ path_id: string; title: string; alias: string }> {
+  const matches = collectMatches(goal, availablePathIds, entries)
+  const winner = matches[0]
+  if (!winner) return []
+  const tied = matches.filter((match) => match.alias.length === winner.alias.length)
+  const unique = new Map<string, { path_id: string; title: string; alias: string }>()
+  for (const match of tied) {
+    unique.set(match.pathId, {
+      path_id: match.pathId,
+      title: titles.get(match.pathId) ?? match.pathId,
+      alias: match.alias,
+    })
+  }
+  return unique.size > 1 ? [...unique.values()] : []
 }
 
 export function resolveOfficialPath(goal: string): string | null {

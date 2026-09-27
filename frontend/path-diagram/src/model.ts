@@ -32,7 +32,7 @@ const BUCKET_LABEL: Record<DiagramBucket, string> = {
 };
 
 export function bucketLabel(bucket: DiagramBucket | null): string {
-  if (!bucket) return "Sin bucket";
+  if (!bucket) return "";
   return BUCKET_LABEL[bucket];
 }
 

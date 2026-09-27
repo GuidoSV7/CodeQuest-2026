@@ -1,8 +1,9 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Background,
   ReactFlow,
   ReactFlowProvider,
+  useReactFlow,
   type Node,
   type NodeProps,
 } from "@xyflow/react";
@@ -33,6 +34,24 @@ function CardNode({ data }: NodeProps<Node<CardData>>) {
 
 const nodeTypes = { card: CardNode, header: HeaderNode, group: GroupNode };
 
+function FitWhenMeasured({ nodeCount }: { nodeCount: number }) {
+  const flow = useReactFlow();
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      void flow.fitView({ padding: 0.12 });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [flow, nodeCount]);
+  useEffect(() => {
+    const onResize = () => {
+      void flow.fitView({ padding: 0.12 });
+    };
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [flow]);
+  return null;
+}
+
 function HeaderNode({ data }: NodeProps<Node<{ label: string }>>) {
   return <div className={styles.header}>{data.label}</div>;
 }
@@ -46,25 +65,42 @@ export type ProgressResult = { ok: boolean; message?: string };
 export function PathDiagram({
   model,
   mode = "web",
+  width: widthProp,
   openUrl,
   onProgress,
 }: {
   model: DiagramModel;
   mode?: "web" | "mcp";
+  width?: number;
   openUrl?: (url: string) => void;
   onProgress?: (courseId: string, status: "completed" | "not_started") => Promise<ProgressResult>;
 }) {
   const [selected, setSelected] = useState<DiagramItem | null>(null);
   const [completed, setCompleted] = useState<Record<string, boolean>>({});
   const [progressError, setProgressError] = useState("");
+  const canvasRef = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState(960);
+  useEffect(() => {
+    const element = canvasRef.current;
+    if (!element) return;
+    const measure = () => {
+      const viewport = window.innerWidth;
+      const box = element.getBoundingClientRect().width;
+      setWidth(widthProp ?? Math.min(box || viewport, viewport));
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [widthProp]);
   const items = model.items.map((item) => ({
     ...item,
     completed: completed[item.courseId] ?? item.completed,
   }));
 
   const graph = useMemo(
-    () => layoutPath(items, model.edges, 960),
-    [items, model.edges],
+    () => layoutPath(items, model.edges, width),
+    [items, model.edges, width],
   );
 
   const nodes = graph.nodes.map((node) => {
@@ -97,7 +133,7 @@ export function PathDiagram({
   return (
     <div className={styles.frame}>
       <ReactFlowProvider>
-        <div className={styles.canvas}>
+        <div className={styles.canvas} ref={canvasRef}>
           <ReactFlow
             nodes={nodes}
             edges={graph.edges.map((edge) => ({ ...edge, type: "smoothstep" }))}
@@ -110,6 +146,7 @@ export function PathDiagram({
             nodesDraggable={false}
             proOptions={{ hideAttribution: true }}
           >
+            <FitWhenMeasured nodeCount={nodes.length} />
             <Background />
           </ReactFlow>
         </div>

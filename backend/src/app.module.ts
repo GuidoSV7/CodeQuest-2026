@@ -11,6 +11,7 @@ import { LearningPathsModule } from './modules/learning-paths/learning-paths.mod
 import { McpUserBridge } from './modules/mcp-user/mcp-user.bridge'
 import { McpPublicModule } from './modules/mcp-public/mcp-public.module'
 import { McpUserModule } from './modules/mcp-user/mcp-user.module'
+import { LivePathModule } from './modules/live-path/live-path.module'
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { McpUserModule } from './modules/mcp-user/mcp-user.module'
     LearningPathsModule,
     McpPublicModule,
     McpUserModule,
+    LivePathModule,
   ],
   providers: [McpUserBridge],
 })

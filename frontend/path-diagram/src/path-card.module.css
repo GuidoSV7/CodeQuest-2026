@@ -4,13 +4,14 @@
   gap: 0.75rem;
   width: 248px;
   min-height: 96px;
-  padding: 0.75rem;
-  border: 1px solid rgb(120 94 172 / 45%);
-  border-radius: 12px;
-  background: #121028;
-  color: #f4f1ff;
+  padding: 10px 15px;
+  border: 1px solid rgba(192, 185, 252, 0.12);
+  border-radius: 20px;
+  background: rgba(28, 24, 41, 0.85);
+  color: #f0eeff;
   text-align: left;
   cursor: pointer;
+  box-sizing: border-box;
 }
 
 .card:focus-visible {
@@ -45,15 +46,18 @@
 
 .bucket,
 .status {
-  color: #c8dd0b;
-  font-size: 0.68rem;
-  letter-spacing: 0.08em;
+  color: #f0eeff;
+  font-size: 0.688rem;
+  font-weight: 500;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
 }
 
 .title {
+  display: -webkit-box;
   overflow: hidden;
   font-size: 0.95rem;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.5;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }

@@ -124,11 +124,29 @@ function columnLayout(items: LayoutItem[]): LayoutNode[] {
   return nodes;
 }
 
+const SEARCH_GAP = 24;
+
+function searchLayout(items: LayoutItem[], width: number): LayoutNode[] {
+  const ordered = [...items].sort(byPosition);
+  const columns = width < COLUMN_MIN ? 1 : 3;
+  return ordered.map((item, index) => ({
+    id: item.courseId,
+    type: "card" as const,
+    position: {
+      x: PAD + (index % columns) * (CARD_W + SEARCH_GAP),
+      y: PAD + Math.floor(index / columns) * (CARD_H + ROW_GAP),
+    },
+    data: { label: item.courseId, courseId: item.courseId },
+    width: CARD_W,
+    height: CARD_H,
+  }));
+}
+
 function verticalLayout(items: LayoutItem[]): LayoutNode[] {
   const sections: Array<{ bucket: LayoutBucket | "optional"; label: string; items: LayoutItem[] }> = [
     { bucket: "required", label: "Requerido", items: items.filter((item) => item.bucket === "required").sort(byPosition) },
     { bucket: "recommended", label: "Recomendado", items: items.filter((item) => item.bucket === "recommended").sort(byPosition) },
-    { bucket: "optional", label: "Opcional", items: items.filter((item) => item.bucket === "optional" || item.bucket === null).sort(byPosition) },
+    { bucket: "optional", label: "Opcional", items: items.filter((item) => item.bucket === "optional").sort(byPosition) },
     { bucket: "anytime", label: "En cualquier momento", items: items.filter((item) => item.bucket === "anytime").sort(byPosition) },
   ];
   const nodes: LayoutNode[] = [];
@@ -163,6 +181,9 @@ export function layoutPath(items: LayoutItem[], edges: LayoutEdgeIn[], width: nu
   nodes: LayoutNode[];
   edges: LayoutEdgeOut[];
 } {
+  if (items.some((item) => item.bucket === null)) {
+    return { nodes: searchLayout(items, width), edges: [] };
+  }
   const nodes = width < COLUMN_MIN ? verticalLayout(items) : columnLayout(items);
   return { nodes, edges: keepEdges(items, edges) };
 }

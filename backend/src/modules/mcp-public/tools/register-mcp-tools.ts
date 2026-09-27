@@ -8,9 +8,10 @@ import {
   listOfficialPaths,
   searchCourses,
 } from '../catalog-read'
-import { pathDiagramMeta, registerPathDiagram } from '../path-diagram-resource'
 import type { LearningPathGenerator } from '../learning-path-generator'
 import { runMcpTool } from '../mcp-tool-log'
+import { tiedOfficialPaths } from '../resolve-alias'
+import { attachLive, livePathPublisher } from '../../live-path/live-path.copy'
 
 const annotations = { readOnlyHint: true as const, openWorldHint: false as const }
 
@@ -29,9 +30,8 @@ function courseId(value: string | number): string {
 
 export function registerMcpTools(
   server: McpServer,
-  deps: { cache: CatalogCache; generator: LearningPathGenerator },
+  deps: { cache: CatalogCache; generator: LearningPathGenerator; liveUserId?: string },
 ): void {
-  registerPathDiagram(server)
   server.registerTool(
     'search_courses',
     {
@@ -96,7 +96,6 @@ export function registerMcpTools(
         'Devuelve una ruta oficial completa: cursos en el orden del sitio, bucket y un diagrama Mermaid. Usala cuando ya se conoce el id de la ruta. Las flechas del diagrama son el orden lineal de los cursos obligatorios, no un grafo scrapeado.',
       inputSchema: { id: z.string().trim().min(1).max(80) },
       annotations,
-      _meta: pathDiagramMeta,
     },
     async (args) =>
       runMcpTool({ surface: 'public', tool: 'get_official_path' }, async () => {
@@ -116,19 +115,34 @@ export function registerMcpTools(
         include_optional: z.boolean().optional(),
       },
       annotations,
-      _meta: pathDiagramMeta,
     },
-    async (args) =>
-      runMcpTool({ surface: 'public', tool: 'generate_learning_path' }, async () => {
+    async (args) => {
+      const surface = deps.liveUserId ? 'user' : 'public'
+      return runMcpTool({ surface, tool: 'generate_learning_path', userId: deps.liveUserId }, async () => {
         const loaded = await deps.cache.load()
-        return ok(
-          generatePath(loaded.snapshot, deps.generator, {
-            goal: args.goal,
-            knownCourseIds: (args.known_course_ids ?? []).map(courseId),
-            includeOptional: args.include_optional ?? false,
-            fromSeed: loaded.fromSeed,
-          }),
-        )
-      }),
+        const ids = new Set(loaded.snapshot.paths.map((path) => path.id))
+        const titles = new Map(loaded.snapshot.paths.map((path) => [path.id, path.title]))
+        const options = tiedOfficialPaths(args.goal, ids, titles)
+        if (deps.liveUserId && options.length > 1) {
+          const data = { type: 'path.choice_required', goal: args.goal, options }
+          await livePathPublisher.publish(deps.liveUserId, { event: 'path.choice_required', data })
+          return attachLive(ok(data), true)
+        }
+        const payload = generatePath(loaded.snapshot, deps.generator, {
+          goal: args.goal,
+          knownCourseIds: (args.known_course_ids ?? []).map(courseId),
+          includeOptional: args.include_optional ?? false,
+          fromSeed: loaded.fromSeed,
+        })
+        if (deps.liveUserId) {
+          await livePathPublisher.publish(deps.liveUserId, {
+            event: 'path.generated',
+            data: { type: 'path.generated', ...payload },
+          })
+          return attachLive(ok(payload))
+        }
+        return ok(payload)
+      })
+    },
   )
 }

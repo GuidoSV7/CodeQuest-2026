@@ -194,22 +194,12 @@ describe('public MCP endpoint', () => {
       expect(tool.inputSchema).toBeTruthy()
       expect(tool.description?.length).toBeGreaterThan(20)
     }
-    const official = listed.tools.find((tool) => tool.name === 'get_official_path')
-    const generated = listed.tools.find((tool) => tool.name === 'generate_learning_path')
-    expect(official?._meta).toMatchObject({
-      ui: { resourceUri: 'ui://codequest/path-diagram.html' },
-    })
-    expect(generated?._meta).toMatchObject({
-      ui: { resourceUri: 'ui://codequest/path-diagram.html' },
-    })
-    const resources = await client.listResources()
-    expect(resources.resources.map((resource) => resource.uri)).toContain(
-      'ui://codequest/path-diagram.html',
-    )
-    const read = await client.readResource({ uri: 'ui://codequest/path-diagram.html' })
-    expect(read.contents[0]).toMatchObject({
-      mimeType: 'text/html;profile=mcp-app',
-    })
+    for (const tool of listed.tools) {
+      expect(tool._meta?.ui).toBeUndefined()
+      expect(tool._meta?.['ui/resourceUri']).toBeUndefined()
+      expect(tool.inputSchema).toBeTruthy()
+    }
+    await expect(client.listResources()).rejects.toThrow()
   })
 
   it('calls every tool with valid input and rejects invalid input without a stack', async () => {
