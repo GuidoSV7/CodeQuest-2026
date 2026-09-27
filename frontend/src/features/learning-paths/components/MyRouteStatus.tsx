@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createOfficialRoute, loadMyRoutes, type MyRouteSummary } from "../lib/load-my-routes";
 import { subscribeLearningPathEvents } from "../lib/subscribe-learning-paths";
 import styles from "./MyRouteStatus.module.css";
@@ -185,14 +185,34 @@ function McpStartDialog({ onClose }: { onClose: () => void }) {
   const docsUrl = `${window.location.origin}/docs/mcp`;
   const prompt = `Llamá a get_documentation en el servidor codequest-cuenta y seguí esa guía. Después usá generate_learning_path para armar la ruta. La guía pública está en ${docsUrl}.`;
   const [copied, setCopied] = useState(false);
+  const [motion, setMotion] = useState<"closed" | "open">("closed");
+  const closing = useRef(false);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setMotion("open"), 32);
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  const requestClose = () => {
+    if (closing.current) return;
+    closing.current = true;
+    const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+    if (reduced) {
+      onClose();
+      return;
+    }
+    setMotion("closed");
+    window.setTimeout(onClose, 420);
+  };
 
   return (
-    <div className={styles.backdrop} onClick={onClose}>
+    <div className={styles.backdrop} data-motion={motion} onClick={requestClose}>
       <div
         className={styles.dialog}
         role="dialog"
         aria-modal="true"
         aria-label="Crear la ruta con MCP"
+        data-motion={motion}
         onClick={(event) => event.stopPropagation()}
       >
         <h2>Quiero hacerlo por MCP</h2>
@@ -220,12 +240,13 @@ function McpStartDialog({ onClose }: { onClose: () => void }) {
             </button>
           </div>
           <p>
-            Conectá CodeQuest a Cursor o Claude. Tu IA lee la guía y llama a
-            generate_learning_path. La ruta se abre en un modal sobre esta página.
+            Primero pedile a tu IA que llame a get_documentation en codequest-cuenta.
+            Esa tool le lee la guía. Después usá generate_learning_path para armar la ruta.
+            Se abre en un modal sobre esta página.
           </p>
           <p className={styles.docsLink}>{docsUrl}</p>
         </div>
-        <button type="button" onClick={onClose}>
+        <button type="button" onClick={requestClose}>
           Cerrar
         </button>
       </div>

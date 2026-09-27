@@ -2,6 +2,7 @@
 
 import { act } from "react";
 import { createRoot } from "react-dom/client";
+import { readFileSync } from "node:fs";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { DiagramModel } from "./model";
 import { PathDiagram } from "./path-diagram";
@@ -156,5 +157,34 @@ describe("PathDiagram course modal", () => {
     expect(preview?.textContent?.endsWith("…")).toBe(true);
     expect(preview?.textContent).not.toContain("primeros programas");
     act(() => root.unmount());
+  });
+
+  it("starts the course modal closed and slides it open", () => {
+    const css = readFileSync("src/path-diagram.module.css", "utf8");
+    expect(css).toContain("translateY(100%)");
+    vi.useFakeTimers();
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    const root = createRoot(container);
+    act(() => {
+      root.render(<PathDiagram model={model} mode="web" width={429} />);
+    });
+    const card = Array.from(container.querySelectorAll("button")).find((button) =>
+      button.textContent?.includes("C#:"),
+    );
+    act(() => {
+      card?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    });
+    const dialog = container.querySelector("[role='dialog']");
+    expect(dialog?.getAttribute("data-motion")).toBe("closed");
+    act(() => {
+      vi.advanceTimersByTime(40);
+    });
+    act(() => {
+      vi.advanceTimersByTime(40);
+    });
+    expect(container.querySelector("[role='dialog']")?.getAttribute("data-motion")).toBe("open");
+    act(() => root.unmount());
+    vi.useRealTimers();
   });
 });

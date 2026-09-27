@@ -12,10 +12,6 @@ describe('radarTechnologies', () => {
       ],
     } as CatalogSnapshot
 
-    expect(radarTechnologies(snapshot)).toEqual([
-      'Programa de React',
-      'Ruta Python',
-      'Programa de NestJS',
-    ])
+    expect(radarTechnologies(snapshot)).toEqual(['React', 'Python', 'NestJS'])
   })
 })

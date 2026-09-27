@@ -44,19 +44,24 @@ function CardNode({ data }: NodeProps<Node<CardData>>) {
 
 const nodeTypes = { card: CardNode, header: HeaderNode, group: GroupNode };
 
-function FitWhenMeasured({ nodeCount }: { nodeCount: number }) {
+function FitWhenMeasured({ fitKey }: { fitKey: string }) {
   const flow = useReactFlow();
   const flowRef = useRef(flow);
   flowRef.current = flow;
   useEffect(() => {
-    const frame = requestAnimationFrame(() => {
-      void flowRef.current.fitView({ padding: 0.12 });
-    });
-    return () => cancelAnimationFrame(frame);
-  }, [nodeCount]);
+    const fit = () => {
+      void flowRef.current.fitView({ padding: 0.18, minZoom: 0.2, maxZoom: 1 });
+    };
+    const frame = requestAnimationFrame(fit);
+    const timer = window.setTimeout(fit, 60);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.clearTimeout(timer);
+    };
+  }, [fitKey]);
   useEffect(() => {
     const onResize = () => {
-      void flowRef.current.fitView({ padding: 0.12 });
+      void flowRef.current.fitView({ padding: 0.18, minZoom: 0.2, maxZoom: 1 });
     };
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
@@ -119,6 +124,15 @@ function CourseModal({
   const sections = item.detail?.sections ?? [];
   const tags = item.detail?.tags ?? [];
   const description = item.detail?.description ? previewDescription(item.detail.description) : "";
+  const [motion, setMotion] = useState<"closed" | "open">("closed");
+  useEffect(() => {
+    if (!entered) {
+      setMotion("closed");
+      return;
+    }
+    const timer = window.setTimeout(() => setMotion("open"), 32);
+    return () => window.clearTimeout(timer);
+  }, [entered]);
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClose();
@@ -128,12 +142,13 @@ function CourseModal({
   }, [onClose]);
 
   return (
-    <div className={entered ? `${styles.backdrop} ${styles.backdropOpen}` : styles.backdrop} onClick={onClose}>
+    <div className={motion === "open" ? `${styles.backdrop} ${styles.backdropOpen}` : styles.backdrop} onClick={onClose}>
       <div
-        className={entered ? `${styles.dialog} ${styles.dialogOpen}` : styles.dialog}
+        className={motion === "open" ? `${styles.dialog} ${styles.dialogOpen}` : styles.dialog}
         role="dialog"
         aria-modal="true"
         aria-label={item.title}
+        data-motion={motion}
         onClick={(event) => event.stopPropagation()}
       >
         <header className={styles.summary}>
@@ -332,6 +347,11 @@ export function PathDiagram({
     }
   };
 
+  const fitKey = graph.nodes.map((node) => `${node.id}:${node.position.x}:${node.position.y}`).join("|");
+  const canvasHeight = Math.min(
+    1100,
+    Math.max(480, ...graph.nodes.map((node) => node.position.y + node.height), 0) + 72,
+  );
   const openCourse = selected
     ? withCard(items.find((item) => item.courseId === selected.courseId) ?? selected, loadedCard)
     : null;
@@ -342,27 +362,29 @@ export function PathDiagram({
   }, [selected, loadedCard]);
 
   useEffect(() => {
-    if (!presented || !selected) return;
-    const frame = requestAnimationFrame(() => setEntered(true));
-    return () => cancelAnimationFrame(frame);
-  }, [presented, selected]);
+    if (!selected) {
+      setEntered(false);
+      return;
+    }
+    const frame = window.setTimeout(() => setEntered(true), 32);
+    return () => window.clearTimeout(frame);
+  }, [selected]);
 
   useEffect(() => {
     if (selected || !presented) return;
-    setEntered(false);
     const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
     if (reducedMotion) {
       setPresented(null);
       return;
     }
-    const timer = window.setTimeout(() => setPresented(null), 280);
+    const timer = window.setTimeout(() => setPresented(null), 420);
     return () => window.clearTimeout(timer);
   }, [selected, presented]);
 
   return (
     <div className={styles.frame}>
       <ReactFlowProvider>
-        <div className={styles.canvas} ref={canvasRef}>
+        <div className={styles.canvas} ref={canvasRef} style={{ height: canvasHeight }}>
           <ReactFlow
             nodes={nodes}
             edges={graph.edges.map((edge) => ({
@@ -372,7 +394,9 @@ export function PathDiagram({
             }))}
             nodeTypes={nodeTypes}
             fitView
-            fitViewOptions={{ padding: 0.12 }}
+            fitViewOptions={{ padding: 0.18, minZoom: 0.2, maxZoom: 1 }}
+            minZoom={0.2}
+            maxZoom={1}
             panOnDrag={false}
             panOnScroll={false}
             zoomOnScroll={false}
@@ -385,7 +409,7 @@ export function PathDiagram({
             nodesConnectable={false}
             proOptions={{ hideAttribution: true }}
           >
-            <FitWhenMeasured nodeCount={nodes.length} />
+            <FitWhenMeasured fitKey={fitKey} />
             <Background />
           </ReactFlow>
         </div>

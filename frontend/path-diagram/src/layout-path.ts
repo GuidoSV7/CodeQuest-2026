@@ -126,7 +126,7 @@ function columnLayout(items: LayoutItem[]): LayoutNode[] {
 
 const FLOW_GAP_X = 48;
 const FLOW_GAP_Y = 80;
-const FLOW_CARD_H = 156;
+const FLOW_CARD_H = 200;
 
 function isConnectedFlow(items: LayoutItem[], edges: LayoutEdgeIn[]): boolean {
   if (items.length < 2) return false;

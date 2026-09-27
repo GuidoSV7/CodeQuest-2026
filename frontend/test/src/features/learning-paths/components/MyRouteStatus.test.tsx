@@ -120,20 +120,28 @@ describe("MyRouteStatus", () => {
     const mcpButton = Array.from(container.querySelectorAll("button")).find((button) =>
       button.textContent?.includes("Quiero hacerlo por MCP"),
     );
+    vi.useFakeTimers();
     act(() => {
       mcpButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     });
 
     const dialog = container.querySelector("[role='dialog']");
+    expect(dialog?.getAttribute("data-motion")).toBe("closed");
+    act(() => {
+      vi.advanceTimersByTime(40);
+    });
+    expect(container.querySelector("[role='dialog']")?.getAttribute("data-motion")).toBe("open");
+    vi.useRealTimers();
     expect(dialog?.textContent).toContain("El video va acá");
     expect(dialog?.textContent).toContain("Copia y pega esto a tu IA para conectarte");
+    expect(dialog?.textContent).toContain("get_documentation");
     expect(dialog?.textContent).toContain("/docs/mcp");
     const copy = dialog?.querySelector("button[aria-label='Copiar']");
     await act(async () => {
       copy?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
       await Promise.resolve();
     });
-    expect(writeText).toHaveBeenCalledWith(expect.stringContaining("/docs/mcp"));
+    expect(writeText).toHaveBeenCalledWith(expect.stringContaining("get_documentation"));
     act(() => root.unmount());
     vi.unstubAllGlobals();
   });

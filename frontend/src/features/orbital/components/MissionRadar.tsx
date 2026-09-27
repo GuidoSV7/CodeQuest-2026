@@ -14,20 +14,32 @@ type RadarNode = {
   primary: boolean;
 };
 
+function technologyLabel(title: string): string {
+  const name = title
+    .replace(/^ruta de aprendizaje\s+/i, "")
+    .replace(/^programa de\s+/i, "")
+    .replace(/^ruta\s+/i, "")
+    .trim();
+  return name || title.trim();
+}
+
 function placeTechnologies(labels: string[]): RadarNode[] {
   const count = labels.length;
-  return labels.map((label, index) => {
+  return labels.map((raw, index) => {
+    const label = technologyLabel(raw);
     const angle = -Math.PI / 2 + (index / count) * Math.PI * 2;
-    const cx = Math.round(200 + Math.cos(angle) * 118);
-    const cy = Math.round(200 + Math.sin(angle) * 118);
+    const cx = Math.round(200 + Math.cos(angle) * 108);
+    const cy = Math.round(200 + Math.sin(angle) * 108);
+    const x = Math.round(200 + Math.cos(angle) * 128);
+    const y = Math.round(200 + Math.sin(angle) * 128);
     return {
       label,
       cx,
       cy,
-      x: cx + 10,
-      y: cy - 8,
-      r: index === 0 ? 6 : 4,
-      primary: index === 0,
+      x,
+      y,
+      r: 4,
+      primary: false,
     };
   });
 }
@@ -89,9 +101,11 @@ export function MissionRadar({
               : styles.nodeLabel;
           return (
             <g key={node.label}>
-              <line className={styles.nodeLinks} x1="200" y1="200" x2={node.cx} y2={node.cy} />
+              {bearing > 0 ? (
+                <line className={styles.nodeLinks} x1="200" y1="200" x2={node.cx} y2={node.cy} />
+              ) : null}
               <circle className={nodeClass} cx={node.cx} cy={node.cy} r={node.r} />
-              <text className={labelClass} x={node.x} y={node.y}>
+              <text className={labelClass} x={node.x} y={node.y} textAnchor="middle">
                 {node.label}
               </text>
             </g>

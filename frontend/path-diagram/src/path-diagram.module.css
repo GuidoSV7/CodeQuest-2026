@@ -22,7 +22,7 @@
 
 @media (max-width: 40rem) {
   .canvas {
-    height: min(320px, 46vh);
+    min-height: 320px;
   }
 }
 
@@ -85,13 +85,31 @@
   background: #121028;
   line-height: 1.5;
   opacity: 0;
-  transform: translateY(16px);
-  transition: opacity 280ms ease, transform 280ms ease;
+  transform: translateY(28px);
+  transition: opacity 420ms ease, transform 420ms ease;
 }
 
 .dialogOpen {
   opacity: 1;
   transform: translateY(0);
+}
+
+@media (max-width: 40rem) {
+  .backdrop {
+    place-items: end center;
+    padding: 0;
+  }
+
+  .dialog {
+    width: 100%;
+    max-height: min(88vh, 40rem);
+    border-radius: 20px 20px 0 0;
+    transform: translateY(100%);
+  }
+
+  .dialogOpen {
+    transform: translateY(0);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

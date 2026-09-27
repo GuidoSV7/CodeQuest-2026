@@ -22,7 +22,24 @@ describe("MissionRadar technologies", () => {
     const labels = Array.from(container.querySelectorAll("text")).map((node) => node.textContent);
     expect(labels).toEqual(["React", "NestJS", "Python"]);
     expect(container.textContent).not.toContain("NEST.SYS");
-    expect(container.textContent).not.toContain("REACT_ARC");
+    expect(container.querySelector("line")).toBeNull();
+    act(() => root.unmount());
+  });
+
+  it("shows only the technology name and stays blank until there is progress", () => {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    const root = createRoot(container);
+    act(() => {
+      root.render(
+        <MissionRadar
+          technologies={["Ruta de aprendizaje React", "Ruta de aprendizaje NestJS", "Ruta de aprendizaje Python"]}
+        />,
+      );
+    });
+    const labels = Array.from(container.querySelectorAll("text")).map((node) => node.textContent);
+    expect(labels).toEqual(["React", "NestJS", "Python"]);
+    expect(container.querySelector("line")).toBeNull();
     act(() => root.unmount());
   });
 });

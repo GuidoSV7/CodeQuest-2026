@@ -144,7 +144,7 @@
   display: -webkit-box;
   overflow: hidden;
   font-size: 0.95rem;
-  line-height: 1.5;
+  line-height: 1.35;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 4;
 }

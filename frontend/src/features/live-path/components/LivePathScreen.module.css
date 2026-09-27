@@ -155,7 +155,8 @@
 }
 
 .dialog .canvas {
-  height: min(560px, 60vh);
+  height: auto;
+  overflow: visible;
 }
 
 @media (max-width: 40rem) {
@@ -167,11 +168,6 @@
   .dialog {
     max-height: calc(100vh - 24px);
     max-height: calc(100dvh - 24px);
-  }
-
-  .dialog .canvas,
-  .canvas {
-    height: min(320px, 46vh);
   }
 }
 
