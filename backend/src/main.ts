@@ -20,6 +20,7 @@ import type { AuthCookieOptions } from './modules/identity/identity.tokens'
 import type { SessionJwt } from './modules/identity/infrastructure/session-jwt'
 import { LEARNING_PATH_EVENTS, LearningPathEventHub } from './modules/learning-paths/learning-path-event.hub'
 import { attachLearningPathSocket } from './modules/learning-paths/learning-path-socket'
+import { credentialCorsOrigin } from './cors-origin'
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule, { bodyParser: false })
@@ -81,7 +82,7 @@ async function bootstrap(): Promise<void> {
       return
     }
     callback(null, {
-      origin: frontendUrl,
+      origin: credentialCorsOrigin(req.header('origin'), frontendUrl),
       credentials: true,
       methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization'],
