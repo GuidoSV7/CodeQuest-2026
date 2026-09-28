@@ -12,7 +12,7 @@ export default function LearningPathsPage() {
     <main className={styles.main}>
       <div className={styles.content}>
         <header className={styles.heading}>
-          <h1>mis rutas</h1>
+          <h1>Mis rutas</h1>
           <p>Las rutas que guardaste, con el avance de cada curso.</p>
         </header>
         <LearningPathsDashboard />

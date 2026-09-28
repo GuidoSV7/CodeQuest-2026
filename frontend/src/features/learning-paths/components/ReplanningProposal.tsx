@@ -73,21 +73,21 @@ export function ReplanningProposal({ routeId }: ReplanningProposalProps) {
   return (
     <section className={styles.proposal} aria-labelledby="replanning-title">
       <header className={styles.proposalHeader}>
-        <p className={styles.kicker}>✦ DIFF GENERADO POR EL MOTOR — determinista y explicable</p>
+        <p className={styles.kicker}>Cambios propuestos para tu ruta</p>
         <h2 id="replanning-title">Propuesta de replanificación</h2>
         <p>Ajuste de trayectoria según nuevos parámetros de misión y disponibilidad técnica.</p>
       </header>
       <div className={styles.comparison}>
-        <TimelineColumn title="Antes" label="LINEAL // BASELINE" sections={replanningFixture.before.sections} />
+        <TimelineColumn title="Antes" label="Ruta actual" sections={replanningFixture.before.sections} />
         <TimelineColumn
           title="Después"
-          label="AJUSTE PROPUESTO"
+          label="Ajuste propuesto"
           sections={replanningFixture.after.sections}
           proposed
         />
       </div>
       <section className={styles.reasonsPanel} aria-labelledby="reasons-title">
-        <h3 id="reasons-title">CRITERIOS DE OPTIMIZACIÓN</h3>
+        <h3 id="reasons-title">Por qué la cambiamos</h3>
         <div className={styles.reasons}>
           {replanningFixture.reasons.map((reason) => (
             <p key={reason}>
@@ -153,7 +153,7 @@ function TimelineColumn({
             <span className={styles.nodeNumber}>{String(index + 1).padStart(2, "0")}</span>
             <div>
               <strong>{section}</strong>
-              <span>{proposed && index === 4 ? "MOD // POST-DESPLIEGUE" : "MOD // CORE VINCULANTE"}</span>
+              <span>{proposed && index === 4 ? "Después del despliegue" : "Parte central"}</span>
             </div>
             <time>{`{fecha}`}</time>
           </div>

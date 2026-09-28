@@ -94,7 +94,7 @@ describe("literal assessment surfaces", () => {
     expect(container.textContent).toContain("¿Qué hace 'readonly'");
     expect(container.querySelectorAll("label")).toHaveLength(4);
     const confirm = Array.from(container.querySelectorAll("button")).find((button) =>
-      button.textContent?.includes("CONFIRMAR RESPUESTA"),
+      button.textContent?.includes("Confirmar respuesta"),
     );
     expect(confirm?.hasAttribute("disabled")).toBe(true);
 
@@ -102,7 +102,7 @@ describe("literal assessment surfaces", () => {
     act(() => firstOption.click());
     expect(confirm?.hasAttribute("disabled")).toBe(false);
     act(() => confirm?.click());
-    expect(container.textContent).toContain("REGISTRANDO RESPUESTA");
+    expect(container.textContent).toContain("Guardando tu respuesta");
     const feedback = container.querySelector("button");
     act(() => feedback?.click());
     expect(container.textContent).toContain("Respuesta registrada");

@@ -42,9 +42,9 @@ const COLUMN_MIN = 720;
 const COLUMNS = ["required", "recommended", "optional"] as const;
 
 const HEADER_LABEL: Record<(typeof COLUMNS)[number], string> = {
-  required: "REQUERIDO",
-  recommended: "RECOMENDADO",
-  optional: "OPCIONAL",
+  required: "Requerido",
+  recommended: "Recomendado",
+  optional: "Opcional",
 };
 
 function columnOf(bucket: LayoutItem["bucket"]): (typeof COLUMNS)[number] {
@@ -105,7 +105,7 @@ function columnLayout(items: LayoutItem[]): LayoutNode[] {
       id: "group:anytime",
       type: "group",
       position: { x: PAD, y: colsBottom + 32 },
-      data: { label: "EN CUALQUIER MOMENTO" },
+      data: { label: "En cualquier momento" },
       width: Math.max(COL_W * 3 + COL_GAP * 2, contentWidth),
       height: GROUP_PAD + GROUP_LABEL_H + CARD_H + GROUP_PAD,
     });

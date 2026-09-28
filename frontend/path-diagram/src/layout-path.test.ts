@@ -185,4 +185,12 @@ describe("layoutPath", () => {
       "header:optional",
     ]);
   });
+
+  it("column headers are sentence case", () => {
+    const { nodes } = layoutPath([item("req", "required", 0), item("any", "anytime", 0)], [], 960);
+    const labels = nodes
+      .filter((node) => node.id.startsWith("header:") || node.id === "group:anytime")
+      .map((node) => node.data.label);
+    expect(labels).toEqual(["Requerido", "Recomendado", "Opcional", "En cualquier momento"]);
+  });
 });

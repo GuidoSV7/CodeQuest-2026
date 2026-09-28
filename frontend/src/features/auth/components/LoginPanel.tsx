@@ -17,9 +17,9 @@ export function LoginPanel({
 
   return (
     <section className={styles.panel} aria-labelledby="login-title">
-      <span className={styles.terminalLabel}>TERMINAL DE ACCESO // AUTH</span>
+      <span className={styles.terminalLabel}>Acceso con Discord</span>
       <h1 className={styles.title} id="login-title">
-        {register ? "Creá tu cuenta" : "Inicia sesión en tu misión"}
+        {register ? "Creá tu cuenta" : "Entrá a CodeQuest"}
       </h1>
       <p className={styles.lede}>
         {register

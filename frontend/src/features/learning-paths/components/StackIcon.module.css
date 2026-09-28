@@ -1,0 +1,15 @@
+.icon {
+  display: block;
+  flex: none;
+  object-fit: contain;
+}
+
+.sm {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.md {
+  width: 2.5rem;
+  height: 2.5rem;
+}

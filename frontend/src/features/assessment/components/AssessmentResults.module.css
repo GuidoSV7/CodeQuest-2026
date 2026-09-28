@@ -173,7 +173,6 @@
   color: var(--orbital-on-surface-variant);
   font-family: var(--orbital-font-display);
   font-size: 1.25rem;
-  text-transform: lowercase;
 }
 
 .archetypeHeader h2 {
@@ -260,11 +259,6 @@
   padding: var(--orbital-space-3);
   border-radius: var(--orbital-radius-xl);
   background: var(--orbital-surface-container-lowest);
-}
-
-.domain > span {
-  color: var(--orbital-primary);
-  font-size: 1.25rem;
 }
 
 .domain div {

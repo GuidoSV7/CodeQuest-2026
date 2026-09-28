@@ -11,7 +11,7 @@ const initial: LiveModalState = {
   open: false,
 };
 
-const EXIT_MS = 280;
+const EXIT_MS = 240;
 
 export function LivePathModal() {
   const [state, setState] = useState<LiveModalState>(initial);

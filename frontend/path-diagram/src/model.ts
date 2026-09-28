@@ -8,6 +8,7 @@ export type CourseCard = {
   lessonCount: number | null;
   videoHours: number | null;
   previewYoutubeId: string | null;
+  coverImageUrl: string | null;
   prerequisites: string[];
   tags: string[];
   sections: Array<{ title: string; lessons: string[] }>;

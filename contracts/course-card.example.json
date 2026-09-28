@@ -1,0 +1,14 @@
+{
+  "description": "Primeros pasos",
+  "instructor": "Teddy Paz",
+  "lessonCount": 120,
+  "videoHours": 11.5,
+  "previewYoutubeId": "h9qGQuJGhTo",
+  "coverImageUrl": "https://import.cdn.thinkific.com/643563/ozPWxfNjQBKugksdaogB_VSCODE.jpg",
+  "prerequisites": ["Saber usar una computadora"],
+  "tags": ["backend"],
+  "sections": [{ "title": "Sección 1", "lessons": ["Bienvenida"] }],
+  "url": "https://cursos.devtalles.com/courses/csharp",
+  "price": { "amount": 40, "currency": "USD" },
+  "related": [{ "title": ".NET Backend", "url": "https://cursos.devtalles.com/courses/NET-Backend" }]
+}

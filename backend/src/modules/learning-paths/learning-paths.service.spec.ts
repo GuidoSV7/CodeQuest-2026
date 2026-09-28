@@ -287,12 +287,13 @@ describe('LearningPathsService', () => {
       items: [{ courseId: '100', bucket: 'recommended' }],
     })
     const detail = await service.getById(USER_A, created.id)
-    expect(detail.items[0]?.detail).toEqual({
+    expect(detail.items[0]?.detail).toStrictEqual({
       description: 'Primeros pasos en C#',
       instructor: 'Fernando Herrera',
       lessonCount: 1,
       videoHours: 1,
       previewYoutubeId: 'abc123XYZ',
+      coverImageUrl: null,
       prerequisites: [],
       tags: ['backend', 'bases'],
       sections: [{ title: 'Fundamentos', lessons: ['Variables'] }],

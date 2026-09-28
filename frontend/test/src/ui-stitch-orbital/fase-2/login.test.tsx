@@ -41,7 +41,7 @@ describe("Orbital login surface", () => {
     });
 
     expect(container.querySelector("h1")?.textContent).toBe(
-      "Inicia sesión en tu misión",
+      "Entrá a CodeQuest",
     );
     expect(
       container.querySelector("a[href*='/api/auth/discord/start']"),

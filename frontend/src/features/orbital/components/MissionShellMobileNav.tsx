@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useId, useState } from "react";
+import { Menu, X } from "lucide-react";
+import { CHROME_ICON_STROKE_WIDTH } from "@/config/chrome-icon";
 import styles from "./MissionShell.module.css";
 
 export type MissionShellMobileNavLink = {
@@ -42,13 +44,11 @@ export function MissionShellMobileNav({ links }: MissionShellMobileNavProps) {
         aria-label={open ? "Cerrar menú de navegación" : "Abrir menú de navegación"}
         onClick={() => setOpen((current) => !current)}
       >
-        <svg aria-hidden="true" viewBox="0 0 24 24" className={styles.menuIcon}>
-          {open ? (
-            <path d="M6 6 18 18M6 18 18 6" />
-          ) : (
-            <path d="M4 7h16M4 12h16M4 17h16" />
-          )}
-        </svg>
+        {open ? (
+          <X aria-hidden="true" className={styles.menuIcon} strokeWidth={CHROME_ICON_STROKE_WIDTH} />
+        ) : (
+          <Menu aria-hidden="true" className={styles.menuIcon} strokeWidth={CHROME_ICON_STROKE_WIDTH} />
+        )}
       </button>
       <div
         id={panelId}

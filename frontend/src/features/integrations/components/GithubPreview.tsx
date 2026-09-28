@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Check, Copy } from "lucide-react";
+import { CHROME_ICON_STROKE_WIDTH } from "@/config/chrome-icon";
 import { githubPreviewFixture } from "@/features/orbital/fixtures";
 import {
   getBrowserCapabilities,
@@ -46,7 +48,7 @@ export function GithubPreview({ capabilities }: GithubPreviewProps) {
     try {
       await browserCapabilities.clipboard.writeText(githubPreviewFixture.snippet);
       setCopyStatus("success");
-      setToast("MARKDOWN COPIADO AL PORTAPAPELES");
+      setToast("Copiaste el Markdown al portapapeles");
     } catch {
       setCopyStatus("error");
     }
@@ -69,7 +71,7 @@ export function GithubPreview({ capabilities }: GithubPreviewProps) {
         return;
       }
       setShareStatus("success");
-      setToast("MENSAJE PARA DISCORD COPIADO // LISTO PARA PEGAR");
+      setToast("Copiaste el mensaje para Discord. Ya podés pegarlo.");
     } catch {
       setShareStatus("error");
     }
@@ -84,18 +86,18 @@ export function GithubPreview({ capabilities }: GithubPreviewProps) {
           principal de tu perfil. Sincronización milimétrica con cada lección
           completada.
         </p>
-        <span>✦ SE ACTUALIZA SOLO CON TU PROGRESO ✦</span>
+        <span>Se actualiza solo con tu progreso</span>
       </header>
       <div className={styles.dossier}>
         <div className={styles.fileBar}>
           <span>● ● ●</span>
           <code>github.com/developer/README.md</code>
-          <small>RAW PREVIEW ✦ UTF-8</small>
+          <small>Vista previa del archivo</small>
         </div>
         <div className={styles.dossierBody}>
           <div className={styles.badgeHeader}>
-            <span>RENDER VISUAL DE LA INSIGNIA</span>
-            <strong>STATUS: 34% COMPLETADO</strong>
+            <span>Así se ve la insignia</span>
+            <strong>34 % completado</strong>
           </div>
           <div className={styles.badgeCanvas}>
             <svg aria-label="Insignia dinámica DevTalles" role="img" viewBox="0 0 320 40">
@@ -109,11 +111,11 @@ export function GithubPreview({ capabilities }: GithubPreviewProps) {
               <rect className={styles.badgeProgress} height="7" rx="3.5" width="22.1" x="196" y="16.5" />
               <text className={styles.badgePercent} x="270" y="24">34%</text>
             </svg>
-            <span>VISTA PREVIA EN ESCALA 1:1 // INYECCIÓN VECTORIAL</span>
+            <span>Vista previa a tamaño real</span>
           </div>
           <div className={styles.snippetHeader}>
-            <span>CÓDIGO FUENTE DE INCRUSTACIÓN (MARKDOWN)</span>
-            <strong>FORMATO ESTÁNDAR</strong>
+            <span>Código Markdown para tu README</span>
+            <strong>Markdown estándar</strong>
           </div>
           <div className={styles.snippetBox}>
             <pre className={styles.snippet} id="markdownSnippet"><code>{githubPreviewFixture.snippet}</code></pre>
@@ -124,7 +126,11 @@ export function GithubPreview({ capabilities }: GithubPreviewProps) {
               type="button"
               onClick={() => void copySnippet()}
             >
-              {copyStatus === "success" ? "✓" : "⧉"}
+              {copyStatus === "success" ? (
+                <Check aria-hidden="true" strokeWidth={CHROME_ICON_STROKE_WIDTH} />
+              ) : (
+                <Copy aria-hidden="true" strokeWidth={CHROME_ICON_STROKE_WIDTH} />
+              )}
             </button>
           </div>
           <div className={styles.actions}>

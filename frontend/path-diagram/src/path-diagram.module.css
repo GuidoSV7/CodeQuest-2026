@@ -47,10 +47,9 @@
 .header,
 .groupLabel {
   color: rgba(192, 185, 252, 0.55);
-  font-size: 0.688rem;
+  font-size: 0.75rem;
   font-weight: 500;
-  letter-spacing: 2.5px;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
 
 .backdrop {
@@ -74,6 +73,16 @@
   border-radius: 16px;
   background: #121028;
   line-height: 1.5;
+}
+
+.cover {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 12px;
+  background: #130c25;
 }
 
 .summary {
@@ -137,10 +146,9 @@
 
 .dialog h3 {
   color: rgb(192 185 252 / 72%);
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
 }
 
 .dialog h4 {
@@ -189,7 +197,7 @@
   color: #c8dd0b;
   font-size: 0.75rem;
   letter-spacing: 0.04em;
-  text-transform: uppercase;
+  text-transform: capitalize;
 }
 
 .video {

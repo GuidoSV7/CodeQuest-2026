@@ -18,7 +18,7 @@ describe("TypeScript checkpoint mock", () => {
     expect(checkpoint).toContain('setStatus("loading")');
     expect(checkpoint).toContain("aria-live");
     expect(checkpoint).toContain("Reintentar");
-    expect(checkpoint).toContain("CONFIRMAR RESPUESTA");
+    expect(checkpoint).toContain("Confirmar respuesta");
     expect(checkpoint).toContain("aria-live");
   });
 

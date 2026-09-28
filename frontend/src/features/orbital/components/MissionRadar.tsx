@@ -1,16 +1,17 @@
 import styles from "./MissionRadar.module.css";
+import { officialPathLabel } from "@/config/official-paths";
 import {
   activeNodeIndex,
   radarBearingDegrees,
 } from "../lib/radar-progress";
 
 const NODES = [
-  { cx: 120, cy: 120, r: 5, label: "TS_FOUND", x: 110, y: 105, primary: true },
-  { cx: 200, cy: 90, r: 4, label: "NEST.SYS", x: 195, y: 76, primary: false },
-  { cx: 280, cy: 130, r: 6, label: "REACT_ARC", x: 290, y: 128, primary: false },
-  { cx: 310, cy: 220, r: 4, label: "DOCKER/K8S", x: 320, y: 225, primary: false },
-  { cx: 240, cy: 290, r: 5, label: "HEX_DOMAIN", x: 230, y: 310, primary: false },
-  { cx: 150, cy: 270, r: 4, label: "CLEAN_CODE", x: 90, y: 282, primary: false },
+  { cx: 120, cy: 120, r: 5, pathId: "programas-fundamentos", x: 110, y: 105, primary: true },
+  { cx: 200, cy: 90, r: 4, pathId: "programas-nest", x: 195, y: 76, primary: false },
+  { cx: 280, cy: 130, r: 6, pathId: "programas-react", x: 290, y: 128, primary: false },
+  { cx: 310, cy: 220, r: 4, pathId: "programas-node", x: 320, y: 225, primary: false },
+  { cx: 240, cy: 290, r: 5, pathId: "programas-angular", x: 230, y: 310, primary: false },
+  { cx: 150, cy: 270, r: 4, pathId: "ruta-python", x: 90, y: 282, primary: false },
 ] as const;
 
 type MissionRadarProps = {
@@ -24,14 +25,13 @@ export function MissionRadar({
 }: MissionRadarProps) {
   const bearing = radarBearingDegrees(progressRatio);
   const active = activeNodeIndex(progressRatio, NODES.length);
-  const orbit = (bearing / 360).toFixed(3);
 
   return (
     <div className={styles.frame}>
       <div className={styles.frameHeader}>
         <span className={styles.frameMarker} aria-hidden="true" />
-        <span>VECTOR DISPLAY // POLAR MATRIX</span>
-        <span className={styles.orbitData}>T-ORBIT: {orbit}</span>
+        <span>Tu progreso</span>
+        <span className={styles.orbitData}>Avance: {Math.round((bearing / 360) * 100)} %</span>
       </div>
       <svg
         className={styles.radar}
@@ -39,7 +39,7 @@ export function MissionRadar({
         role="img"
         aria-labelledby="mission-radar-title mission-radar-description"
       >
-        <title id="mission-radar-title">Matriz orbital de seis nodos</title>
+        <title id="mission-radar-title">Radar de progreso sobre seis rutas oficiales</title>
         <desc id="mission-radar-description">
           El haz marca el {Math.round((bearing / 360) * 100)}% del progreso.
           {completedCount} nodos completados.
@@ -69,10 +69,10 @@ export function MissionRadar({
               ? styles.nodeLabelPrimary
               : styles.nodeLabel;
           return (
-            <g key={node.label}>
+            <g key={node.pathId}>
               <circle className={nodeClass} cx={node.cx} cy={node.cy} r={node.r} />
               <text className={labelClass} x={node.x} y={node.y}>
-                {node.label}
+                {officialPathLabel(node.pathId)}
               </text>
             </g>
           );
@@ -88,11 +88,10 @@ export function MissionRadar({
         ) : null}
       </svg>
       <div className={styles.frameFooter}>
-        <span>NODOS ACTIVOS: {completedCount}</span>
+        <span>Cursos completados: {completedCount}</span>
         <span className={styles.primaryText}>
-          {bearing === 0 ? "EN ESPERA" : "PROPULSIÓN: DIRECTA"}
+          {bearing === 0 ? "Sin empezar" : bearing >= 360 ? "Ruta completa" : "En curso"}
         </span>
-        <span>{bearing >= 360 ? "ÓRBITA: CERRADA" : "SIMULACIÓN: READY"}</span>
       </div>
       <span className={styles.cornerTopLeft} aria-hidden="true">+</span>
       <span className={styles.cornerTopRight} aria-hidden="true">+</span>

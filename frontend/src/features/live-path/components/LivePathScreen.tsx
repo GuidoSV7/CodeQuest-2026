@@ -1,8 +1,10 @@
 "use client";
 
 import { useMemo } from "react";
+import { X } from "lucide-react";
 import "@xyflow/react/dist/style.css";
 import { PathDiagram } from "path-diagram";
+import { CHROME_ICON_STROKE_WIDTH } from "@/config/chrome-icon";
 import { loadCourseCard } from "@/lib/load-course-card";
 import { appearanceDelay, type LiveScreen } from "../live-path-state";
 import styles from "./LivePathScreen.module.css";
@@ -26,7 +28,7 @@ export function LivePathView({
           <p className={styles.connection} data-state={screen.connection}>{label}</p>
           {onClose ? (
             <button type="button" className={styles.close} onClick={onClose} aria-label="Cerrar">
-              <span aria-hidden="true">×</span>
+              <X aria-hidden="true" strokeWidth={CHROME_ICON_STROKE_WIDTH} />
             </button>
           ) : null}
         </div>
@@ -34,7 +36,7 @@ export function LivePathView({
       {screen.kind === "sin_sesion" ? (
         <p className={styles.empty}>Entrá para ver tu ruta en vivo. <a href="/login">Entrar</a></p>
       ) : null}
-      {screen.kind === "esperando" ? <p className={styles.empty}>Esperando que Claude arme la ruta.</p> : null}
+      {screen.kind === "esperando" ? <p className={styles.empty}>Esperando que tu IA arme la ruta.</p> : null}
       {screen.kind === "eleccion" ? (
         <section>
           <h1 className={styles.prompt} id="live-path-modal-title">{screen.prompt}</h1>

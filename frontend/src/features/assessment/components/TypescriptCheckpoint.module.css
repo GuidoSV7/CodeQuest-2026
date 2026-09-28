@@ -129,37 +129,6 @@
   box-shadow: var(--orbital-shadow-panel);
 }
 
-.coordinateTopLeft,
-.coordinateTopRight,
-.coordinateBottomLeft,
-.coordinateBottomRight {
-  position: absolute;
-  color: rgb(149 142 155 / 40%);
-  font-family: var(--orbital-font-telemetry);
-  font-size: 0.625rem;
-  letter-spacing: 0.1em;
-}
-
-.coordinateTopLeft {
-  top: var(--orbital-space-2);
-  left: var(--orbital-space-4);
-}
-
-.coordinateTopRight {
-  top: var(--orbital-space-2);
-  right: var(--orbital-space-4);
-}
-
-.coordinateBottomLeft {
-  bottom: var(--orbital-space-2);
-  left: var(--orbital-space-4);
-}
-
-.coordinateBottomRight {
-  right: var(--orbital-space-4);
-  bottom: var(--orbital-space-2);
-}
-
 .checkpointHeader {
   display: grid;
   gap: var(--orbital-space-3);

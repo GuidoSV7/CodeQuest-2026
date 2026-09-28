@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 15.34 15.34">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #263238;
+      }
+
+      .cls-1, .cls-2, .cls-3, .cls-4, .cls-5, .cls-6 {
+        stroke-width: 0px;
+      }
+
+      .cls-1, .cls-4, .cls-5 {
+        isolation: isolate;
+        opacity: .2;
+      }
+
+      .cls-2 {
+        fill: #01579b;
+      }
+
+      .cls-3 {
+        fill: #29b6f6;
+      }
+
+      .cls-4 {
+        fill: #fff;
+      }
+
+      .cls-5 {
+        fill: url(#radial-gradient);
+      }
+
+      .cls-6 {
+        fill: #40c4ff;
+      }
+    </style>
+    <radialGradient id="radial-gradient" cx="7.67" cy="958.14" fx="7.67" fy="958.14" r="4.98" gradientTransform="translate(0 -950.47)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fff" stop-opacity=".1"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <path class="cls-2" d="M4.72,10.62l-1.7-1.7c-.2-.21-.33-.5-.33-.79,0-.13.07-.34.13-.46l1.57-3.28.33,6.23Z"/>
+  <path class="cls-6" d="M10.55,4.72l-1.7-1.7c-.15-.15-.46-.33-.72-.33-.23,0-.45.05-.59.13l-3.15,1.57,6.16.33Z"/>
+  <polygon class="cls-6" points="6.75 12.65 10.88 12.65 10.88 10.88 7.8 9.9 4.98 10.88 6.75 12.65"/>
+  <path class="cls-3" d="M4.39,9.7c0,.53.07.66.33.92l.26.26h5.9l-2.88-3.28-3.61-3.21v5.31Z"/>
+  <path class="cls-2" d="M9.63,4.39h-5.25l6.49,6.49h1.77v-4.07l-2.1-2.1c-.29-.3-.56-.33-.92-.33Z"/>
+  <path class="cls-4" d="M4.78,10.68c-.26-.26-.33-.52-.33-.98v-5.25l-.07-.07v5.31c0,.46,0,.59.39.98l.2.2h0l-.2-.2Z"/>
+  <polygon class="cls-1" points="12.59 6.75 12.59 10.82 10.81 10.82 10.88 10.88 12.65 10.88 12.65 6.82 12.59 6.75"/>
+  <path class="cls-4" d="M10.55,4.72c-.33-.33-.59-.33-.98-.33h-5.18l.07.07h5.11c.19,0,.69-.03.98.26h0Z"/>
+  <path class="cls-5" d="M12.59,6.75l-2.03-2.03-1.7-1.7c-.15-.15-.46-.33-.72-.33-.23,0-.45.05-.59.13l-3.15,1.57-1.57,3.28c-.06.12-.13.33-.13.46,0,.29.13.58.33.79l1.57,1.56s.08.09.13.14l.07.07.2.2,1.7,1.7.07.07h4.13v-1.77h1.77v-4.07l-.07-.07Z"/>
+</svg>

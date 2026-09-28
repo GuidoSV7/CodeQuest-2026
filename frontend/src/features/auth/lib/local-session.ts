@@ -1,6 +1,10 @@
 const STORAGE_KEY = "cq_session_token";
 
-export function captureLocalSessionFromLocation(location: Location, storage: Storage, replace: (url: string) => void): void {
+export function captureLocalSessionFromLocation(
+  location: Pick<Location, "hash" | "pathname" | "search">,
+  storage: Pick<Storage, "setItem">,
+  replace: (url: string) => void,
+): void {
   const params = new URLSearchParams(location.hash.replace(/^#/, ""));
   const token = params.get("cq_session");
   if (!token) return;
@@ -10,12 +14,12 @@ export function captureLocalSessionFromLocation(location: Location, storage: Sto
   replace(`${location.pathname}${location.search}${rest ? `#${rest}` : ""}`);
 }
 
-export function readLocalSessionToken(storage: Storage | undefined): string | null {
+export function readLocalSessionToken(storage: Pick<Storage, "getItem"> | undefined): string | null {
   if (!storage) return null;
   return storage.getItem(STORAGE_KEY);
 }
 
-export function clearLocalSessionToken(storage: Storage | undefined): void {
+export function clearLocalSessionToken(storage: Pick<Storage, "removeItem"> | undefined): void {
   storage?.removeItem(STORAGE_KEY);
 }
 

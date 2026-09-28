@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
+import { CHROME_ICON_STROKE_WIDTH } from "@/config/chrome-icon";
 import { getAssessment } from "../lib/assessment-data";
 import styles from "./AssessmentResults.module.css";
 
@@ -25,8 +27,8 @@ export function AssessmentResults() {
       <div className={styles.resultGrid}>
         <section className={styles.radarPanel}>
           <div className={styles.archetypeHeader}>
-            <p className={styles.kicker}>✦ DIAGNÓSTICO TELEMÉTRICO // SÍNTESIS</p>
-            <span>tu arquetipo:</span>
+            <p className={styles.kicker}>Resultado de tu diagnóstico</p>
+            <span>Tu arquetipo</span>
             <h2 id="results-title">{assessment.result.archetype ?? "No disponible"}</h2>
             <p>{assessment.result.affinity ?? "No disponible"}</p>
           </div>
@@ -61,14 +63,13 @@ export function AssessmentResults() {
             <text className={styles.radarLabel} x="105" y="160">Calidad</text>
           </svg>
           <div className={styles.calibration}>
-            <span>●</span>
-            <strong>CALIBRACIÓN: 94.2% DE AFINIDAD</strong>
-            <em>✦ COMPLEJIDAD SUGERIDA: {assessment.result.complexity}</em>
+            <span aria-hidden="true">●</span>
+            <strong>Afinidad: 94,2 %</strong>
+            <em>Complejidad sugerida: {assessment.result.complexity}</em>
           </div>
           <div className={styles.domain}>
-            <span aria-hidden="true">⌁</span>
             <div>
-              <strong>VECTOR DE DOMINIO PRIMARIO</strong>
+              <strong>Área principal</strong>
               <small>{assessment.result.primaryDomain}</small>
             </div>
             <b>{assessment.result.systemStatus}</b>
@@ -76,8 +77,8 @@ export function AssessmentResults() {
         </section>
         <section className={styles.routePanel} aria-labelledby="routes-title">
           <div className={styles.routePanelHeader}>
-            <h2 id="routes-title">✦ RUTAS IDENTIFICADAS EN CATÁLOGO</h2>
-            <span>3 EXPEDIENTES DISPONIBLES</span>
+            <h2 id="routes-title">Rutas del catálogo para vos</h2>
+            <span>{routeCards.length} rutas disponibles</span>
           </div>
           {routeCards.map((route, index) => (
             <article className={index === 0 ? styles.recommendedCard : styles.routeCard} key={route.title}>
@@ -93,14 +94,14 @@ export function AssessmentResults() {
               </div>
               {route.sequence ? (
                 <div className={styles.sequence}>
-                  <span>SECUENCIA DE MISIÓN:</span>
+                  <span>Orden sugerido</span>
                   <p>{route.sequence.join(" ➔ ")}</p>
                 </div>
               ) : null}
               <div className={styles.routeFooter}>
                 <span>{route.description}</span>
                 <Link className={index === 0 ? styles.primaryAction : styles.secondaryAction} href="/mis-rutas">
-                  {route.action} <span aria-hidden="true">→</span>
+                  {route.action} <ArrowRight aria-hidden="true" strokeWidth={CHROME_ICON_STROKE_WIDTH} />
                 </Link>
               </div>
             </article>

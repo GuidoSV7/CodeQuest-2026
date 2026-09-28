@@ -1,0 +1,1 @@
+export const CHROME_ICON_STROKE_WIDTH = 2;

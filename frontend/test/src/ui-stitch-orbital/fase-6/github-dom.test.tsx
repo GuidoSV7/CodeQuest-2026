@@ -55,9 +55,9 @@ describe("literal GitHub preview", () => {
       );
     });
     expect(writeText).toHaveBeenCalledWith("[![DevTalles Route](badge-url)](profile-url)");
-    expect(container.textContent).toContain("MARKDOWN COPIADO AL PORTAPAPELES");
+    expect(container.textContent).toContain("Copiaste el Markdown al portapapeles");
     act(() => vi.advanceTimersByTime(2800));
-    expect(container.textContent).not.toContain("MARKDOWN COPIADO AL PORTAPAPELES");
+    expect(container.textContent).not.toContain("Copiaste el Markdown al portapapeles");
 
     await act(async () => {
       Array.from(container.querySelectorAll("button"))

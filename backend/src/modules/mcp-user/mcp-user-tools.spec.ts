@@ -17,9 +17,11 @@ import {
 } from '../learning-paths/test/in-memory-repos'
 import { ProgressService } from '../learning-paths/progress.service'
 import type { CatalogSnapshot } from '../catalog-scraper/domain/catalog'
+import { toCourseCard } from '../catalog-scraper/application/course-card'
 
 const USER_A = '11111111-1111-4111-8111-111111111111'
 const USER_B = '22222222-2222-4222-8222-222222222222'
+const COVER_IMAGE_URL = 'https://import.cdn.thinkific.com/643563/ozPWxfNjQBKugksdaogB_VSCODE.jpg'
 
 function verifier(): McpTokenVerifier {
   const expiresAt = Math.floor(Date.now() / 1000) + 600
@@ -40,13 +42,14 @@ describe('MCP user tools', () => {
   let app: INestApplication
   let baseUrl: string
   let service: LearningPathsService
+  let snapshot: CatalogSnapshot
 
   beforeAll(async () => {
     const store: PathStore = new Map()
     const paths = createInMemoryPathRepo(store)
     const items = createInMemoryItemRepo(store)
     const progress = createInMemoryProgressRepo()
-    const snapshot = {
+    snapshot = {
       version: 7,
       generatedAt: '2026-09-21T00:00:00.000Z',
       source: 'scraper',
@@ -58,7 +61,7 @@ describe('MCP user tools', () => {
           subtitleLabel: null,
           metaDescription: null,
           description: null,
-          coverImageUrl: null,
+          coverImageUrl: COVER_IMAGE_URL,
           previewYoutubeId: null,
           price: { amount: 10, currency: 'USD' },
           lessonCount: 1,
@@ -196,12 +199,22 @@ describe('MCP user tools', () => {
 
     const detail = JSON.parse(textOf(await ada.callTool({ name: 'get_my_path', arguments: { id: created.id } }))) as {
       id: string
-      items: Array<{ courseId: string; courseTitle: string; progress: { status: string } }>
+      items: Array<{
+        courseId: string
+        courseTitle: string
+        progress: { status: string }
+        detail: { coverImageUrl: string | null } | null
+      }>
       diagram: { mermaid: string }
     }
     expect(detail.items[0]?.courseTitle).toBe('Course A')
     expect(detail.items[0]?.progress.status).toBe('not_started')
     expect(detail.diagram.mermaid).toContain('Course A')
+
+    const restDetail = await service.getById(USER_A, created.id)
+    expect(detail.items[0]?.detail?.coverImageUrl).toBe(COVER_IMAGE_URL)
+    expect(restDetail.items[0]?.detail?.coverImageUrl).toBe(COVER_IMAGE_URL)
+    expect(toCourseCard(snapshot, '100')?.coverImageUrl).toBe(COVER_IMAGE_URL)
 
     const updated = JSON.parse(textOf(await ada.callTool({
       name: 'update_course_progress',

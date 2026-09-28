@@ -9,7 +9,7 @@ function readFrontendFile(relativePath: string): string {
 }
 
 describe("login contract", () => {
-  it("keeps Discord helpers in the service while the panel does not call them", () => {
+  it("keeps Discord helpers in the service and the panel only links through them", () => {
     const service = readFrontendFile("src/features/auth/api/auth.service.ts");
     const panel = readFrontendFile(
       "src/features/auth/components/LoginPanel.tsx",
@@ -21,9 +21,9 @@ describe("login contract", () => {
     expect(service).toContain("/api/auth/me");
     expect(service).toContain("/api/auth/logout");
     expect(service).toContain("/api/auth/discord/start");
-    expect(panel).not.toContain("discordStartUrl");
+    expect(panel).toContain("discordStartUrl(returnTo)");
     expect(panel).not.toContain("logoutSession");
-    expect(panel).not.toContain("auth.service");
+    expect(panel).not.toContain("/api/auth/discord/start");
   });
 
   it("rejects external returnTo values before the panel receives them", () => {
@@ -35,14 +35,15 @@ describe("login contract", () => {
     expect(page).not.toContain("window.location");
   });
 
-  it("keeps credential and guest copy presentation-only", () => {
+  it("offers only Discord access, without password form nor guest mode", () => {
     const panel = readFrontendFile(
       "src/features/auth/components/LoginPanel.tsx",
     );
 
-    expect(panel).toContain('type="password"');
-    expect(panel).toContain("MODO INVITADO DISPONIBLE");
-    expect(panel).toContain("event.preventDefault()");
+    expect(panel).not.toContain('type="password"');
+    expect(panel).not.toMatch(/invitado/i);
+    expect(panel).toContain("Continuar con Discord");
+    expect(panel).not.toContain("<form");
     expect(panel).not.toContain("fetch(");
     expect(panel).not.toContain("localStorage");
   });

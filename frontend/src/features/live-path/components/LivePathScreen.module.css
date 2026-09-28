@@ -1,52 +1,49 @@
-.page {
-  min-height: 100vh;
-  padding: 32px 24px 64px;
-  background: #130c25;
-  color: #f0eeff;
-  font-family: inherit;
-}
-
 .top {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  max-width: 1200px;
-  margin: 0 auto 24px;
+  max-width: 75rem;
+  margin: 0 auto var(--orbital-space-5);
 }
 
-.kicker,
-.title {
-  font-family: var(--live-display), sans-serif;
+.kicker {
+  margin: 0;
+  color: var(--orbital-lime);
+  font-family: var(--orbital-font-telemetry);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  letter-spacing: 2px;
 }
 
 .title {
-  font-size: 1.25rem;
+  font-family: var(--orbital-font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
   text-align: center;
-  margin: 0 0 50px;
+  margin: 0 0 var(--orbital-space-6);
 }
 
 .topActions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--orbital-space-2);
 }
 
 .connection {
   margin: 0;
-  padding: 2px 10px;
-  border-radius: 30px;
-  background: rgba(192, 185, 252, 0.5);
-  color: #f0eeff;
-  font-size: 0.688rem;
-  letter-spacing: 1.5px;
+  padding: var(--orbital-space-1) var(--orbital-space-3);
+  border-radius: var(--orbital-radius-full);
+  background: var(--orbital-surface-container-high);
+  color: var(--orbital-primary);
+  font-family: var(--orbital-font-telemetry);
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
 .prompt {
-  font-family: inherit;
-  font-size: 0.875rem;
+  font-family: var(--orbital-font-body);
+  font-size: 1rem;
   text-align: center;
 }
 
@@ -54,16 +51,16 @@
   list-style: none;
   padding: 0;
   display: grid;
-  gap: 16px;
-  max-width: 420px;
-  margin: 24px auto;
+  gap: var(--orbital-space-4);
+  max-width: 26.25rem;
+  margin: var(--orbital-space-5) auto;
 }
 
 .options li {
-  padding: 10px 15px;
-  border: 1px solid rgba(192, 185, 252, 0.12);
-  border-radius: 20px;
-  background: rgba(28, 24, 41, 0.85);
+  padding: var(--orbital-space-3) var(--orbital-space-4);
+  border: 1px solid var(--orbital-border);
+  border-radius: var(--orbital-radius-lg);
+  background: var(--orbital-surface-container);
 }
 
 .empty {
@@ -71,39 +68,38 @@
 }
 
 .notes {
-  max-width: 1200px;
-  margin: 16px auto 0;
+  max-width: 75rem;
+  margin: var(--orbital-space-4) auto 0;
   display: grid;
-  gap: 8px;
+  gap: var(--orbital-space-2);
 }
 
 .notes h2 {
   margin: 0;
-  font-size: 0.75rem;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: #c8dd0b;
+  font-family: var(--orbital-font-display);
+  font-size: 0.875rem;
+  color: var(--orbital-lime);
 }
 
 .notes ul {
   display: grid;
-  gap: 8px;
+  gap: var(--orbital-space-2);
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
 .notes li {
-  padding: 10px 14px;
-  border: 1px solid rgba(192, 185, 252, 0.12);
-  border-radius: 16px;
-  background: rgba(28, 24, 41, 0.85);
+  padding: var(--orbital-space-3) var(--orbital-space-4);
+  border: 1px solid var(--orbital-border);
+  border-radius: var(--orbital-radius-lg);
+  background: var(--orbital-surface-container);
 }
 
 .canvas {
-  height: 720px;
+  height: 45rem;
   width: 100%;
-  max-width: 1200px;
+  max-width: 75rem;
   margin: 0 auto;
   overflow: hidden;
 }
@@ -114,10 +110,10 @@
   z-index: 40;
   display: grid;
   place-items: center;
-  padding: 24px 16px;
-  background: rgba(8, 5, 18, 0.72);
+  padding: var(--orbital-space-5) var(--orbital-space-4);
+  background: color-mix(in srgb, var(--orbital-cosmos) 72%, transparent);
   opacity: 0;
-  transition: opacity 280ms ease;
+  transition: opacity var(--orbital-motion-standard);
 }
 
 .backdropOpen {
@@ -126,20 +122,20 @@
 
 .dialog {
   position: relative;
-  width: min(1100px, 100%);
-  max-height: min(860px, calc(100vh - 48px));
+  width: min(68.75rem, 100%);
+  max-height: min(53.75rem, calc(100vh - var(--orbital-space-7)));
   overflow: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
-  padding: 28px 20px 36px;
-  border: 1px solid rgba(192, 185, 252, 0.12);
-  border-radius: 20px;
-  background: #130c25;
-  color: #f0eeff;
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+  padding: var(--orbital-space-5) var(--orbital-space-4) var(--orbital-space-6);
+  border: 1px solid var(--orbital-border);
+  border-radius: var(--orbital-radius-xl);
+  background: var(--orbital-surface);
+  color: var(--orbital-on-surface);
+  box-shadow: var(--orbital-shadow-panel);
   opacity: 0;
-  transform: translateY(16px);
-  transition: opacity 280ms ease, transform 280ms ease;
+  transform: translateY(var(--orbital-space-4));
+  transition: opacity var(--orbital-motion-standard), transform var(--orbital-motion-standard);
 }
 
 .dialogOpen {
@@ -149,50 +145,60 @@
 
 @media (prefers-reduced-motion: reduce) {
   .backdrop,
-  .dialog {
+  .dialog,
+  .close {
     transition: none;
   }
 }
 
 .dialog .canvas {
-  height: min(560px, 60vh);
+  height: min(35rem, 60vh);
 }
 
 @media (max-width: 40rem) {
   .backdrop {
     align-items: stretch;
-    padding: 12px;
+    padding: var(--orbital-space-3);
   }
 
   .dialog {
-    max-height: calc(100vh - 24px);
-    max-height: calc(100dvh - 24px);
+    max-height: calc(100vh - var(--orbital-space-5));
+    max-height: calc(100dvh - var(--orbital-space-5));
   }
 
   .dialog .canvas,
   .canvas {
-    height: min(320px, 46vh);
+    height: min(20rem, 46vh);
   }
 }
 
 .close {
   display: grid;
   place-items: center;
-  width: 2rem;
-  height: 2rem;
+  width: 2.75rem;
+  height: 2.75rem;
   padding: 0;
-  border: 1px solid rgb(200 221 11 / 70%);
-  border-radius: 999px;
-  background: #1c1829;
-  color: #c8dd0b;
-  font-size: 1.25rem;
-  line-height: 1;
+  border: 1px solid color-mix(in srgb, var(--orbital-lime) 70%, transparent);
+  border-radius: var(--orbital-radius-full);
+  background: var(--orbital-surface-container);
+  color: var(--orbital-lime);
   cursor: pointer;
+  transition: background var(--orbital-motion-fast), color var(--orbital-motion-fast);
 }
 
 .close:hover {
-  background: #c8dd0b;
-  color: #130c25;
+  background: var(--orbital-lime);
+  color: var(--orbital-surface);
+}
+
+.close:active {
+  background: var(--orbital-lime-strong);
+  color: var(--orbital-surface);
+}
+
+.close svg {
+  width: 1.25rem;
+  height: 1.25rem;
 }
 
 .sr {

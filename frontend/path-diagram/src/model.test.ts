@@ -54,6 +54,7 @@ describe("modelFromUserPath", () => {
             lessonCount: 40,
             videoHours: 12,
             previewYoutubeId: "abc123XYZ",
+            coverImageUrl: null,
             prerequisites: [],
             tags: ["bases"],
             sections: [{ title: "Fundamentos", lessons: ["Variables"] }],

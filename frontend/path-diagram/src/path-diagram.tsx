@@ -117,6 +117,8 @@ function CourseModal({
   const sections = item.detail?.sections ?? [];
   const tags = item.detail?.tags ?? [];
   const description = item.detail?.description ? previewDescription(item.detail.description) : "";
+  const cover = mode === "web" ? (item.detail?.coverImageUrl ?? null) : null;
+  const [failedCover, setFailedCover] = useState<string | null>(null);
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClose();
@@ -134,6 +136,19 @@ function CourseModal({
         aria-label={item.title}
         onClick={(event) => event.stopPropagation()}
       >
+        {cover !== null && cover !== failedCover ? (
+          <img
+            className={styles.cover}
+            src={cover}
+            alt=""
+            width={640}
+            height={360}
+            loading="lazy"
+            decoding="async"
+            referrerPolicy="no-referrer"
+            onError={() => setFailedCover(cover)}
+          />
+        ) : null}
         <header className={styles.summary}>
           <p className={styles.kicker}>{bucketLabel(item.bucket)}</p>
           <h2>{item.title}</h2>

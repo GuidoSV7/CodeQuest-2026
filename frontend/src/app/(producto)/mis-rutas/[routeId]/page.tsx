@@ -4,7 +4,7 @@ import styles from "./page.module.css";
 
 export const metadata: Metadata = {
   title: "Detalle de ruta",
-  description: "Detalle mock de una ruta de aprendizaje.",
+  description: "Tu ruta de aprendizaje, curso por curso.",
 };
 
 type RoutePageProps = {

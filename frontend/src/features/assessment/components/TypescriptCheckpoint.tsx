@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { ArrowRight } from "lucide-react";
+import { CHROME_ICON_STROKE_WIDTH } from "@/config/chrome-icon";
 import { getAssessment } from "../lib/assessment-data";
 import styles from "./TypescriptCheckpoint.module.css";
 
@@ -19,7 +21,7 @@ export function TypescriptCheckpoint() {
   if (status === "loading") {
     return (
       <section className={styles.state} aria-busy="true">
-        <h2>REGISTRANDO RESPUESTA…</h2>
+        <h2>Guardando tu respuesta…</h2>
         <p>Este paso no registra progreso real.</p>
         <button
           className={styles.primaryAction}
@@ -67,12 +69,8 @@ export function TypescriptCheckpoint() {
   return (
     <section className={styles.checkpoint} aria-labelledby="checkpoint-title">
       <div className={styles.dossierFrame}>
-        <span className={styles.coordinateTopLeft}>[SYS.EVAL // CHK-TS-01]</span>
-        <span className={styles.coordinateTopRight}>COORD: +42.08 // SEC.B</span>
-        <span className={styles.coordinateBottomLeft}>STATUS: RUNNING</span>
-        <span className={styles.coordinateBottomRight}>REG.ID // 0x98A1</span>
         <div className={styles.checkpointHeader}>
-          <p className={styles.kicker}>✦ REQUISITO DE DESPEGUE // VERIFICACIÓN SINTÁCTICA</p>
+          <p className={styles.kicker}>Chequeo de TypeScript</p>
           <h2 id="checkpoint-title">{checkpoint.prompt}</h2>
         </div>
         <div className={styles.options}>
@@ -93,13 +91,15 @@ export function TypescriptCheckpoint() {
                 <strong>{option.label}</strong>
                 <small>{option.detail}</small>
               </span>
-              <em>✦ REGISTRAR</em>
+              <em>Elegir</em>
             </label>
           ))}
         </div>
         <div className={styles.actionFooter}>
           <span className={selected ? styles.selectedStatus : styles.selectionStatus} aria-live="polite">
-            {selected ? `OPCIÓN [ ${String(checkpoint.options.findIndex((option) => option.id === selected) + 1).padStart(2, "0")} ] REGISTRADA EN TELEMETRÍA` : "SIN VALOR SELECCIONADO"}
+            {selected
+              ? `Elegiste la opción ${checkpoint.options.findIndex((option) => option.id === selected) + 1}`
+              : "Todavía no elegiste una opción"}
           </span>
           <button
             className={styles.primaryAction}
@@ -107,7 +107,7 @@ export function TypescriptCheckpoint() {
             disabled={selected === null}
             onClick={() => setStatus("loading")}
           >
-            CONFIRMAR RESPUESTA <span aria-hidden="true">→</span>
+            Confirmar respuesta <ArrowRight aria-hidden="true" strokeWidth={CHROME_ICON_STROKE_WIDTH} />
           </button>
         </div>
       </div>
