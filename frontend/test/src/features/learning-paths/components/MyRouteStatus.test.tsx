@@ -149,6 +149,30 @@ describe("MyRouteStatus", () => {
     act(() => root.unmount());
   });
 
+  it("recommends an official path from interests and current skill", async () => {
+    const { container, root } = mount(<MyRouteStatus loadRoutes={async () => []} />);
+    await act(async () => {
+      await Promise.resolve();
+    });
+    const formButton = Array.from(container.querySelectorAll("button")).find((button) =>
+      button.textContent?.includes("Quiero hacerlo por un formulario"),
+    );
+    act(() => {
+      formButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    });
+    expect(container.textContent).toContain("Qué te gustaría construir");
+    expect(container.textContent).toContain("Cuánto ya programás");
+    const build = findButton(container, "Una API o un servidor");
+    const skill = findButton(container, "Ya armo proyectos");
+    act(() => {
+      build?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      skill?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    });
+    const opener = container.querySelector("button[aria-haspopup='listbox']");
+    expect(opener?.textContent).toContain("NestJS");
+    act(() => root.unmount());
+  });
+
   it("opens the MCP explanation with a docs link to copy and no video placeholder", async () => {
     const writeText = vi.fn(async () => undefined);
     vi.stubGlobal("navigator", { clipboard: { writeText } });
@@ -407,6 +431,66 @@ describe("MyRouteStatus", () => {
       trigger?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     });
     expect(trigger?.getAttribute("aria-expanded")).toBe("true");
+    act(() => root.unmount());
+  });
+
+  it("shows which courses are done and toggles one from the list", async () => {
+    const saveProgress = vi.fn(async () => undefined);
+    const { container, root } = mount(
+      <MyRouteStatus
+        loadRoutes={async () => [
+          {
+            id: "path-angular",
+            title: "Ruta Angular",
+            itemCount: 2,
+            completedCount: 1,
+            progressRatio: 0.5,
+            sourceCatalogPathId: "programas-angular",
+          },
+        ]}
+        loadDetail={async () => ({
+          id: "path-angular",
+          title: "Ruta Angular",
+          items: [
+            {
+              courseId: "10",
+              courseTitle: "Angular: De cero a experto",
+              bucket: "required",
+              position: 0,
+              progress: { status: "completed" },
+            },
+            {
+              courseId: "11",
+              courseTitle: "JavaScript Moderno",
+              bucket: "recommended",
+              position: 1,
+              progress: { status: "not_started" },
+            },
+          ],
+        })}
+        saveProgress={saveProgress}
+      />,
+    );
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(container.textContent).toContain("1 de 2 cursos");
+    const open = container.querySelector("button[aria-label='Ver cursos de Ruta Angular']");
+    await act(async () => {
+      open?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      await Promise.resolve();
+    });
+    const done = findButton(container, "Angular: De cero a experto");
+    const pending = findButton(container, "JavaScript Moderno");
+    expect(done?.getAttribute("aria-pressed")).toBe("true");
+    expect(pending?.getAttribute("aria-pressed")).toBe("false");
+    await act(async () => {
+      pending?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      await Promise.resolve();
+    });
+    expect(saveProgress).toHaveBeenCalledWith("11", "completed");
+    expect(pending?.getAttribute("aria-pressed")).toBe("true");
+    expect(container.textContent).toContain("2 de 2 cursos");
     act(() => root.unmount());
   });
 

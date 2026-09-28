@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { modelFromUserPath, PathDiagram } from "path-diagram";
 import { useEffect, useRef, useState } from "react";
 import { Check, ChevronDown, Copy } from "lucide-react";
@@ -16,6 +15,10 @@ import {
   type RouteCreateFailure,
 } from "../lib/route-errors";
 import { subscribeLearningPathEvents } from "../lib/subscribe-learning-paths";
+import { loadPathDetail, type PathDetailResponse } from "../lib/load-path-detail";
+import { saveCourseProgress } from "../lib/save-course-progress";
+import { RouteProgressCard } from "./RouteProgressCard";
+import { RouteQuestionnaire } from "./RouteQuestionnaire";
 import { SignInLink } from "@/features/auth/components/SignInLink";
 import { StackIcon } from "./StackIcon";
 import "@xyflow/react/dist/style.css";
@@ -45,6 +48,8 @@ export function MyRouteStatus({
   subscribe = subscribeLearningPathEvents,
   createOfficial = createOfficialRoute,
   previewOfficial = previewOfficialPath,
+  loadDetail = loadPathDetail,
+  saveProgress = saveCourseProgress,
   initialPanel = "none",
   initialPathId = OFFICIAL_PATHS[0].id,
 }: {
@@ -52,6 +57,8 @@ export function MyRouteStatus({
   subscribe?: (onCreated: (route: MyRouteSummary) => void) => () => void;
   createOfficial?: (input: { catalogPathId: string; title: string }) => Promise<MyRouteSummary>;
   previewOfficial?: (catalogPathId: string) => Promise<{ items: OfficialPathPreviewItem[] }>;
+  loadDetail?: (routeId: string) => Promise<PathDetailResponse | null>;
+  saveProgress?: (courseId: string, status: "completed" | "not_started") => Promise<void>;
   initialPanel?: "none" | "form";
   initialPathId?: OfficialPathId;
 }) {
@@ -138,12 +145,12 @@ export function MyRouteStatus({
       {state.status === "ready" && state.routes.length > 0 ? (
         <ul className={styles.list}>
           {state.routes.map((route) => (
-            <li key={route.id}>
-              <Link className={styles.route} href={`/mis-rutas/${route.id}`}>
-                <StackIcon pathId={route.sourceCatalogPathId} size="sm" />
-                <span>{route.title}</span>
-              </Link>
-            </li>
+            <RouteProgressCard
+              key={route.id}
+              route={route}
+              loadDetail={loadDetail}
+              saveProgress={saveProgress}
+            />
           ))}
         </ul>
       ) : null}
@@ -163,6 +170,7 @@ export function MyRouteStatus({
             void submitForm();
           }}
         >
+          <RouteQuestionnaire onSuggest={setCatalogPathId} />
           <div className={styles.field}>
             <span id="path-choice-label">Qué querés aprender</span>
             <div className={styles.picker}>
