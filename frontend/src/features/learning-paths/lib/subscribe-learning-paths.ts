@@ -27,6 +27,7 @@ export function subscribeLearningPathEvents(
       itemCount: 0,
       completedCount: 0,
       progressRatio: 0,
+      sourceCatalogPathId: null,
     });
   });
   return () => socket.close();

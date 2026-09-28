@@ -30,7 +30,7 @@ globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 const frontendRoot = resolve(import.meta.dirname, "../../../..");
 const PRODUCT_LINKS = [
   { href: "/mis-rutas", label: "Mis rutas" },
-  { href: "/configurador-de-ruta", label: "Descubre tu ruta" },
+  { href: "/configurador-de-ruta", label: "Configurador de ruta" },
   { href: "/docs/mcp", label: "MCP" },
 ];
 
@@ -124,8 +124,10 @@ describe("MissionShell mobile nav a11y", () => {
     );
 
     expect(container.querySelectorAll("header")).toHaveLength(1);
-    expect(container.querySelector("a[href='/login']")).not.toBeNull();
-    expect(container.querySelector("a[href='/registro']")).not.toBeNull();
+    const loginLinks = container.querySelectorAll("a[href='/login']");
+    expect(loginLinks).toHaveLength(1);
+    expect(loginLinks[0]?.textContent).toBe("Entrar");
+    expect(container.querySelector("a[href='/registro']")).toBeNull();
     expect(container.querySelector("button[aria-expanded]")).not.toBeNull();
     expect(css).toContain("min-height: 4rem");
     expect(css).toContain("padding-top: 4rem");
@@ -135,6 +137,30 @@ describe("MissionShell mobile nav a11y", () => {
     expect(css).not.toMatch(/\.mobilePanel[\s\S]*position:\s*fixed/);
     expect(css).not.toMatch(/\.mobilePanelOpen[\s\S]*position:\s*fixed/);
     expect(css).toMatch(/\.mobileNav\s*\{[^}]*display:\s*none/s);
+
+    act(() => root.unmount());
+  });
+
+  it("login variant offers the mobile nav", () => {
+    const { container, root } = mount(
+      <MissionShell variant="login">
+        <main>contenido</main>
+      </MissionShell>,
+    );
+    const button = container.querySelector("button[aria-expanded]") as HTMLButtonElement;
+
+    act(() => {
+      button.click();
+    });
+
+    expect(button.getAttribute("aria-expanded")).toBe("true");
+    expect(container.querySelectorAll("nav[aria-label='Navegación móvil'] a")).toHaveLength(3);
+
+    act(() => {
+      document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
+    });
+
+    expect(button.getAttribute("aria-expanded")).toBe("false");
 
     act(() => root.unmount());
   });

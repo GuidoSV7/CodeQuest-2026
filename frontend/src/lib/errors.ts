@@ -28,3 +28,9 @@ export function asApiError(error: unknown): ApiError {
   }
   return new ApiError(String(error), 0, null);
 }
+
+export function apiErrorCode(error: ApiError): string | null {
+  const { body } = error;
+  if (typeof body !== "object" || body === null || !("code" in body)) return null;
+  return typeof body.code === "string" ? body.code : null;
+}

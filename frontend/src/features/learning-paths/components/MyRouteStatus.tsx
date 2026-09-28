@@ -2,33 +2,30 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { Check, ChevronDown, Copy } from "lucide-react";
+import { CHROME_ICON_STROKE_WIDTH } from "@/config/chrome-icon";
+import { OFFICIAL_PATHS, type OfficialPathId } from "@/config/official-paths";
 import { createOfficialRoute, loadMyRoutes, type MyRouteSummary } from "../lib/load-my-routes";
+import {
+  classifyRouteCreateError,
+  classifyRouteLoadError,
+  type RouteCreateFailure,
+} from "../lib/route-errors";
 import { subscribeLearningPathEvents } from "../lib/subscribe-learning-paths";
+import { SignInLink } from "@/features/auth/components/SignInLink";
+import { StackIcon } from "./StackIcon";
 import styles from "./MyRouteStatus.module.css";
 
 type LoadState =
   | { status: "loading" }
   | { status: "ready"; routes: MyRouteSummary[] }
+  | { status: "unauthorized" }
   | { status: "error" };
 
-const PATH_CHOICES = [
-  { id: "programas-fundamentos", label: "Fundamentos" },
-  { id: "programas-react", label: "React" },
-  { id: "programas-vue", label: "Vue" },
-  { id: "programas-angular", label: "Angular" },
-  { id: "programas-node", label: "Node" },
-  { id: "programas-nest", label: "NestJS" },
-  { id: "ruta-dart", label: "Dart y Flutter" },
-  { id: "ruta-python", label: "Python" },
-  { id: "ruta-java", label: "Java" },
-  { id: "ruta-c", label: "C# y .NET" },
-  { id: "ruta-ia", label: "Inteligencia artificial" },
-  { id: "ruta-php", label: "PHP" },
-  { id: "ruta-go", label: "Go" },
-] as const;
+type SubmitFeedback = { kind: "none" } | { kind: RouteCreateFailure };
 
 function routeTitle(catalogPathId: string): string {
-  const choice = PATH_CHOICES.find((item) => item.id === catalogPathId) ?? PATH_CHOICES[0];
+  const choice = OFFICIAL_PATHS.find((item) => item.id === catalogPathId) ?? OFFICIAL_PATHS[0];
   return `Ruta ${choice.label}`;
 }
 
@@ -36,17 +33,23 @@ export function MyRouteStatus({
   loadRoutes = loadMyRoutes,
   subscribe = subscribeLearningPathEvents,
   createOfficial = createOfficialRoute,
+  initialPanel = "none",
+  initialPathId = OFFICIAL_PATHS[0].id,
 }: {
   loadRoutes?: () => Promise<MyRouteSummary[]>;
   subscribe?: (onCreated: (route: MyRouteSummary) => void) => () => void;
   createOfficial?: (input: { catalogPathId: string; title: string }) => Promise<MyRouteSummary>;
+  initialPanel?: "none" | "form";
+  initialPathId?: OfficialPathId;
 }) {
   const [state, setState] = useState<LoadState>({ status: "loading" });
-  const [panel, setPanel] = useState<"none" | "form" | "mcp">("none");
-  const [catalogPathId, setCatalogPathId] = useState<string>(PATH_CHOICES[0].id);
+  const [attempt, setAttempt] = useState(0);
+  const [retrying, setRetrying] = useState(false);
+  const [panel, setPanel] = useState<"none" | "form" | "mcp">(initialPanel);
+  const [catalogPathId, setCatalogPathId] = useState<string>(initialPathId);
   const [menuOpen, setMenuOpen] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [formError, setFormError] = useState("");
+  const [feedback, setFeedback] = useState<SubmitFeedback>({ kind: "none" });
 
   useEffect(() => {
     let active = true;
@@ -58,13 +61,21 @@ export function MyRouteStatus({
           routes: mergeRoutes(current.status === "ready" ? current.routes : [], routes),
         }));
       })
-      .catch(() => {
-        if (active) setState({ status: "error" });
+      .catch((error: unknown) => {
+        if (!active) return;
+        setState(
+          classifyRouteLoadError(error) === "unauthorized"
+            ? { status: "unauthorized" }
+            : { status: "error" },
+        );
+      })
+      .finally(() => {
+        if (active) setRetrying(false);
       });
     return () => {
       active = false;
     };
-  }, [loadRoutes]);
+  }, [attempt, loadRoutes]);
 
   useEffect(() => {
     return subscribe((route) => {
@@ -77,25 +88,44 @@ export function MyRouteStatus({
 
   return (
     <section className={styles.panel} aria-labelledby="my-routes-title">
-      <p className={styles.kicker}>Mis rutas</p>
+      <p className={styles.kicker}>Configurador de ruta</p>
       <h1 className={styles.title} id="my-routes-title">
-        Tus rutas
+        Armá tu ruta
       </h1>
+      <h2 className={styles.sectionTitle}>Tus rutas</h2>
       {state.status === "loading" ? <p className={styles.note}>Cargando tus rutas…</p> : null}
+      {state.status === "unauthorized" ? (
+        <div className={styles.notice}>
+          <p className={styles.note}>Entrá para ver y guardar tus rutas.</p>
+          <SignInLink returnTo="/configurador-de-ruta" />
+        </div>
+      ) : null}
       {state.status === "error" ? (
-        <p className={styles.note} role="alert">
-          No pudimos cargar tus rutas
-        </p>
+        <div className={styles.notice} role="alert">
+          <p className={styles.note}>No pudimos cargar tus rutas</p>
+          <button
+            type="button"
+            className={styles.retry}
+            disabled={retrying}
+            onClick={() => {
+              setRetrying(true);
+              setAttempt((current) => current + 1);
+            }}
+          >
+            {retrying ? "Reintentando…" : "Reintentar"}
+          </button>
+        </div>
       ) : null}
       {state.status === "ready" && state.routes.length === 0 ? (
-        <p className={styles.empty}>Por el momento no hay ruta</p>
+        <p className={styles.empty}>Todavía no creaste ninguna ruta.</p>
       ) : null}
       {state.status === "ready" && state.routes.length > 0 ? (
         <ul className={styles.list}>
           {state.routes.map((route) => (
             <li key={route.id}>
               <Link className={styles.route} href={`/mis-rutas/${route.id}`}>
-                {route.title}
+                <StackIcon pathId={route.sourceCatalogPathId} size="sm" />
+                <span>{route.title}</span>
               </Link>
             </li>
           ))}
@@ -126,13 +156,20 @@ export function MyRouteStatus({
                 aria-haspopup="listbox"
                 aria-expanded={menuOpen}
                 aria-labelledby="path-choice-label"
+                aria-describedby="path-choice-hint"
                 onClick={() => setMenuOpen((open) => !open)}
               >
-                {PATH_CHOICES.find((choice) => choice.id === catalogPathId)?.label}
+                <StackIcon pathId={catalogPathId} size="sm" />
+                <span>{OFFICIAL_PATHS.find((choice) => choice.id === catalogPathId)?.label}</span>
+                <ChevronDown
+                  aria-hidden="true"
+                  className={styles.chevron}
+                  strokeWidth={CHROME_ICON_STROKE_WIDTH}
+                />
               </button>
               {menuOpen ? (
                 <ul className={styles.menu} role="listbox" aria-labelledby="path-choice-label">
-                  {PATH_CHOICES.map((choice) => (
+                  {OFFICIAL_PATHS.map((choice) => (
                     <li key={choice.id}>
                       <button
                         type="button"
@@ -143,6 +180,7 @@ export function MyRouteStatus({
                           setMenuOpen(false);
                         }}
                       >
+                        <StackIcon pathId={choice.id} size="sm" />
                         {choice.label}
                       </button>
                     </li>
@@ -150,9 +188,28 @@ export function MyRouteStatus({
                 </ul>
               ) : null}
             </div>
+            <p className={styles.pickerHint} id="path-choice-hint">
+              Lista desplegable con {OFFICIAL_PATHS.length} rutas oficiales. Si no ves la tuya,
+              desplazate dentro de la lista.
+            </p>
             <p className={styles.generated}>La ruta se va a llamar {routeTitle(catalogPathId)}</p>
           </div>
-          {formError ? <p role="alert">{formError}</p> : null}
+          {feedback.kind === "unauthorized" ? (
+            <div className={styles.formFeedback} role="alert">
+              <p>Tu sesión no está activa. Entrá para crear la ruta.</p>
+              <SignInLink returnTo="/configurador-de-ruta" />
+            </div>
+          ) : null}
+          {feedback.kind === "catalog-unavailable" ? (
+            <p className={styles.formFeedback} role="alert">
+              El catálogo todavía no está listo en el servidor. Probá de nuevo en unos minutos.
+            </p>
+          ) : null}
+          {feedback.kind === "failed" ? (
+            <p className={styles.formFeedback} role="alert">
+              No se pudo crear la ruta.
+            </p>
+          ) : null}
           <button className={styles.submit} type="submit" disabled={saving}>
             {saving ? "Creando…" : "Crear ruta"}
           </button>
@@ -164,7 +221,7 @@ export function MyRouteStatus({
 
   async function submitForm() {
     setSaving(true);
-    setFormError("");
+    setFeedback({ kind: "none" });
     try {
       const created = await createOfficial({ catalogPathId, title: routeTitle(catalogPathId) });
       setState((current) => ({
@@ -173,8 +230,8 @@ export function MyRouteStatus({
       }));
       setPanel("none");
       setMenuOpen(false);
-    } catch {
-      setFormError("No se pudo crear la ruta");
+    } catch (error: unknown) {
+      setFeedback({ kind: classifyRouteCreateError(error) });
     } finally {
       setSaving(false);
     }
@@ -196,10 +253,9 @@ function McpStartDialog({ onClose }: { onClose: () => void }) {
         onClick={(event) => event.stopPropagation()}
       >
         <h2>Quiero hacerlo por MCP</h2>
-        <div className={styles.videoSlot}>El video va acá</div>
         <div className={styles.copyBox}>
           <div className={styles.copyHead}>
-            <p className={styles.copySubtitle}>Copia y pega esto a tu IA para conectarte</p>
+            <p className={styles.copySubtitle}>Copiá y pegá esto en tu IA para conectarte</p>
             <button
               type="button"
               className={styles.copyIcon}
@@ -211,12 +267,11 @@ function McpStartDialog({ onClose }: { onClose: () => void }) {
                 );
               }}
             >
-              <svg viewBox="0 0 16 16" aria-hidden="true">
-                <path
-                  fill="currentColor"
-                  d="M5 1.5h6.5A1.5 1.5 0 0 1 13 3v8h-1.5V3.2H5V1.5ZM3 4h7.5A1.5 1.5 0 0 1 12 5.5v8a1.5 1.5 0 0 1-1.5 1.5H3A1.5 1.5 0 0 1 1.5 13.5v-8A1.5 1.5 0 0 1 3 4Zm0 1.5v8h7.5v-8H3Z"
-                />
-              </svg>
+              {copied ? (
+                <Check aria-hidden="true" strokeWidth={CHROME_ICON_STROKE_WIDTH} />
+              ) : (
+                <Copy aria-hidden="true" strokeWidth={CHROME_ICON_STROKE_WIDTH} />
+              )}
             </button>
           </div>
           <p>
@@ -225,7 +280,7 @@ function McpStartDialog({ onClose }: { onClose: () => void }) {
           </p>
           <p className={styles.docsLink}>{docsUrl}</p>
         </div>
-        <button type="button" onClick={onClose}>
+        <button type="button" className={styles.dialogClose} onClick={onClose}>
           Cerrar
         </button>
       </div>

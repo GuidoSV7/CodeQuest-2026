@@ -50,8 +50,8 @@ describe("literal learning-path routes", () => {
     const { container, root } = mount(
       <LearningPathsDashboard
         load={async () => [
-          { id: "nest", title: "Backend con Nest", itemCount: 10, completedCount: 3, progressRatio: 0.34 },
-          { id: "react", title: "Frontend con React", itemCount: 4, completedCount: 0, progressRatio: 0 },
+          { id: "nest", title: "Backend con Nest", itemCount: 10, completedCount: 3, progressRatio: 0.34, sourceCatalogPathId: null },
+          { id: "react", title: "Frontend con React", itemCount: 4, completedCount: 0, progressRatio: 0, sourceCatalogPathId: null },
         ]}
       />,
     );
@@ -77,10 +77,14 @@ describe("literal learning-path routes", () => {
   it("renders the source empty state from the same route surface", () => {
     const { container, root } = mount(<LearningPathsEmptyState />);
 
-    expect(container.querySelector("h2")?.textContent).toBe("Aún no tienes rutas");
-    expect(container.querySelector("svg")).not.toBeNull();
+    expect(container.querySelector("h2")?.textContent).toBe("Todavía no tenés rutas");
+    const mascot = container.querySelector('img[src$="devi-hello.svg"]');
+    expect(mascot).not.toBeNull();
+    expect(mascot?.getAttribute("alt")).toBe("");
+    expect(mascot?.getAttribute("width")).not.toBeNull();
+    expect(mascot?.getAttribute("height")).not.toBeNull();
     expect(container.querySelector("a[href='/configurador-de-ruta']")).not.toBeNull();
-    expect(container.textContent).toContain("Responde el cuestionario y descubre tu Dev DNA");
+    expect(container.textContent).toContain("Elegí una ruta oficial o pedile a tu IA que arme una.");
 
     act(() => root.unmount());
   });

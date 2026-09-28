@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BRAND_ASSETS } from "@/config/brand-assets";
 import { ShellAccount } from "@/features/auth/components/ShellAccount";
 import { LivePathModal } from "@/features/live-path/components/LivePathModal";
 import styles from "./MissionShell.module.css";
@@ -11,7 +12,7 @@ type MissionShellProps = {
 
 const PRODUCT_LINKS = [
   { href: "/mis-rutas", label: "Mis rutas" },
-  { href: "/configurador-de-ruta", label: "Descubre tu ruta" },
+  { href: "/configurador-de-ruta", label: "Configurador de ruta" },
   { href: "/docs/mcp", label: "MCP" },
 ] as const;
 
@@ -24,15 +25,17 @@ export function MissionShell({
       <div className={`${styles.shell} ${styles.loginShell}`}>
         <header className={styles.loginHeader}>
           <Link className={styles.loginBrand} href="/" aria-label="DevTalles, inicio">
+            <img className={styles.brandMark} src={BRAND_ASSETS.isologo} alt="" width={32} height={32} />
             DevTalles
           </Link>
-          <nav aria-label="Navegación principal">
+          <nav className={styles.loginNav} aria-label="Navegación principal">
             {PRODUCT_LINKS.map((link) => (
               <Link key={link.href} href={link.href}>
                 {link.label}
               </Link>
             ))}
           </nav>
+          <MissionShellMobileNav links={[...PRODUCT_LINKS]} />
           <ShellAccount />
         </header>
         <a className={styles.skipLink} href="#login-shell-content">
@@ -41,7 +44,7 @@ export function MissionShell({
         <div id="login-shell-content">{children}</div>
         <LivePathModal />
         <footer className={styles.loginFooter}>
-          DevTalles <span aria-hidden="true">•</span> Code Quest 2026
+          <span className={styles.loginFooterBrand}>DevTalles</span>
         </footer>
       </div>
     );
@@ -54,6 +57,7 @@ export function MissionShell({
       </a>
       <header className={styles.header}>
         <Link className={styles.brand} href="/" aria-label="DevTalles, inicio">
+          <img className={styles.brandMark} src={BRAND_ASSETS.isologo} alt="" width={32} height={32} />
           DevTalles
         </Link>
         <div className={styles.headerActions}>
@@ -74,9 +78,10 @@ export function MissionShell({
       <LivePathModal />
       <footer className={styles.footer}>
         <div className={styles.footerContent}>
-          <span className={styles.footerBrand}>DevTalles</span>
-          <span aria-hidden="true">•</span>
-          <span>Code Quest 2026</span>
+          <span className={styles.footerBrand}>
+            <img className={styles.footerMark} src={BRAND_ASSETS.isologo} alt="" width={24} height={24} />
+            DevTalles
+          </span>
         </div>
       </footer>
     </div>

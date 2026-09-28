@@ -1,0 +1,36 @@
+.action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  justify-self: start;
+  min-height: 2.75rem;
+  padding: 0 var(--orbital-space-4);
+  border: 1px solid var(--orbital-lime);
+  border-radius: var(--orbital-radius-sm);
+  background: var(--orbital-lime);
+  color: var(--orbital-night);
+  font-family: var(--orbital-font-telemetry);
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  transition:
+    background var(--orbital-motion-fast),
+    border-color var(--orbital-motion-fast),
+    filter var(--orbital-motion-fast);
+}
+
+.action:hover {
+  filter: brightness(1.08);
+}
+
+.action:active {
+  border-color: var(--orbital-lime-strong);
+  background: var(--orbital-lime-strong);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .action {
+    transition: none;
+  }
+}

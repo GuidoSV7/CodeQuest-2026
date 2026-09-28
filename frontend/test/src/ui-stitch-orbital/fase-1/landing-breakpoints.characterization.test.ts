@@ -11,11 +11,10 @@ function readFrontendFile(relativePath: string): string {
 describe("landing Stitch breakpoints", () => {
   it("ui.landing.loc_hidden and ui.landing.door_grid: mobile-first LOC + columns", () => {
     const styles = readFrontendFile("src/app/(producto)/page.module.css");
+    const page = readFrontendFile("src/app/(producto)/page.tsx");
 
-    expect(styles).toMatch(/\.location\s*\{[^}]*display:\s*none/s);
-    expect(styles).toMatch(
-      /@media\s*\(min-width:\s*48rem\)\s*\{[\s\S]*?\.location\s*\{[^}]*display:\s*inline/s,
-    );
+    expect(styles).not.toMatch(/\.location\s*\{/);
+    expect(page).not.toContain("styles.location");
     expect(styles).toMatch(
       /\.doorGrid\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)/s,
     );

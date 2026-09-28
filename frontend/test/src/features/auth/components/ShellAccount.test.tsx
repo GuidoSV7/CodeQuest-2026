@@ -35,7 +35,7 @@ describe("ShellAccount logout", () => {
     sessionStorage.clear();
   });
 
-  it("opens Salir from the name and returns to Login", async () => {
+  it("opens Salir from the name and returns to Entrar", async () => {
     useAuthStore.setState({ user, hydrated: true });
     const container = document.createElement("div");
     document.body.appendChild(container);
@@ -61,6 +61,7 @@ describe("ShellAccount logout", () => {
     });
 
     expect(useAuthStore.getState().user).toBeNull();
-    expect(container.textContent).toContain("Login");
+    expect(container.textContent).toContain("Entrar");
+    expect(container.textContent).not.toContain("Register");
   });
 });

@@ -365,6 +365,13 @@
   font-size: 1.5rem;
 }
 
+.cardTitleLead {
+  display: flex;
+  align-items: center;
+  gap: var(--orbital-space-3);
+  min-width: 0;
+}
+
 .routeLabel {
   color: var(--orbital-outline);
   font-family: var(--orbital-font-telemetry);
@@ -485,34 +492,6 @@
   border-radius: var(--orbital-radius-xl);
   background: var(--orbital-surface-container-lowest);
   text-align: center;
-}
-
-.emptyRadar {
-  width: min(100%, 24rem);
-}
-
-.emptyRadar svg {
-  width: 100%;
-  fill: none;
-  stroke: var(--orbital-border-strong);
-  stroke-dasharray: 4 6;
-  stroke-width: 1;
-}
-
-.emptyRadar path {
-  stroke: var(--orbital-primary);
-  stroke-dasharray: none;
-  opacity: 0.6;
-}
-
-.emptyCore {
-  fill: var(--orbital-primary);
-  stroke: var(--orbital-primary);
-}
-
-.emptyNode {
-  fill: var(--orbital-night);
-  stroke: var(--orbital-primary);
 }
 
 .empty h2 {

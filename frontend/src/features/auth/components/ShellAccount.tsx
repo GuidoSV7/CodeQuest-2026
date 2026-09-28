@@ -41,17 +41,12 @@ export function ShellAccount() {
 
   if (!hydrated || !user) {
     return (
-      <div className={styles.authActions}>
-        <Link className={styles.authButton} href={authEntryPath("login")}>
-          Login
-        </Link>
-        <Link
-          className={`${styles.authButton} ${styles.authButtonPrimary}`}
-          href={authEntryPath("register")}
-        >
-          Register
-        </Link>
-      </div>
+      <Link
+        className={`${styles.authButton} ${styles.authButtonPrimary}`}
+        href={authEntryPath("login")}
+      >
+        Entrar
+      </Link>
     );
   }
 

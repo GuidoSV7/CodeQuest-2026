@@ -3,12 +3,16 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { loadMyRoutes, type MyRouteSummary } from "../lib/load-my-routes";
+import { classifyRouteLoadError } from "../lib/route-errors";
 import { LearningPathsEmptyState } from "./LearningPathsEmptyState";
+import { SignInLink } from "@/features/auth/components/SignInLink";
+import { StackIcon } from "./StackIcon";
 import styles from "./LearningPathsDashboard.module.css";
 
 type LoadState =
   | { status: "loading" }
   | { status: "ready"; routes: MyRouteSummary[] }
+  | { status: "unauthorized" }
   | { status: "error" };
 
 export function LearningPathsDashboard({
@@ -26,8 +30,13 @@ export function LearningPathsDashboard({
       .then((routes) => {
         if (active) setResult({ status: "ready", routes });
       })
-      .catch(() => {
-        if (active) setResult({ status: "error" });
+      .catch((error: unknown) => {
+        if (!active) return;
+        setResult(
+          classifyRouteLoadError(error) === "unauthorized"
+            ? { status: "unauthorized" }
+            : { status: "error" },
+        );
       })
       .finally(() => {
         if (active) setRetrying(false);
@@ -39,6 +48,16 @@ export function LearningPathsDashboard({
 
   if (result.status === "loading") {
     return <p className={styles.state}>Cargando tus rutas…</p>;
+  }
+
+  if (result.status === "unauthorized") {
+    return (
+      <section className={styles.state} aria-labelledby="session-required-title">
+        <h2 id="session-required-title">Entrá para ver tus rutas</h2>
+        <p>Iniciá sesión con Discord y volvés directo a esta pantalla.</p>
+        <SignInLink returnTo="/mis-rutas" />
+      </section>
+    );
   }
 
   if (result.status === "error") {
@@ -87,7 +106,8 @@ export function LearningPathsDashboard({
                   </span>
                 </div>
                 <div className={styles.cardTitleRow}>
-                  <div>
+                  <div className={styles.cardTitleLead}>
+                    <StackIcon pathId={route.sourceCatalogPathId} size="md" />
                     <h2>{route.title}</h2>
                   </div>
                   <RouteGauge label={route.title} progress={percent} />

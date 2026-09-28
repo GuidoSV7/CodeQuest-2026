@@ -1,4 +1,8 @@
 import Link from "next/link";
+import { ArrowRight, ArrowUpRight, ExternalLink } from "lucide-react";
+import { CHROME_ICON_STROKE_WIDTH } from "@/config/chrome-icon";
+import { OFFICIAL_PATHS } from "@/config/official-paths";
+import { StackIcon } from "@/features/learning-paths/components/StackIcon";
 import { landingFixture } from "@/features/orbital/fixtures";
 import styles from "./page.module.css";
 import { MissionRadarLive } from "@/features/orbital/components/MissionRadarLive";
@@ -53,14 +57,7 @@ function SocialIcon({ kind }: { kind: "github" | "linkedin" | "web" }) {
       </svg>
     );
   }
-  return (
-    <svg viewBox="0 0 16 16" aria-hidden="true">
-      <path
-        fill="currentColor"
-        d="M8.5 1.5h5v5h-1.5V4.1L7.4 8.7 6.3 7.6l4.6-4.6H8.5Zm-5 2H7V5H3.5v7.5H11V9h1.5v4.5a1 1 0 0 1-1 1h-8a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1Z"
-      />
-    </svg>
-  );
+  return <ExternalLink aria-hidden="true" strokeWidth={CHROME_ICON_STROKE_WIDTH} />;
 }
 
 export default function HomePage() {
@@ -75,11 +72,10 @@ export default function HomePage() {
                 <span className={styles.statusDot} aria-hidden="true" />
                 {landingFixture.eyebrow}
               </p>
-              <span className={styles.location}>LOC: 09° // LAT 12° | ESTADO: ACTIVO</span>
             </div>
             <div className={styles.titleBlock}>
               <h1 className={styles.title} id="mission-title">
-                descubre tu ruta de
+                Descubrí tu ruta de
                 <br />
                 <span>aprendizaje ideal</span>
               </h1>
@@ -89,26 +85,27 @@ export default function HomePage() {
             <div className={styles.actions}>
               <Link className={styles.cta} href={landingFixture.ctaHref}>
                 {landingFixture.ctaLabel}
-                <svg aria-hidden="true" className={styles.actionIcon} viewBox="0 0 24 24">
-                  <path d="m5 12 14 0m-6-6 6 6-6 6" />
-                </svg>
+                <ArrowRight aria-hidden="true" className={styles.actionIcon} strokeWidth={CHROME_ICON_STROKE_WIDTH} />
               </Link>
-              <div className={styles.calibration}>
-                <span aria-hidden="true">✦</span>
-                <div>
-                  <strong>CALIBRACIÓN ESTIMADA: ~4 MINUTOS</strong>
-                  <span>0% SPAM // ALINEADO CON LA INDUSTRIA TECH</span>
-                </div>
-              </div>
             </div>
             <div className={styles.telemetryStrip}>
-              {landingFixture.telemetry.map(([label, value]) => (
+              {[
+                ["Rutas oficiales", String(OFFICIAL_PATHS.length)] as const,
+                ...landingFixture.telemetry,
+              ].map(([label, value]) => (
                 <div key={label}>
                   <span>{label}</span>
                   <strong>{value}</strong>
                 </div>
               ))}
             </div>
+            <ul className={styles.stackStrip} aria-label="Tecnologías de las rutas oficiales">
+              {OFFICIAL_PATHS.map((path) => (
+                <li key={path.id}>
+                  <StackIcon pathId={path.id} size="sm" standaloneLabel={path.label} />
+                </li>
+              ))}
+            </ul>
             <HomeAuthStatus />
           </div>
           <MissionRadarLive />
@@ -119,37 +116,32 @@ export default function HomePage() {
             <div>
               <p className={styles.sectionEyebrow}>
                 <span aria-hidden="true">✦</span>
-                SELECCIONA TU PUNTO DE PARTIDA ACTUAL PARA PERSONALIZAR EL VECTOR
+                Puntos de partida
               </p>
               <h2 className={styles.sectionTitle} id="doors-title">
-                puertas de acceso a la misión
+                Elegí desde dónde arrancás
               </h2>
             </div>
-            <span className={styles.dispatch}>DISPATCH MODE // 04 STRATEGIC ENTRYPOINTS</span>
           </div>
           <nav aria-label="Puertas de aprendizaje">
             <ul className={styles.doorGrid}>
-              {landingFixture.doors.map((door, index) => (
+              {landingFixture.doors.map((door) => (
                 <li className={styles.doorItem} key={door.id}>
                   <article className={styles.door}>
                     <div>
-                      <div className={styles.doorMeta}>
-                        <span>DOOR // {String(index + 1).padStart(2, "0")}</span>
-                        <span>SYS.REF // {String(index + 1).padStart(2, "0")}-{door.id.toUpperCase()}</span>
+                      <div className={styles.doorHead}>
+                        {door.stackPathId ? <StackIcon pathId={door.stackPathId} size="md" /> : null}
+                        <h3>{door.label}</h3>
                       </div>
-                      <h3>{door.label}</h3>
                       <p>{door.description}</p>
                     </div>
                     <div className={styles.doorFooter}>
                       <div className={styles.doorData}>
                         <span>{door.metadata[0]} <strong>{door.metadata[1]}</strong></span>
-                        <span>{index === 0 ? "Ventana de vuelo" : index === 1 ? "Metodología" : index === 2 ? "Profundidad" : "Vector"} <strong>{index === 0 ? "4 - 6 meses" : index === 1 ? "Puente sintáctico" : index === 2 ? "Alta escala" : "RIASEC-Dev 360°"}</strong></span>
                       </div>
                       <Link className={styles.doorAction} href={door.href}>
-                        CALIBRAR ESTE PUNTO
-                        <svg aria-hidden="true" viewBox="0 0 24 24">
-                          <path d="M7 17 17 7m-8 0h8v8" />
-                        </svg>
+                        Empezar por acá
+                        <ArrowUpRight aria-hidden="true" strokeWidth={CHROME_ICON_STROKE_WIDTH} />
                       </Link>
                     </div>
                     <span className={styles.cornerMark} aria-hidden="true" />
@@ -162,12 +154,6 @@ export default function HomePage() {
 
         <section className={styles.protocol} aria-labelledby="protocol-title">
           <div className={styles.protocolLead}>
-            <span className={styles.protocolIcon} aria-hidden="true">
-              <svg viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="8" />
-                <path d="m12 4 2 8-2 8m-8-8h16" />
-              </svg>
-            </span>
             <div>
               <h2 id="protocol-title">{landingFixture.protocol.title}</h2>
               <p>{landingFixture.protocol.description}</p>
@@ -188,10 +174,10 @@ export default function HomePage() {
             <div>
               <p className={styles.sectionEyebrow}>
                 <span aria-hidden="true">✦</span>
-                EQUIPO
+                Equipo
               </p>
               <h2 className={styles.sectionTitle} id="crew-title">
-                desarrolladores
+                Desarrolladores
               </h2>
             </div>
           </div>

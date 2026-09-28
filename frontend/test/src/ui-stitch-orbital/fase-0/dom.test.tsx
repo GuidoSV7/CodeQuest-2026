@@ -3,6 +3,7 @@
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { BRAND_ASSETS } from "@/config/brand-assets";
 import { orbitalDemoSessionFixture } from "@/features/orbital/fixtures";
 import { useAuthStore } from "@/stores/auth-session";
 
@@ -39,6 +40,15 @@ function mount(element: React.ReactNode): { container: HTMLDivElement; root: Roo
   return { container, root };
 }
 
+function expectIsologo(scope: Element | null | undefined): void {
+  const mark = scope?.querySelector(`img[src="${BRAND_ASSETS.isologo}"]`);
+
+  expect(mark).not.toBeNull();
+  expect(mark?.getAttribute("alt")).toBe("");
+  expect(mark?.getAttribute("width")).not.toBeNull();
+  expect(mark?.getAttribute("height")).not.toBeNull();
+}
+
 function restoreEnvironment(): void {
   vi.unstubAllEnvs();
   useAuthStore.setState({ user: null, hydrated: false });
@@ -70,10 +80,16 @@ describe("Orbital DOM foundation", () => {
     expect(container.querySelector("a[href='/configurador-de-ruta']")).not.toBeNull();
     expect(container.querySelector("a[href='/docs/mcp']")).not.toBeNull();
     expect(container.querySelector("a[href='/ajustes/tokens']")).toBeNull();
-    expect(container.querySelector("a[href='/login']")?.textContent).toBe("Login");
-    expect(container.querySelector("a[href='/registro']")?.textContent).toBe("Register");
+    expect(container.querySelector("a[href='/login']")?.textContent).toBe("Entrar");
+    expect(container.querySelectorAll("header a[href='/registro']")).toHaveLength(0);
     expect(container.querySelector("footer")).not.toBeNull();
     expect(container.textContent).toContain("DevTalles");
+    const footer = container.querySelector("footer");
+    expect(footer?.textContent).toContain("DevTalles");
+    expect(container.textContent).not.toMatch(/code\s*quest/i);
+    expect(footer?.textContent).not.toContain("•");
+    expectIsologo(container.querySelector("a[aria-label='DevTalles, inicio']"));
+    expectIsologo(footer);
     expect(container.querySelector("aside[aria-label='Modo demo']")).toBeNull();
 
     act(() => root.unmount());
@@ -87,11 +103,16 @@ describe("Orbital DOM foundation", () => {
     );
 
     expect(container.querySelector("nav[aria-label='Navegación principal']")).not.toBeNull();
-    expect(container.querySelector("a[href='/login']")?.textContent).toBe("Login");
-    expect(container.querySelector("a[href='/registro']")?.textContent).toBe("Register");
+    expect(container.querySelector("a[href='/login']")?.textContent).toBe("Entrar");
+    expect(container.querySelectorAll("header a[href='/registro']")).toHaveLength(0);
+    expect(container.querySelector("button[aria-controls]")).not.toBeNull();
     expect(container.querySelector("footer")).not.toBeNull();
-    expect(container.textContent).toContain("DevTalles");
-    expect(container.textContent).toContain("Code Quest 2026");
+    const footer = container.querySelector("footer");
+    expect(footer?.textContent).toContain("DevTalles");
+    expect(container.textContent).not.toMatch(/code\s*quest/i);
+    expect(footer?.textContent).not.toContain("•");
+    expectIsologo(container.querySelector("a[aria-label='DevTalles, inicio']"));
+    expect(footer?.querySelector("img")).toBeNull();
 
     act(() => root.unmount());
   });
@@ -108,8 +129,8 @@ describe("Orbital DOM foundation", () => {
     const { container, root } = mount(
       <LearningPathsDashboard
         load={async () => [
-          { id: "nest", title: "Backend con Nest", itemCount: 10, completedCount: 3, progressRatio: 0.34 },
-          { id: "react", title: "Frontend con React", itemCount: 4, completedCount: 0, progressRatio: 0 },
+          { id: "nest", title: "Backend con Nest", itemCount: 10, completedCount: 3, progressRatio: 0.34, sourceCatalogPathId: null },
+          { id: "react", title: "Frontend con React", itemCount: 4, completedCount: 0, progressRatio: 0, sourceCatalogPathId: null },
         ]}
       />,
     );
