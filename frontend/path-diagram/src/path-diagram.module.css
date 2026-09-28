@@ -22,13 +22,27 @@
 
 @media (max-width: 40rem) {
   .canvas {
-    height: min(320px, 46vh);
+    min-height: 320px;
+    height: auto;
+    overflow: visible;
   }
+}
+
+.canvas :global(.react-flow__edges) {
+  z-index: 0 !important;
+}
+
+.canvas :global(.react-flow__nodes) {
+  z-index: 1 !important;
 }
 
 .canvas :global(.react-flow__edge-path) {
   stroke: #dcd8ff;
   stroke-width: 2;
+}
+
+.canvas :global(.react-flow__node:hover) {
+  z-index: 12 !important;
 }
 
 .canvas :global(.react-flow__node.dragging) button {
@@ -60,6 +74,12 @@
   place-items: center;
   padding: 1rem;
   background: rgb(8 6 16 / 72%);
+  opacity: 0;
+  transition: opacity 280ms ease;
+}
+
+.backdropOpen {
+  opacity: 1;
 }
 
 .dialog {
@@ -73,6 +93,39 @@
   border-radius: 16px;
   background: #121028;
   line-height: 1.5;
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 420ms ease, transform 420ms ease;
+}
+
+.dialogOpen {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (max-width: 40rem) {
+  .backdrop {
+    place-items: end center;
+    padding: 0;
+  }
+
+  .dialog {
+    width: 100%;
+    max-height: min(88vh, 40rem);
+    border-radius: 20px 20px 0 0;
+    transform: translateY(100%);
+  }
+
+  .dialogOpen {
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .backdrop,
+  .dialog {
+    transition: none;
+  }
 }
 
 .cover {
@@ -218,4 +271,15 @@
   font: inherit;
   font-size: 0.85rem;
   text-decoration: none;
+  cursor: pointer;
+  transition: background 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+.dialog button:hover,
+.dialog a:hover,
+.dialog button:focus-visible,
+.dialog a:focus-visible {
+  background: #c8dd0b;
+  color: #130c25;
+  transform: translateY(-1px);
 }

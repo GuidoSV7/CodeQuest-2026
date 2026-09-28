@@ -10,6 +10,21 @@ export class CatalogScraperController {
     private readonly config: ConfigService,
   ) {}
 
+  @Get('radar')
+  async radar() {
+    return { technologies: await this.service.getRadarTechnologies() }
+  }
+
+  @Get('paths/:pathId')
+  async path(@Param('pathId') pathId: string) {
+    if (!/^[a-z0-9-]{1,64}$/.test(pathId)) {
+      throw new BadRequestException('pathId is not an official path')
+    }
+    const preview = await this.service.getOfficialPathPreview(pathId)
+    if (!preview) throw new NotFoundException('Path was not found')
+    return preview
+  }
+
   @Get('courses/:courseId')
   async course(@Param('courseId') courseId: string) {
     if (!/^\d{1,12}$/.test(courseId)) {

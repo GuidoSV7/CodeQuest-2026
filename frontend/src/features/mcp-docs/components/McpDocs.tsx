@@ -3,6 +3,10 @@ import styles from "./McpDocs.module.css";
 
 const PUBLIC_TOOLS = [
   {
+    name: "get_documentation",
+    detail: "Lee esta guía desde el MCP, sin abrir la web.",
+  },
+  {
     name: "search_courses",
     detail: "Busca cursos del catálogo DevTalles por tema, precio o ruta oficial.",
   },
@@ -174,7 +178,7 @@ Cuando la tool termine, repetí la frase que te devolvió, incluida la página.`
           ))}
         </ul>
         <h3>Tu cuenta</h3>
-        <p>Además de las cinco de arriba, con la sesión:</p>
+        <p>Además de las del catálogo público, con la sesión:</p>
         <ul className={styles.tools}>
           {USER_TOOLS.map((tool) => (
             <li key={tool.name}>

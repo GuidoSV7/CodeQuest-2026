@@ -2,6 +2,7 @@
 
 import { act } from "react";
 import { createRoot } from "react-dom/client";
+import { readFileSync } from "node:fs";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { DiagramModel } from "./model";
 import { PathDiagram } from "./path-diagram";
@@ -183,7 +184,7 @@ describe("PathDiagram course modal", () => {
       card?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     });
     const dialog = container.querySelector("[role='dialog']");
-    return { root, dialog };
+    return { root, container, dialog };
   }
 
   it("shows the course cover when the card has one", () => {
@@ -221,5 +222,22 @@ describe("PathDiagram course modal", () => {
     expect(dialog).not.toBeNull();
     expect(dialog?.querySelector("img")).toBeNull();
     act(() => root.unmount());
+  });
+
+  it("starts the course modal closed and slides it open", () => {
+    const css = readFileSync("src/path-diagram.module.css", "utf8");
+    expect(css).toContain("translateY(100%)");
+    vi.useFakeTimers();
+    const { root, container, dialog } = openModal(model, "web");
+    expect(dialog?.getAttribute("data-motion")).toBe("closed");
+    act(() => {
+      vi.advanceTimersByTime(40);
+    });
+    act(() => {
+      vi.advanceTimersByTime(40);
+    });
+    expect(container.querySelector("[role='dialog']")?.getAttribute("data-motion")).toBe("open");
+    act(() => root.unmount());
+    vi.useRealTimers();
   });
 });

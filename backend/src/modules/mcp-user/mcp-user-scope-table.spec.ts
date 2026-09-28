@@ -19,6 +19,7 @@ const USER_TOOLS = [
 ] as const
 
 const PUBLIC_TOOLS = [
+  'get_documentation',
   'search_courses',
   'get_course',
   'list_official_paths',

@@ -10,6 +10,7 @@ import {
 } from '../catalog-read'
 import type { LearningPathGenerator } from '../learning-path-generator'
 import { runMcpTool } from '../mcp-tool-log'
+import { mcpDocumentation } from '../mcp-documentation'
 import { tiedOfficialPaths } from '../resolve-alias'
 import { attachLive, livePathPublisher } from '../../live-path/live-path.copy'
 import { livePathAnnotation } from '../live-path-context'
@@ -33,6 +34,18 @@ export function registerMcpTools(
   server: McpServer,
   deps: { cache: CatalogCache; generator: LearningPathGenerator; liveUserId?: string },
 ): void {
+  server.registerTool(
+    'get_documentation',
+    {
+      description:
+        'Guía de CodeQuest para el editor: los dos servidores MCP, cómo se abre la ruta en vivo y qué tool usar. Llamala antes de armar una ruta si no leíste las instrucciones. No busca cursos.',
+      inputSchema: {},
+      annotations,
+    },
+    async () =>
+      runMcpTool({ surface: 'public', tool: 'get_documentation' }, async () => ok(mcpDocumentation())),
+  )
+
   server.registerTool(
     'search_courses',
     {

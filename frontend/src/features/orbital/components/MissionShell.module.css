@@ -90,6 +90,12 @@
   color: var(--orbital-lime);
 }
 
+.accountSlot {
+  display: inline-block;
+  width: 9rem;
+  min-height: 2.25rem;
+}
+
 .accountMenu {
   position: relative;
 }

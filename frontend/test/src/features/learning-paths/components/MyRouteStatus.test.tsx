@@ -12,6 +12,14 @@ import type { MyRouteSummary } from "@/features/learning-paths/lib/load-my-route
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
+class ResizeObserverMock {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+
+globalThis.ResizeObserver = ResizeObserverMock as typeof ResizeObserver;
+
 function mount(element: React.ReactNode) {
   const container = document.createElement("div");
   document.body.appendChild(container);
@@ -75,11 +83,21 @@ describe("MyRouteStatus", () => {
     act(() => root.unmount());
   });
 
-  it("creates an official route from the form answers", async () => {
+  it("shows the official route before saving it", async () => {
     const created = { id: "path-new", title: "Ruta React", itemCount: 4, completedCount: 0, progressRatio: 0, sourceCatalogPathId: "programas-react" };
     const createOfficial = vi.fn(async () => created);
+    const previewOfficial = vi.fn(async () => ({
+      catalogPathId: "programas-react",
+      items: [
+        { courseId: "10", courseTitle: "React desde cero", bucket: "required" as const, position: 0 },
+      ],
+    }));
     const { container, root } = mount(
-      <MyRouteStatus loadRoutes={async () => []} createOfficial={createOfficial} />,
+      <MyRouteStatus
+        loadRoutes={async () => []}
+        createOfficial={createOfficial}
+        previewOfficial={previewOfficial}
+      />,
     );
     await act(async () => {
       await Promise.resolve();
@@ -113,6 +131,17 @@ describe("MyRouteStatus", () => {
       await Promise.resolve();
     });
 
+    expect(previewOfficial).toHaveBeenCalledWith("programas-react");
+    expect(createOfficial).not.toHaveBeenCalled();
+    expect(container.textContent).toContain("React desde cero");
+    expect(container.textContent).toContain("Todavía no creaste ninguna ruta.");
+    const save = Array.from(container.querySelectorAll("button")).find((button) =>
+      button.textContent === "Guardar ruta",
+    );
+    await act(async () => {
+      save?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      await Promise.resolve();
+    });
     expect(createOfficial).toHaveBeenCalledWith({ catalogPathId: "programas-react", title: "Ruta React" });
     expect(container.textContent).toContain("Ruta React");
     expect(container.querySelector("select")).toBeNull();
@@ -131,20 +160,31 @@ describe("MyRouteStatus", () => {
     const mcpButton = Array.from(container.querySelectorAll("button")).find((button) =>
       button.textContent?.includes("Quiero hacerlo por MCP"),
     );
+    vi.useFakeTimers();
     act(() => {
       mcpButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     });
 
     const dialog = container.querySelector("[role='dialog']");
+    expect(dialog?.getAttribute("data-motion")).toBe("closed");
+    act(() => {
+      vi.advanceTimersByTime(40);
+    });
+    expect(container.querySelector("[role='dialog']")?.getAttribute("data-motion")).toBe("open");
+    vi.useRealTimers();
     expect(dialog?.textContent).not.toContain("El video va acá");
     expect(dialog?.textContent).toContain("Copiá y pegá esto en tu IA para conectarte");
-    expect(dialog?.textContent).toContain("/docs/mcp");
+    expect(dialog?.textContent).toContain("Para conectar el MCP hay que usar esta guía");
+    expect(dialog?.textContent).toContain("get_documentation");
+    expect(dialog?.textContent).toContain("codequest-catalogo");
+    expect(dialog?.textContent).toContain("codequest-cuenta");
+    expect(dialog?.textContent).toContain("/mcp/user");
     const copy = dialog?.querySelector("button[aria-label='Copiar']");
     await act(async () => {
       copy?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
       await Promise.resolve();
     });
-    expect(writeText).toHaveBeenCalledWith(expect.stringContaining("/docs/mcp"));
+    expect(writeText).toHaveBeenCalledWith(expect.stringContaining("Guiame paso a paso"));
     act(() => root.unmount());
     vi.unstubAllGlobals();
   });
@@ -166,7 +206,7 @@ describe("MyRouteStatus", () => {
   it("tells the user the route could not be created when the submit fails", async () => {
     const createOfficial = vi.fn(() => Promise.reject(new Error("Network Error")));
     const { container, root } = mount(
-      <MyRouteStatus loadRoutes={async () => []} createOfficial={createOfficial} />,
+      <MyRouteStatus loadRoutes={async () => []} createOfficial={createOfficial} previewOfficial={previewStub} />,
     );
     await act(async () => {
       await Promise.resolve();
@@ -184,7 +224,7 @@ describe("MyRouteStatus", () => {
   it("asks to sign in when creating the route returns 401", async () => {
     const createOfficial = vi.fn(() => Promise.reject(unauthorized()));
     const { container, root } = mount(
-      <MyRouteStatus loadRoutes={async () => []} createOfficial={createOfficial} />,
+      <MyRouteStatus loadRoutes={async () => []} createOfficial={createOfficial} previewOfficial={previewStub} />,
     );
     await act(async () => {
       await Promise.resolve();
@@ -204,7 +244,7 @@ describe("MyRouteStatus", () => {
   it("explains that the catalog is not ready when creating returns 503 CATALOG_UNAVAILABLE", async () => {
     const createOfficial = vi.fn(() => Promise.reject(httpError(503, "CATALOG_UNAVAILABLE")));
     const { container, root } = mount(
-      <MyRouteStatus loadRoutes={async () => []} createOfficial={createOfficial} />,
+      <MyRouteStatus loadRoutes={async () => []} createOfficial={createOfficial} previewOfficial={previewStub} />,
     );
     await act(async () => {
       await Promise.resolve();
@@ -226,7 +266,7 @@ describe("MyRouteStatus", () => {
   ])("shows the generic create failure (%s)", async (_label, failure) => {
     const createOfficial = vi.fn(() => Promise.reject(failure));
     const { container, root } = mount(
-      <MyRouteStatus loadRoutes={async () => []} createOfficial={createOfficial} />,
+      <MyRouteStatus loadRoutes={async () => []} createOfficial={createOfficial} previewOfficial={previewStub} />,
     );
     await act(async () => {
       await Promise.resolve();
@@ -247,7 +287,7 @@ describe("MyRouteStatus", () => {
       .mockRejectedValueOnce(httpError(422, "INVALID"))
       .mockResolvedValueOnce(created);
     const { container, root } = mount(
-      <MyRouteStatus loadRoutes={async () => []} createOfficial={createOfficial} />,
+      <MyRouteStatus loadRoutes={async () => []} createOfficial={createOfficial} previewOfficial={previewStub} />,
     );
     await act(async () => {
       await Promise.resolve();
@@ -256,10 +296,7 @@ describe("MyRouteStatus", () => {
     await submitDefaultForm(container);
     expect(container.querySelector("form [role='alert']")).not.toBeNull();
 
-    await act(async () => {
-      container.querySelector("form")?.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
-      await Promise.resolve();
-    });
+    await saveShownRoute(container);
 
     expect(createOfficial).toHaveBeenCalledTimes(2);
     expect(container.querySelector("[role='alert']")).toBeNull();
@@ -423,4 +460,18 @@ async function submitDefaultForm(container: HTMLElement) {
     form?.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
     await Promise.resolve();
   });
+  await saveShownRoute(container);
+}
+
+async function saveShownRoute(container: HTMLElement) {
+  await act(async () => {
+    findButton(container, "Guardar ruta")?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    await Promise.resolve();
+  });
+}
+
+async function previewStub() {
+  return {
+    items: [{ courseId: "1", courseTitle: "Fundamentos", bucket: "required" as const, position: 0 }],
+  };
 }

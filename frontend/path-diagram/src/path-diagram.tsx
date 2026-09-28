@@ -19,14 +19,17 @@ import styles from "./path-diagram.module.css";
 type CardData = {
   item: DiagramItem;
   step?: number;
+  vertical?: boolean;
   onOpen: (item: DiagramItem) => void;
 };
 
 function CardNode({ data }: NodeProps<Node<CardData>>) {
   const item = data.item;
+  const incoming = data.vertical ? Position.Top : Position.Left;
+  const outgoing = data.vertical ? Position.Bottom : Position.Right;
   return (
     <>
-      <Handle type="target" position={Position.Left} isConnectable={false} />
+      <Handle type="target" position={incoming} isConnectable={false} />
       <PathCard
         title={item.title}
         bucketLabel={bucketLabel(item.bucket)}
@@ -37,30 +40,37 @@ function CardNode({ data }: NodeProps<Node<CardData>>) {
         step={data.step}
         onOpen={() => data.onOpen(item)}
       />
-      <Handle type="source" position={Position.Right} isConnectable={false} />
+      <Handle type="source" position={outgoing} isConnectable={false} />
     </>
   );
 }
 
 const nodeTypes = { card: CardNode, header: HeaderNode, group: GroupNode };
 
-function FitWhenMeasured({ nodeCount }: { nodeCount: number }) {
+function FitWhenMeasured({ fitKey, readable }: { fitKey: string; readable: boolean }) {
   const flow = useReactFlow();
   const flowRef = useRef(flow);
   flowRef.current = flow;
   useEffect(() => {
-    const frame = requestAnimationFrame(() => {
-      void flowRef.current.fitView({ padding: 0.12 });
-    });
-    return () => cancelAnimationFrame(frame);
-  }, [nodeCount]);
+    const minZoom = readable ? 1 : 0.2;
+    const fit = () => {
+      void flowRef.current.fitView({ padding: 0.18, minZoom, maxZoom: 1 });
+    };
+    const frame = requestAnimationFrame(fit);
+    const timer = window.setTimeout(fit, 60);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.clearTimeout(timer);
+    };
+  }, [fitKey, readable]);
   useEffect(() => {
     const onResize = () => {
-      void flowRef.current.fitView({ padding: 0.12 });
+      const minZoom = readable ? 1 : 0.2;
+      void flowRef.current.fitView({ padding: 0.18, minZoom, maxZoom: 1 });
     };
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
-  }, []);
+  }, [readable]);
   return null;
 }
 
@@ -102,6 +112,7 @@ function CourseModal({
   allowProgress,
   progressError,
   openUrl,
+  entered,
   onToggle,
   onClose,
 }: {
@@ -110,6 +121,7 @@ function CourseModal({
   allowProgress: boolean;
   progressError: string;
   openUrl?: (url: string) => void;
+  entered: boolean;
   onToggle: (item: DiagramItem) => void;
   onClose: () => void;
 }) {
@@ -119,6 +131,15 @@ function CourseModal({
   const description = item.detail?.description ? previewDescription(item.detail.description) : "";
   const cover = mode === "web" ? (item.detail?.coverImageUrl ?? null) : null;
   const [failedCover, setFailedCover] = useState<string | null>(null);
+  const [motion, setMotion] = useState<"closed" | "open">("closed");
+  useEffect(() => {
+    if (!entered) {
+      setMotion("closed");
+      return;
+    }
+    const timer = window.setTimeout(() => setMotion("open"), 32);
+    return () => window.clearTimeout(timer);
+  }, [entered]);
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClose();
@@ -128,12 +149,13 @@ function CourseModal({
   }, [onClose]);
 
   return (
-    <div className={styles.backdrop} onClick={onClose}>
+    <div className={motion === "open" ? `${styles.backdrop} ${styles.backdropOpen}` : styles.backdrop} onClick={onClose}>
       <div
-        className={styles.dialog}
+        className={motion === "open" ? `${styles.dialog} ${styles.dialogOpen}` : styles.dialog}
         role="dialog"
         aria-modal="true"
         aria-label={item.title}
+        data-motion={motion}
         onClick={(event) => event.stopPropagation()}
       >
         {cover !== null && cover !== failedCover ? (
@@ -261,6 +283,8 @@ export function PathDiagram({
   loadCourse?: (courseId: string) => Promise<DiagramItem["detail"]>;
 }) {
   const [selected, setSelected] = useState<DiagramItem | null>(null);
+  const [presented, setPresented] = useState<DiagramItem | null>(null);
+  const [entered, setEntered] = useState(false);
   const [loadedCard, setLoadedCard] = useState<DiagramItem["detail"]>(null);
   const [completed, setCompleted] = useState<Record<string, boolean>>({});
   const [progressError, setProgressError] = useState("");
@@ -323,7 +347,9 @@ export function PathDiagram({
       parentId: node.parentId,
       draggable: node.type === "card",
       selectable: node.type === "card",
-      data: node.type === "card" && item ? { item, step: node.data.step, onOpen: setSelected } : { label: node.data.label },
+      data: node.type === "card" && item
+        ? { item, step: node.data.step, vertical: node.data.vertical, onOpen: setSelected }
+        : { label: node.data.label },
       width: node.width,
       height: node.height,
       style: { width: node.width, height: node.height },
@@ -343,20 +369,55 @@ export function PathDiagram({
     }
   };
 
+  const fitKey = graph.nodes.map((node) => `${node.id}:${node.position.x}:${node.position.y}`).join("|");
+  const readable = width < 720;
+  const contentHeight = Math.max(480, ...graph.nodes.map((node) => node.position.y + node.height), 0) + 72;
+  const canvasHeight = readable ? contentHeight : Math.min(1100, contentHeight);
+  const zoomFloor = readable ? 1 : 0.2;
+  const openCourse = selected
+    ? withCard(items.find((item) => item.courseId === selected.courseId) ?? selected, loadedCard)
+    : null;
+
+  useEffect(() => {
+    if (!openCourse) return;
+    setPresented(openCourse);
+  }, [selected, loadedCard]);
+
+  useEffect(() => {
+    if (!selected) {
+      setEntered(false);
+      return;
+    }
+    const frame = window.setTimeout(() => setEntered(true), 32);
+    return () => window.clearTimeout(frame);
+  }, [selected]);
+
+  useEffect(() => {
+    if (selected || !presented) return;
+    const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+    if (reducedMotion) {
+      setPresented(null);
+      return;
+    }
+    const timer = window.setTimeout(() => setPresented(null), 420);
+    return () => window.clearTimeout(timer);
+  }, [selected, presented]);
+
   return (
     <div className={styles.frame}>
       <ReactFlowProvider>
-        <div className={styles.canvas} ref={canvasRef}>
+        <div className={styles.canvas} ref={canvasRef} style={{ height: canvasHeight }}>
           <ReactFlow
             nodes={nodes}
             edges={graph.edges.map((edge) => ({
               ...edge,
-              type: "smoothstep",
               markerEnd: { type: MarkerType.ArrowClosed, color: "#dcd8ff", width: 18, height: 18 },
             }))}
             nodeTypes={nodeTypes}
             fitView
-            fitViewOptions={{ padding: 0.12 }}
+            fitViewOptions={{ padding: 0.18, minZoom: zoomFloor, maxZoom: 1 }}
+            minZoom={zoomFloor}
+            maxZoom={1}
             panOnDrag={false}
             panOnScroll={false}
             zoomOnScroll={false}
@@ -369,18 +430,19 @@ export function PathDiagram({
             nodesConnectable={false}
             proOptions={{ hideAttribution: true }}
           >
-            <FitWhenMeasured nodeCount={nodes.length} />
+            <FitWhenMeasured fitKey={fitKey} readable={readable} />
             <Background />
           </ReactFlow>
         </div>
       </ReactFlowProvider>
-      {selected ? (
+      {presented ? (
         <CourseModal
-          item={withCard(items.find((item) => item.courseId === selected.courseId) ?? selected, loadedCard)}
+          item={presented}
           mode={mode}
           allowProgress={model.allowProgress}
           progressError={progressError}
           openUrl={openUrl}
+          entered={entered}
           onToggle={(item) => void toggle(item)}
           onClose={() => setSelected(null)}
         />

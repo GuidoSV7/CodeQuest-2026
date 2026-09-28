@@ -19,6 +19,10 @@ vi.mock("next/link", () => ({
   ),
 }));
 
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/",
+}));
+
 import { LearningPathsDashboard } from "@/features/learning-paths/components/LearningPathsDashboard";
 import { MissionShell } from "@/features/orbital/components/MissionShell";
 
@@ -67,6 +71,7 @@ afterEach(() => {
 
 describe("Orbital DOM foundation", () => {
   it("renders the DevTalles product shell without a demo banner", () => {
+    useAuthStore.setState({ user: null, hydrated: true });
     const { container, root } = mount(
       <MissionShell>
         <main id="screen-content">Contenido de prueba</main>
@@ -96,6 +101,7 @@ describe("Orbital DOM foundation", () => {
   });
 
   it("offers the minimal login shell variant", () => {
+    useAuthStore.setState({ user: null, hydrated: true });
     const { container, root } = mount(
       <MissionShell variant="login">
         <main id="login-content">Contenido de acceso</main>

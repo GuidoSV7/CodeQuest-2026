@@ -1,0 +1,12 @@
+.route {
+  display: grid;
+  gap: 1rem;
+}
+
+.title {
+  margin: 0;
+  color: var(--orbital-on-surface, #f0eeff);
+  font-family: var(--orbital-font-display, inherit);
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  line-height: 1.15;
+}

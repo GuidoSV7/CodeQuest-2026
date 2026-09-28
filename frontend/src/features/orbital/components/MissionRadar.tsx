@@ -1,31 +1,63 @@
 import styles from "./MissionRadar.module.css";
-import { officialPathLabel } from "@/config/official-paths";
 import {
   activeNodeIndex,
   radarBearingDegrees,
 } from "../lib/radar-progress";
 
-const NODES = [
-  { cx: 120, cy: 120, r: 5, pathId: "programas-fundamentos", x: 110, y: 105, primary: true },
-  { cx: 200, cy: 90, r: 4, pathId: "programas-nest", x: 195, y: 76, primary: false },
-  { cx: 280, cy: 130, r: 6, pathId: "programas-react", x: 290, y: 128, primary: false },
-  { cx: 310, cy: 220, r: 4, pathId: "programas-node", x: 320, y: 225, primary: false },
-  { cx: 240, cy: 290, r: 5, pathId: "programas-angular", x: 230, y: 310, primary: false },
-  { cx: 150, cy: 270, r: 4, pathId: "ruta-python", x: 90, y: 282, primary: false },
-] as const;
+type RadarNode = {
+  cx: number;
+  cy: number;
+  r: number;
+  label: string;
+  x: number;
+  y: number;
+  primary: boolean;
+};
+
+function technologyLabel(title: string): string {
+  const name = title
+    .replace(/^ruta de aprendizaje\s+/i, "")
+    .replace(/^programa de\s+/i, "")
+    .replace(/^ruta\s+/i, "")
+    .trim();
+  return name || title.trim();
+}
+
+function placeTechnologies(labels: string[]): RadarNode[] {
+  const count = labels.length;
+  return labels.map((raw, index) => {
+    const label = technologyLabel(raw);
+    const angle = -Math.PI / 2 + (index / count) * Math.PI * 2;
+    const cx = Math.round(200 + Math.cos(angle) * 108);
+    const cy = Math.round(200 + Math.sin(angle) * 108);
+    const x = Math.round(200 + Math.cos(angle) * 128);
+    const y = Math.round(200 + Math.sin(angle) * 128);
+    return {
+      label,
+      cx,
+      cy,
+      x,
+      y,
+      r: 4,
+      primary: false,
+    };
+  });
+}
 
 type MissionRadarProps = {
   progressRatio?: number;
   completedCount?: number;
+  technologies?: string[];
 };
 
 export function MissionRadar({
   progressRatio = 0,
   completedCount = 0,
+  technologies = [],
 }: MissionRadarProps) {
+  const nodes = placeTechnologies(technologies);
   const bearing = radarBearingDegrees(progressRatio);
-  const active = activeNodeIndex(progressRatio, NODES.length);
-
+  const active = activeNodeIndex(progressRatio, nodes.length);
   return (
     <div className={styles.frame}>
       <div className={styles.frameHeader}>
@@ -39,7 +71,7 @@ export function MissionRadar({
         role="img"
         aria-labelledby="mission-radar-title mission-radar-description"
       >
-        <title id="mission-radar-title">Radar de progreso sobre seis rutas oficiales</title>
+        <title id="mission-radar-title">Radar de tecnologías del catálogo</title>
         <desc id="mission-radar-description">
           El haz marca el {Math.round((bearing / 360) * 100)}% del progreso.
           {completedCount} nodos completados.
@@ -51,12 +83,9 @@ export function MissionRadar({
         <path className={styles.axis} d="M200 20v360M20 200h360M72 72l256 256M72 328 328 72" />
         <path className={styles.track} d="M60 200C60 120 120 60 200 60c70 0 130 50 140 120" />
         <path className={styles.trackDashed} d="M80 260c50 70 180 80 240 20 30-40 10-130-40-160" />
-        {bearing > 0 ? (
-          <path className={styles.nodeLinks} d="m120 120 80-30 80 40 30 90-70 70-90-20z" />
-        ) : null}
         <circle className={styles.core} cx="200" cy="200" r="4" />
         <circle className={styles.coreRing} cx="200" cy="200" r="8" />
-        {NODES.map((node, index) => {
+        {nodes.map((node, index) => {
           const isActive = index === active;
           const nodeClass = isActive
             ? styles.nodeActive
@@ -69,10 +98,13 @@ export function MissionRadar({
               ? styles.nodeLabelPrimary
               : styles.nodeLabel;
           return (
-            <g key={node.pathId}>
+            <g key={node.label}>
+              {bearing > 0 ? (
+                <line className={styles.nodeLinks} x1="200" y1="200" x2={node.cx} y2={node.cy} />
+              ) : null}
               <circle className={nodeClass} cx={node.cx} cy={node.cy} r={node.r} />
-              <text className={labelClass} x={node.x} y={node.y}>
-                {officialPathLabel(node.pathId)}
+              <text className={labelClass} x={node.x} y={node.y} textAnchor="middle">
+                {node.label}
               </text>
             </g>
           );

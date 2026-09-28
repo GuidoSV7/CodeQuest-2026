@@ -20,6 +20,22 @@ export function MissionRadarLive() {
   const user = useAuthStore((state) => state.user);
   const hydrated = useAuthStore((state) => state.hydrated);
   const [progress, setProgress] = useState<RadarProgress>(IDLE);
+  const [technologies, setTechnologies] = useState<string[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void api
+      .get<{ technologies: string[] }>("/api/catalog/radar")
+      .then(({ data }) => {
+        if (!cancelled) setTechnologies(data.technologies ?? []);
+      })
+      .catch(() => {
+        if (!cancelled) setTechnologies([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     if (!hydrated || !user) {
@@ -46,6 +62,7 @@ export function MissionRadarLive() {
     <MissionRadar
       completedCount={progress.completedCount}
       progressRatio={progress.progressRatio}
+      technologies={technologies}
     />
   );
 }

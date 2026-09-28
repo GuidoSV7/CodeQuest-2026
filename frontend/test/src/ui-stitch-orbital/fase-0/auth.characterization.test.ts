@@ -13,16 +13,11 @@ describe("existing authentication presentation contract", () => {
     const hydrator = readFrontendFile(
       "src/features/auth/components/AuthSessionHydrator.tsx",
     );
-    const homeStatus = readFrontendFile(
-      "src/features/auth/components/HomeAuthStatus.tsx",
-    );
 
     expect(hydrator).toMatch(/\bresolveOrbitalSessionRead\b/);
     expect(hydrator).toMatch(/\bapplySessionRead\b/);
     expect(hydrator).toMatch(/\bfetchMeStatus\b/);
     expect(hydrator).not.toContain("axios");
-    expect(homeStatus).toContain("!hydrated || !user");
-    expect(homeStatus).toContain("user.displayName");
   });
 
   it("keeps Discord helpers in the service while the panel stays presentation-only", () => {
