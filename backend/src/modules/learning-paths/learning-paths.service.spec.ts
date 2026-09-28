@@ -199,6 +199,31 @@ describe('LearningPathsService', () => {
     expect(detail.items[1]?.bucket).toBe('recommended')
   })
 
+  it('saves an official path when the catalog repeats a course or omits an id', async () => {
+    const path = catalogSnapshot?.paths[0]
+    if (!path) throw new Error('missing path fixture')
+    path.entries.push(
+      { ...path.entries[0]!, position: 2, label: 'Course A again' },
+      {
+        bucket: 'OPTIONAL',
+        courseSlug: 'not-in-catalog',
+        courseUrl: 'https://cursos.devtalles.com/courses/not-in-catalog',
+        label: 'Missing',
+        tags: [],
+        position: 3,
+        courseId: null,
+      },
+    )
+
+    const detail = await service.create(USER_A, {
+      kind: 'official',
+      catalogPathId: 'programas-react',
+      title: 'Ruta React',
+    })
+
+    expect(detail.items.map((item) => item.courseId)).toEqual(['100', '200'])
+  })
+
   it('returns 404 when catalog path is missing', async () => {
     await expect(
       service.create(USER_A, {

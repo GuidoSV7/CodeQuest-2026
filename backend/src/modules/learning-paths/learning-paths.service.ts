@@ -339,36 +339,36 @@ export class LearningPathsService {
     const coursesBySlug = new Map(
       snapshot.courses.map((c) => [c.slug, c] as const),
     )
-    const items = catalogPath.entries.map((entry, position) => {
+    const seen = new Set<string>()
+    const sorted = [...catalogPath.entries].sort((a, b) => a.position - b.position)
+    const items = []
+    for (const entry of sorted) {
       const courseId =
         entry.courseId != null
           ? String(entry.courseId)
           : coursesBySlug.get(entry.courseSlug)
             ? String(coursesBySlug.get(entry.courseSlug)!.id)
             : null
-      if (!courseId) {
-        throw new UnprocessableEntityException({
-          code: 'COURSE_NOT_IN_CATALOG',
-          message: `Path entry slug ${entry.courseSlug} has no course id in catalog`,
-        })
-      }
+      if (!courseId || seen.has(courseId)) continue
       const course =
         this.findCourse(snapshot, courseId) ??
         coursesBySlug.get(entry.courseSlug)
-      if (!course) {
-        throw new UnprocessableEntityException({
-          code: 'COURSE_NOT_IN_CATALOG',
-          message: `Course ${courseId} is not in the current catalog`,
-        })
-      }
-      return {
+      if (!course) continue
+      seen.add(courseId)
+      items.push({
         courseId: String(course.id),
         courseSlug: course.slug,
         courseTitle: course.title,
-        position,
+        position: items.length,
         bucket: BUCKET_FROM_CATALOG[entry.bucket] ?? null,
-      }
-    })
+      })
+    }
+    if (items.length === 0) {
+      throw new UnprocessableEntityException({
+        code: 'COURSE_NOT_IN_CATALOG',
+        message: `Catalog path ${dto.catalogPathId} has no courses that can be saved`,
+      })
+    }
 
     this.assertNoDuplicateCourseIds(items.map((i) => i.courseId))
 

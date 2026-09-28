@@ -35,14 +35,19 @@ export function officialPathPreview(
       .filter((course) => course.status === 'ok' || course.status === 'partial')
       .map((course) => course.id),
   )
+  const seen = new Set<number>()
   const items = path.entries
     .filter((entry) => entry.courseId != null && published.has(entry.courseId))
     .sort((left, right) => left.position - right.position)
-    .map((entry) => ({
-      courseId: String(entry.courseId),
-      courseTitle: entry.label,
-      bucket: BUCKET[entry.bucket],
-      position: entry.position,
-    }))
+    .flatMap((entry) => {
+      if (entry.courseId == null || seen.has(entry.courseId)) return []
+      seen.add(entry.courseId)
+      return [{
+        courseId: String(entry.courseId),
+        courseTitle: entry.label,
+        bucket: BUCKET[entry.bucket],
+        position: entry.position,
+      }]
+    })
   return { catalogPathId: path.id, items }
 }

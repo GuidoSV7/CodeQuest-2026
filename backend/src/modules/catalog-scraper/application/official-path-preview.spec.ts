@@ -52,6 +52,19 @@ describe('officialPathPreview', () => {
     })
   })
 
+  it('keeps the first copy when the catalog lists the same course twice', () => {
+    const repeated = structuredClone(snapshot)
+    repeated.paths[0]?.entries.push({
+      courseId: 10,
+      label: 'React desde cero otra vez',
+      bucket: 'RECOMMENDED',
+      position: 3,
+      courseUrl: 'https://cursos.devtalles.com/courses/react',
+    })
+    const preview = officialPathPreview(repeated, 'programas-react')
+    expect(preview?.items.map((item) => item.courseId)).toEqual(['10', '11'])
+  })
+
   it('returns null when the id is not an official path', () => {
     expect(officialPathPreview(snapshot, 'ruta-inventada')).toBeNull()
   })
