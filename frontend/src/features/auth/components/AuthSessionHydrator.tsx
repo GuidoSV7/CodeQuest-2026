@@ -1,19 +1,19 @@
 "use client";
 
 import { useEffect } from "react";
-import { fetchMe } from "@/features/auth/api/auth.service";
+import { fetchMeStatus } from "@/features/auth/api/auth.service";
 import { captureLocalSessionFromLocation } from "@/features/auth/lib/local-session";
 import {
   clearSignedOut,
   readSignedOut,
-  resolveOrbitalSession,
+  resolveOrbitalSessionRead,
 } from "@/features/auth/lib/demo-session";
 import { useAuthStore } from "@/stores/auth-session";
 
-/** Loads the Discord cookie session from GET /api/auth/me. */
+/** Loads the Discord cookie session from GET /api/auth/me; re-reads on every requestSessionRead. */
 export function AuthSessionHydrator() {
-  const setUser = useAuthStore((s) => s.setUser);
-  const setHydrated = useAuthStore((s) => s.setHydrated);
+  const sessionReadRequest = useAuthStore((s) => s.sessionReadRequest);
+  const applySessionRead = useAuthStore((s) => s.applySessionRead);
 
   useEffect(() => {
     captureLocalSessionFromLocation(window.location, sessionStorage, (url) => {
@@ -25,18 +25,17 @@ export function AuthSessionHydrator() {
         nodeEnv: process.env.NODE_ENV,
         demoSession: process.env.NEXT_PUBLIC_ORBITAL_DEMO_SESSION,
       };
-      const user = readSignedOut()
-        ? await fetchMe()
-        : await resolveOrbitalSession(environment, fetchMe);
+      const read = readSignedOut()
+        ? await fetchMeStatus()
+        : await resolveOrbitalSessionRead(environment, fetchMeStatus);
       if (cancelled) return;
-      if (user) clearSignedOut();
-      setUser(readSignedOut() ? null : user);
-      setHydrated(true);
+      if (read.status === "authenticated") clearSignedOut();
+      applySessionRead(read, sessionReadRequest);
     })();
     return () => {
       cancelled = true;
     };
-  }, [setUser, setHydrated]);
+  }, [sessionReadRequest, applySessionRead]);
 
   return null;
 }

@@ -17,9 +17,9 @@ describe("existing authentication presentation contract", () => {
       "src/features/auth/components/HomeAuthStatus.tsx",
     );
 
-    expect(hydrator).toContain("resolveOrbitalSession");
-    expect(hydrator).toContain("setHydrated(true)");
-    expect(hydrator).toContain("fetchMe");
+    expect(hydrator).toMatch(/\bresolveOrbitalSessionRead\b/);
+    expect(hydrator).toMatch(/\bapplySessionRead\b/);
+    expect(hydrator).toMatch(/\bfetchMeStatus\b/);
     expect(hydrator).not.toContain("axios");
     expect(homeStatus).toContain("!hydrated || !user");
     expect(homeStatus).toContain("user.displayName");

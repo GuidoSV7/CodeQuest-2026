@@ -1,5 +1,5 @@
 import { orbitalDemoSessionFixture } from "@/features/orbital/fixtures";
-import type { SessionUser } from "../types/auth.types";
+import type { SessionRead, SessionUser } from "../types/auth.types";
 
 export type OrbitalDemoEnvironment = Readonly<{
   nodeEnv: string | undefined;
@@ -14,7 +14,8 @@ export function isOrbitalDemoSessionEnabled(
     demoSession: process.env.NEXT_PUBLIC_ORBITAL_DEMO_SESSION,
   },
 ): boolean {
-  return environment.nodeEnv === "development";
+  return environment.nodeEnv === "development"
+    && (environment.demoSession === "true" || environment.demoSession === "1");
 }
 
 export function resolveOrbitalSession(
@@ -23,6 +24,17 @@ export function resolveOrbitalSession(
 ): Promise<SessionUser | null> {
   if (isOrbitalDemoSessionEnabled(environment)) {
     return Promise.resolve(orbitalDemoSessionFixture);
+  }
+
+  return readSession();
+}
+
+export function resolveOrbitalSessionRead(
+  environment: OrbitalDemoEnvironment,
+  readSession: () => Promise<SessionRead>,
+): Promise<SessionRead> {
+  if (isOrbitalDemoSessionEnabled(environment)) {
+    return Promise.resolve({ status: "authenticated", user: orbitalDemoSessionFixture });
   }
 
   return readSession();

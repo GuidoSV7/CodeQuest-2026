@@ -1,0 +1,121 @@
+.gate {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: var(--orbital-space-4);
+  min-height: 34rem;
+  padding: clamp(var(--orbital-space-5), 5vw, var(--orbital-space-7));
+  border: 1px solid var(--orbital-border);
+  border-radius: var(--orbital-radius-xl);
+  background: var(--orbital-surface-container-lowest);
+  text-align: center;
+}
+
+.panel {
+  animation: gate-enter var(--orbital-motion-fast) both;
+}
+
+.mascot {
+  width: min(100%, 10rem);
+  height: auto;
+}
+
+.title {
+  margin: 0;
+  color: var(--orbital-on-surface);
+  font-family: var(--orbital-font-display);
+  font-size: 2.25rem;
+  text-wrap: balance;
+}
+
+.copy {
+  margin: 0;
+  max-inline-size: 36ch;
+  color: var(--orbital-on-surface-variant);
+  font-family: var(--orbital-font-body);
+  font-size: 1.125rem;
+  line-height: 1.5;
+}
+
+.checking {
+  margin: 0;
+  color: var(--orbital-on-surface-variant);
+  font-family: var(--orbital-font-telemetry);
+  font-size: 0.875rem;
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--orbital-space-2);
+}
+
+.retry {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0 var(--orbital-space-4);
+  border: 1px solid var(--orbital-lime);
+  border-radius: var(--orbital-radius-sm);
+  background: var(--orbital-lime);
+  color: var(--orbital-night);
+  font: inherit;
+  font-family: var(--orbital-font-telemetry);
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition:
+    background var(--orbital-motion-fast),
+    border-color var(--orbital-motion-fast),
+    filter var(--orbital-motion-fast);
+}
+
+.retry:hover {
+  filter: brightness(1.08);
+}
+
+.retry:active {
+  border-color: var(--orbital-lime-strong);
+  background: var(--orbital-lime-strong);
+}
+
+.retry:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+@keyframes gate-enter {
+  from {
+    opacity: 0;
+    transform: translateY(var(--orbital-space-2));
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel {
+    animation: none;
+  }
+
+  .retry {
+    transition: none;
+  }
+}
+
+@media (max-width: 34rem) {
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .actions,
+  .retry,
+  .actions > * {
+    width: 100%;
+  }
+}

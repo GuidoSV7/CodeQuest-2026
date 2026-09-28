@@ -1,7 +1,8 @@
 import api from "@/lib/axios";
 import { getPublicApiUrl } from "@/lib/api-url";
 import { clearLocalSessionToken, loginReturnTarget } from "@/features/auth/lib/local-session";
-import type { SessionUser } from "@/features/auth/types/auth.types";
+import { classifySessionReadError, parseSessionUser } from "@/features/auth/lib/session-read";
+import type { SessionRead, SessionUser } from "@/features/auth/types/auth.types";
 
 /** GET /api/auth/me — cookie session. */
 export async function fetchMe(): Promise<SessionUser | null> {
@@ -10,6 +11,19 @@ export async function fetchMe(): Promise<SessionUser | null> {
     return data;
   } catch {
     return null;
+  }
+}
+
+export const SESSION_READ_TIMEOUT_MS = 8_000;
+
+/** GET /api/auth/me classified as authenticated, anonymous (401/403) or unreachable; never throws. */
+export async function fetchMeStatus(): Promise<SessionRead> {
+  try {
+    const { data } = await api.get<unknown>("/api/auth/me", { timeout: SESSION_READ_TIMEOUT_MS });
+    const user = parseSessionUser(data);
+    return user ? { status: "authenticated", user } : { status: "unreachable" };
+  } catch (error) {
+    return classifySessionReadError(error);
   }
 }
 
