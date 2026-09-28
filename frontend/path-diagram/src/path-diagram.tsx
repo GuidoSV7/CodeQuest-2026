@@ -111,6 +111,7 @@ function CourseModal({
   mode,
   allowProgress,
   progressError,
+  progressNotice,
   openUrl,
   entered,
   onToggle,
@@ -120,6 +121,7 @@ function CourseModal({
   mode: "web" | "mcp";
   allowProgress: boolean;
   progressError: string;
+  progressNotice: string;
   openUrl?: (url: string) => void;
   entered: boolean;
   onToggle: (item: DiagramItem) => void;
@@ -261,6 +263,7 @@ function CourseModal({
             Cerrar
           </button>
         </div>
+        {progressNotice ? <p role="status">{progressNotice}</p> : null}
         {progressError ? <p role="alert">{progressError}</p> : null}
       </div>
     </div>
@@ -288,6 +291,7 @@ export function PathDiagram({
   const [loadedCard, setLoadedCard] = useState<DiagramItem["detail"]>(null);
   const [completed, setCompleted] = useState<Record<string, boolean>>({});
   const [progressError, setProgressError] = useState("");
+  const [progressNotice, setProgressNotice] = useState("");
   const canvasRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(960);
   useEffect(() => {
@@ -362,11 +366,16 @@ export function PathDiagram({
     const previous = item.completed;
     setCompleted((current) => ({ ...current, [item.courseId]: !previous }));
     setProgressError("");
+    setProgressNotice("");
     const result = await onProgress(item.courseId, next);
     if (!result.ok) {
       setCompleted((current) => ({ ...current, [item.courseId]: previous }));
       setProgressError(result.message ?? "No se pudo guardar el progreso");
+      return;
     }
+    setProgressNotice(
+      next === "completed" ? "Curso marcado como completado." : "El curso quedó pendiente.",
+    );
   };
 
   const fitKey = graph.nodes.map((node) => `${node.id}:${node.position.x}:${node.position.y}`).join("|");
@@ -377,11 +386,12 @@ export function PathDiagram({
   const openCourse = selected
     ? withCard(items.find((item) => item.courseId === selected.courseId) ?? selected, loadedCard)
     : null;
+  const openCompleted = openCourse?.completed ?? false;
 
   useEffect(() => {
     if (!openCourse) return;
     setPresented(openCourse);
-  }, [selected, loadedCard]);
+  }, [selected, loadedCard, openCompleted]);
 
   useEffect(() => {
     if (!selected) {
@@ -441,6 +451,7 @@ export function PathDiagram({
           mode={mode}
           allowProgress={model.allowProgress}
           progressError={progressError}
+          progressNotice={progressNotice}
           openUrl={openUrl}
           entered={entered}
           onToggle={(item) => void toggle(item)}
