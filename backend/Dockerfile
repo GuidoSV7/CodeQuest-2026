@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # --- deps: install all deps (incl. Nest CLI / TypeScript for build) ---
-FROM node:22-alpine AS deps
+FROM node:24.22.1-alpine AS deps
 WORKDIR /app
 
 RUN apk add --no-cache libc6-compat
@@ -20,7 +20,7 @@ RUN npm run build \
   && npm prune --omit=dev
 
 # --- runner: lean production image ---
-FROM node:22-alpine AS runner
+FROM node:24.22.1-alpine AS runner
 WORKDIR /app
 
 ARG GIT_COMMIT=unknown
